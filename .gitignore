@@ -1,0 +1,8 @@
+# Ignore workflow folder
+.workflow/
+
+# Ignore audit folder
+audit/
+
+# Ignore mockup folder
+mockup/

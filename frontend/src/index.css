@@ -1,0 +1,230 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/jetbrains-mono";
+/*
+  ---break---
+*/
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-base: var(--background);
+  --color-surface: #F8F9FA;
+  --color-accent: #F5A623;
+  --color-accent-hover: #E69500;
+  --color-brand-green: var(--brand-green);
+  --color-status-cleared: #16A34A;
+  --color-status-flagged: #DC2626;
+  --color-status-pending: #F5A623;
+  --color-status-resolved: #16A34A;
+  --color-info: #5B7A99;
+  --color-text: #1A1A2E;
+  --color-text-muted: #6B7280;
+  --color-border: var(--border);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+
+/*
+  Sentinel Theme — Base Styles
+*/
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+/*
+  ---break---
+*/
+:root {
+  --background: #FFFFFF;
+  --brand-green: #16A34A;
+  --foreground: #1A1A2E;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A2E;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A2E;
+  --primary: #F5A623;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3F4F6;
+  --secondary-foreground: #1A1A2E;
+  --muted: #F3F4F6;
+  --muted-foreground: #6B7280;
+  --accent: #F5A623;
+  --accent-foreground: #FFFFFF;
+  --destructive: #DC2626;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: #F5A623;
+  --radius: 0.375rem;
+  --chart-1: #F5A623;
+  --chart-2: #16A34A;
+  --chart-3: #5B7A99;
+  --chart-4: #DC2626;
+  --chart-5: #9CA3AF;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A2E;
+  --sidebar-primary: #F5A623;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F5A623;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #F5A623;
+}
+/*
+  ---break---
+*/
+.dark {
+  --background: #0D1117;
+  --brand-green: #2ECC71;
+  --foreground: #E6E6E6;
+  --card: #151A21;
+  --card-foreground: #E6E6E6;
+  --popover: #151A21;
+  --popover-foreground: #E6E6E6;
+  --primary: #F5A623;
+  --primary-foreground: #000000;
+  --secondary: #151A21;
+  --secondary-foreground: #E6E6E6;
+  --muted: #151A21;
+  --muted-foreground: #8B949E;
+  --accent: #F5A623;
+  --accent-foreground: #000000;
+  --destructive: #E74C3C;
+  --border: #21262D;
+  --input: #21262D;
+  --ring: #F5A623;
+  --radius: 0.625rem;
+  --chart-1: #F5A623;
+  --chart-2: #2ECC71;
+  --chart-3: #5B7A99;
+  --chart-4: #E74C3C;
+  --chart-5: #8B949E;
+  --sidebar: #151A21;
+  --sidebar-foreground: #E6E6E6;
+  --sidebar-primary: #F5A623;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #F5A623;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #21262D;
+  --sidebar-ring: #F5A623;
+}
+/*
+  ---break---
+*/
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  html,
+  body {
+    overflow-x: hidden;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled),
+  [type='button']:not(:disabled),
+  [type='submit']:not(:disabled),
+  [type='reset']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/*
+  Dot grid background texture — blueprints/schematics effect for large dark areas
+*/
+.dot-grid {
+  background-image: radial-gradient(rgba(230, 230, 230, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/*
+  Scanline sweep animation for QR scanner frames
+*/
+@keyframes sweep {
+  0% {
+    transform: translateY(0%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(220px);
+    opacity: 0;
+  }
+}
+
+.scanline {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #F5A623, transparent);
+  box-shadow: 0 0 12px 2px rgba(245, 166, 35, 0.7);
+  animation: sweep 2.2s ease-in-out infinite;
+}
+
+/*
+  Pulse ring animation for primary scan / action buttons
+*/
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(245, 166, 35, 0);
+  }
+}
+
+.pulse {
+  animation: pulse-ring 1.8s ease-out infinite;
+}
