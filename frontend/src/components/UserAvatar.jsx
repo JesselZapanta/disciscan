@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils'
-
-const STORAGE_URL = 'http://localhost:8000/storage'
+import { STORAGE_URL } from '@/services/config'
 
 export default function UserAvatar({ user, className, textClassName }) {
   const initials = (user?.name || '?')

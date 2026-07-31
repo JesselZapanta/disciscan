@@ -16,8 +16,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 import * as userService from '../../../services/admin/users'
-
-const STORAGE_URL = 'http://localhost:8000/storage'
+import { STORAGE_URL } from '../../../services/config'
 
 function initialsOf(name) {
   return (name || '?')

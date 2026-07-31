@@ -9,8 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-const STORAGE_URL = 'http://localhost:8000/storage'
+import { STORAGE_URL } from '../services/config'
 
 export default function Profile() {
   const { user, updateUser } = useAuth()
