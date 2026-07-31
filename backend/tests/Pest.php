@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\User;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,7 +14,7 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
@@ -41,7 +44,12 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function tokenFor(User $user): string
 {
-    // ..
+    return auth('api')->login($user);
+}
+
+function apiAs(User $user): array
+{
+    return ['Authorization' => 'Bearer '.tokenFor($user)];
 }

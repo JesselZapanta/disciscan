@@ -12,6 +12,7 @@ import Dashboard from './pages/admin/Dashboard.jsx'
 import Records from './pages/admin/Records.jsx'
 import Violations from './pages/admin/Violations.jsx'
 import Users from './pages/admin/users/Users.jsx'
+import ViolationTypes from './pages/admin/violation-types/ViolationTypes.jsx'
 import Attendance from './pages/admin/Attendance.jsx'
 import GuardConsole from './pages/guard/GuardConsole.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
@@ -103,6 +104,7 @@ export default function App() {
           <Route path="records" element={<Records />} />
           <Route path="violations" element={<Violations />} />
           <Route path="users" element={<Users />} />
+          <Route path="violation-types" element={<ViolationTypes />} />
           <Route path="attendance" element={<Attendance />} />
           <Route path="profile" element={<Profile />} />
           <Route

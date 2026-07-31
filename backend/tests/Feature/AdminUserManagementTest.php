@@ -7,16 +7,6 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-function tokenFor(User $user): string
-{
-    return auth('api')->login($user);
-}
-
-function apiAs(User $user): array
-{
-    return ['Authorization' => 'Bearer '.tokenFor($user)];
-}
-
 it('lists users with search, role filter and pagination', function () {
     $admin = User::factory()->create(['role' => 'admin', 'name' => 'Kenley Bronola']);
 
