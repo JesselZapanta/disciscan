@@ -6,6 +6,9 @@ import { AuthProvider, useAuth } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import { ToastProvider } from './components/ui/toast.jsx'
 import Landing from './pages/Landing.jsx'
+import SystemInfo from './pages/SystemInfo.jsx'
+import TCGC from './pages/TCGC.jsx'
+import Legal from './pages/Legal.jsx'
 import Login from './pages/auth/Login.jsx'
 import Dashboard from './pages/admin/Dashboard.jsx'
 import Records from './pages/admin/Records.jsx'
@@ -84,6 +87,9 @@ export default function App() {
         {/* Public routes */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
+          <Route path="/system" element={<SystemInfo />} />
+          <Route path="/tcgc" element={<TCGC />} />
+          <Route path="/legal" element={<Legal />} />
         </Route>
 
         {/* Auth routes (full-screen, no public chrome) */}
