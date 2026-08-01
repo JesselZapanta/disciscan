@@ -22,11 +22,13 @@ export default function GuardLayout() {
     <div className="h-dvh bg-background flex overflow-hidden">
       <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card">
         <div className="px-6 py-6 flex items-center gap-2.5 border-b border-border">
-          <Logo size={28} />
-          <span className="font-mono font-bold tracking-widest text-sm">
-            <span className="text-primary">DISCI</span>
-            <span className="text-brand-green">SCAN</span>
-          </span>
+          <Link to="/" className="flex items-center gap-2.5">
+            <Logo size={28} />
+            <span className="font-mono font-bold tracking-widest text-sm">
+              <span className="text-primary">DISCI</span>
+              <span className="text-brand-green">SCAN</span>
+            </span>
+          </Link>
         </div>
 
         <nav className="flex-1 px-3 py-5 space-y-1 text-sm overflow-y-auto overflow-x-hidden">
@@ -76,7 +78,7 @@ export default function GuardLayout() {
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         {/* Mobile-only header */}
         <header className="lg:hidden flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 sm:px-6">
-          <Link to="/guard/dashboard" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <Logo size={24} />
             <span className="text-sm font-semibold font-sans tracking-tight">
               <span className="text-primary">Disci</span>

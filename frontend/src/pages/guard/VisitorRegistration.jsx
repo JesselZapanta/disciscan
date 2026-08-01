@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import { Input } from '@/components/ui/input'
@@ -29,11 +30,13 @@ export default function VisitorRegistration() {
       <div className="w-full max-w-lg">
         <div className="text-center mb-7">
           <div className="inline-flex items-center gap-2.5 mb-4">
-            <Logo size={28} />
-            <span className="font-mono font-bold tracking-widest text-sm">
-              <span className="text-primary">DISCI</span>
-              <span className="text-brand-green">SCAN</span>
-            </span>
+            <Link to="/" className="inline-flex items-center gap-2.5">
+              <Logo size={28} />
+              <span className="font-mono font-bold tracking-widest text-sm">
+                <span className="text-primary">DISCI</span>
+                <span className="text-brand-green">SCAN</span>
+              </span>
+            </Link>
           </div>
           <h1 className="text-2xl font-bold text-foreground">Visitor registration</h1>
           <p className="text-muted-foreground text-sm mt-2">

@@ -1,18 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
+import ScannerVisual from '../../components/ScannerVisual.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
-const sessionLogs = [
-  { name: 'G. Dela Cruz', status: '✓ verified', time: '07:58', verified: true },
-  { name: 'R. Ondona', status: '✓ verified', time: '07:41', verified: true },
-  { name: 'Unknown device', status: '✕ denied', time: '03:12', verified: false },
-  { name: 'Admin — K. Broñola', status: '✓ verified', time: '06:55', verified: true },
-]
 
 const demoAccounts = [
   { role: 'Admin', email: 'kenley.bronola@example.com' },
@@ -54,13 +48,13 @@ export default function Login() {
       {/* left: form */}
       <div className="flex items-center justify-center px-6 py-16 bg-background">
         <div className="w-full max-w-sm">
-          <div className="flex items-center gap-2.5 mb-10">
+          <Link to="/" className="flex items-center gap-2.5 mb-10">
             <Logo size={28} />
             <span className="font-mono font-bold tracking-widest text-sm">
               <span className="text-primary">DISCI</span>
               <span className="text-brand-green">SCAN</span>
             </span>
-          </div>
+          </Link>
           <div className="inline-flex items-center gap-2 border border-border rounded-full px-3 py-1 text-[11px] font-mono text-muted-foreground mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-primary" /> RESTRICTED ACCESS
           </div>
@@ -76,7 +70,7 @@ export default function Login() {
                 htmlFor="email"
                 className="mb-2 text-xs font-mono text-muted-foreground uppercase tracking-wide"
               >
-                Email or Staff ID
+                Email
               </Label>
               <Input
                 id="email"
@@ -133,15 +127,21 @@ export default function Login() {
           </div>
           <div className="mt-4 space-y-2">
             {demoAccounts.map((account) => (
-              <div
+              <button
                 key={account.role}
-                className="flex items-center justify-between border border-border rounded px-3 py-2"
+                type="button"
+                onClick={() => {
+                  setEmail(account.email)
+                  setPassword('password')
+                  setError('')
+                }}
+                className="w-full flex items-center justify-between border border-border rounded px-3 py-2 hover:border-primary/50 hover:bg-secondary transition cursor-pointer text-left"
               >
                 <span className="text-xs font-semibold text-foreground">{account.role}</span>
                 <span className="text-[11px] text-muted-foreground font-mono">
                   {account.email} / password
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -149,22 +149,19 @@ export default function Login() {
 
       {/* right: visual */}
       <div className="hidden lg:flex relative bg-secondary dot-grid items-center justify-center p-14 border-l border-border overflow-hidden">
-        <CornerBracket className="border border-border bg-card rounded-lg p-6 w-full max-w-sm">
-          <span className="font-mono text-[11px] text-brand-green uppercase tracking-widest">
-            Session Log
-          </span>
-          <div className="mt-4 space-y-3 font-mono text-xs">
-            {sessionLogs.map((log) => (
-              <div key={log.name} className="flex items-center justify-between border-b border-border pb-3">
-                <span className={log.verified ? 'text-foreground' : 'text-muted-foreground'}>
-                  {log.name}
-                </span>
-                <span className={log.verified ? 'text-status-cleared' : 'text-status-flagged'}>
-                  {log.status} · {log.time}
-                </span>
-              </div>
-            ))}
+        <CornerBracket className="border border-border bg-card rounded-lg p-7 w-full max-w-md">
+          <div className="flex items-center justify-between mb-5">
+            <span className="font-mono text-[11px] uppercase tracking-widest">
+              <span className="text-primary">Scanner</span>
+              <span className="text-muted-foreground"> — </span>
+              <span className="text-brand-green">Main Gate</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-[11px] font-mono text-status-cleared">
+              <span className="w-1.5 h-1.5 rounded-full bg-status-cleared scan-blink" />
+              ACTIVE
+            </span>
           </div>
+          <ScannerVisual size="large" />
         </CornerBracket>
         <p className="absolute bottom-10 left-14 right-14 text-muted-foreground text-xs font-mono">
           Access is limited to authorized Admin and Security Guard accounts. Every session is

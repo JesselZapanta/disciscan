@@ -1,8 +1,13 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import Logo from '../components/Logo.jsx'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
-const navLinks = ['System', 'Modules', 'For TCGC', 'Support']
+const navLinks = [
+  { label: 'System', path: '/system' },
+  { label: 'For TCGC', path: '/tcgc' },
+  { label: 'Legal', path: '/legal' },
+]
 
 export default function PublicLayout() {
   return (
@@ -17,9 +22,15 @@ export default function PublicLayout() {
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground font-medium">
           {navLinks.map((link) => (
-            <a key={link} href="#" className="hover:text-foreground transition">
-              {link}
-            </a>
+            <NavLink
+              key={link.path}
+              to={link.path}
+              className={({ isActive }) =>
+                cn('transition hover:text-foreground', isActive && 'text-primary font-semibold')
+              }
+            >
+              {link.label}
+            </NavLink>
           ))}
         </nav>
         <Link to="/login">

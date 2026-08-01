@@ -18,7 +18,8 @@ export default function SignOutButton({ className }) {
   const { logout } = useAuth()
 
   function handleConfirm() {
-    logout().then(() => navigate('/login', { replace: true }))
+    navigate('/', { replace: true })
+    logout()
   }
 
   return (
