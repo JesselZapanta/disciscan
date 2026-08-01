@@ -3,6 +3,7 @@ import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import ScannerVisual from '../../components/ScannerVisual.jsx'
 import StatusChip from '../../components/StatusChip.jsx'
+import { Button } from '@/components/ui/button'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 
 export default function GuardConsole() {
@@ -29,14 +30,15 @@ export default function GuardConsole() {
               </span>
             </Link>
           </div>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={handleLogout}
-            className="text-muted-foreground text-xs hover:text-foreground transition"
+            className="h-auto! p-1 text-muted-foreground text-xs hover:text-foreground"
             aria-label="Power off"
           >
             ⏻
-          </button>
+          </Button>
         </div>
 
         <div className="px-5 pb-3 flex items-center gap-2 flex-wrap">
@@ -76,52 +78,56 @@ export default function GuardConsole() {
 
         {/* quick actions */}
         <div className="px-5 mt-4 grid grid-cols-2 gap-3">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => navigate('/guard/violation')}
-            className="flex flex-col items-center justify-center gap-1.5 border border-status-flagged/30 bg-status-flagged/10 rounded-xl py-4 hover:bg-status-flagged/20 transition"
+            className="w-full h-auto! flex flex-col items-center justify-center gap-1.5 border border-status-flagged/30 bg-status-flagged/10 rounded-xl py-4 hover:bg-status-flagged/20"
           >
             <span className="text-lg">⚠</span>
             <span className="text-[11px] font-mono font-semibold text-status-flagged">
               LOG VIOLATION
             </span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="flex flex-col items-center justify-center gap-1.5 border border-status-cleared/30 bg-status-cleared/10 rounded-xl py-4 hover:bg-status-cleared/20 transition"
+            variant="ghost"
+            className="w-full h-auto! flex flex-col items-center justify-center gap-1.5 border border-status-cleared/30 bg-status-cleared/10 rounded-xl py-4 hover:bg-status-cleared/20"
           >
             <span className="text-lg">✓</span>
             <span className="text-[11px] font-mono font-semibold text-status-cleared">
               MARK CLEARED
             </span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="flex flex-col items-center justify-center gap-1.5 border border-info/30 bg-info/10 rounded-xl py-4 hover:bg-info/20 transition"
+            variant="ghost"
+            className="w-full h-auto! flex flex-col items-center justify-center gap-1.5 border border-info/30 bg-info/10 rounded-xl py-4 hover:bg-info/20"
           >
             <span className="text-lg">◷</span>
             <span className="text-[11px] font-mono font-semibold text-info">TIME-IN / OUT</span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="flex flex-col items-center justify-center gap-1.5 border border-border bg-secondary rounded-xl py-4 hover:border-primary transition"
+            variant="ghost"
+            className="w-full h-auto! flex flex-col items-center justify-center gap-1.5 border border-border bg-secondary rounded-xl py-4 hover:border-primary"
           >
             <span className="text-lg">▤</span>
             <span className="text-[11px] font-mono font-semibold text-muted-foreground">
               COMPLIANCE
             </span>
-          </button>
+          </Button>
         </div>
 
         {/* big scan button */}
         <div className="px-5 mt-6 mb-6">
-          <button
+          <Button
             type="button"
             onClick={() => navigate('/guard/violation')}
-            className="pulse w-full bg-primary text-primary-foreground font-bold text-sm py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition"
+            className="pulse w-full h-auto! bg-primary text-primary-foreground font-bold text-sm py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text"
           >
             <span className="text-lg">▣</span> TAP TO SCAN
-          </button>
+          </Button>
         </div>
 
         {/* bottom tab bar */}
@@ -129,20 +135,22 @@ export default function GuardConsole() {
           <span className="flex flex-col items-center gap-1 text-primary">
             <span>▣</span>SCAN
           </span>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => navigate('/guard/dashboard')}
-            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition"
+            className="h-auto! p-1 flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
           >
             <span>▤</span>LOGS
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => navigate('/visitor/register')}
-            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition"
+            className="h-auto! p-1 flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
           >
             <span>+</span>VISITOR
-          </button>
+          </Button>
           <span className="flex flex-col items-center gap-1 text-muted-foreground">
             <span>●</span>PROFILE
           </span>

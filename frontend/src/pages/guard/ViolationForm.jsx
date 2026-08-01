@@ -14,13 +14,14 @@ export default function ViolationForm() {
   return (
     <div className="min-h-screen dot-grid flex items-center justify-center py-14 px-4">
       <div className="w-full max-w-lg">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => navigate('/guard')}
-          className="text-muted-foreground hover:text-foreground transition text-sm mb-5"
+          className="h-auto! p-0 text-muted-foreground hover:text-foreground text-sm mb-5"
         >
           ← Back to console
-        </button>
+        </Button>
         <CornerBracket className="border border-border bg-card rounded-lg p-7">
           <div className="flex items-center justify-between mb-6">
             <span className="font-mono text-[11px] text-brand-green uppercase tracking-widest">

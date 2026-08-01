@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ChevronRight, MoreHorizontal, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogTrigger,
@@ -67,14 +68,15 @@ export default function MobileBottomNav({ items, rootPath, renderFooter }) {
                     All navigation
                   </p>
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setMoreOpen(false)}
                   aria-label="Close more menu"
-                  className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition"
+                  className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary"
                 >
-                  <X className="h-4 w-4" />
-                </button>
+                  <X className="size-4" />
+                </Button>
               </div>
 
               <div className="flex flex-col gap-1 px-3 pb-3">

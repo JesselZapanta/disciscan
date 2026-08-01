@@ -9,6 +9,7 @@ import Landing from './pages/Landing.jsx'
 import SystemInfo from './pages/SystemInfo.jsx'
 import TCGC from './pages/TCGC.jsx'
 import Legal from './pages/Legal.jsx'
+import PublicVisitorRegistration from './pages/VisitorRegistration.jsx'
 import Login from './pages/auth/Login.jsx'
 import Dashboard from './pages/admin/Dashboard.jsx'
 import Records from './pages/admin/Records.jsx'
@@ -90,6 +91,7 @@ export default function App() {
           <Route path="/system" element={<SystemInfo />} />
           <Route path="/tcgc" element={<TCGC />} />
           <Route path="/legal" element={<Legal />} />
+          <Route path="/visitor-registration" element={<PublicVisitorRegistration />} />
         </Route>
 
         {/* Auth routes (full-screen, no public chrome) */}

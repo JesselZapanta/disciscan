@@ -346,11 +346,12 @@ export default function Profile() {
                 </p>
               </div>
               <div className="flex items-center gap-1 bg-secondary rounded p-1 w-fit">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setTheme('dark')}
                   className={cn(
-                    'flex items-center gap-2 rounded px-4 py-1.5 text-xs font-mono font-medium transition',
+                    'flex items-center gap-2 h-auto! px-4 py-1.5 text-xs font-mono font-medium rounded',
                     theme === 'dark'
                       ? 'bg-card text-foreground ring-1 ring-border shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
@@ -358,12 +359,13 @@ export default function Profile() {
                 >
                   <Moon className="h-3.5 w-3.5" />
                   DARK
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setTheme('light')}
                   className={cn(
-                    'flex items-center gap-2 rounded px-4 py-1.5 text-xs font-mono font-medium transition',
+                    'flex items-center gap-2 h-auto! px-4 py-1.5 text-xs font-mono font-medium rounded',
                     theme === 'light'
                       ? 'bg-card text-foreground ring-1 ring-border shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
@@ -371,7 +373,7 @@ export default function Profile() {
                 >
                   <Sun className="h-3.5 w-3.5" />
                   LIGHT
-                </button>
+                </Button>
               </div>
             </div>
           </CardContent>

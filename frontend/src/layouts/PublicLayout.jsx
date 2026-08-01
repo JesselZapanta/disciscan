@@ -7,6 +7,7 @@ const navLinks = [
   { label: 'System', path: '/system' },
   { label: 'For TCGC', path: '/tcgc' },
   { label: 'Legal', path: '/legal' },
+  { label: 'Visitor Registration', path: '/visitor-registration' },
 ]
 
 export default function PublicLayout() {
