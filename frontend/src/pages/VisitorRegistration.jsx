@@ -56,6 +56,7 @@ export default function VisitorRegistration() {
   const [form, setForm] = useState(initialForm)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [errors, setErrors] = useState({})
   const [registered, setRegistered] = useState(null)
   const [passDataUrl, setPassDataUrl] = useState('')
 
@@ -66,6 +67,7 @@ export default function VisitorRegistration() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setErrors({})
     setSubmitting(true)
 
     try {
@@ -94,9 +96,13 @@ export default function VisitorRegistration() {
       setRegistered(record)
       setPassDataUrl(await generateEntryPass(record, qrDataUrl, visitDateLabel))
     } catch (err) {
-      const errors = err?.response?.data?.errors
-      const firstMessage = errors ? Object.values(errors)[0]?.[0] : ''
-      setError(firstMessage || 'Registration failed. Please check your details and try again.')
+      if (err.response?.status === 422) {
+        setErrors(err.response.data.errors || {})
+      } else if (err.response?.status === 429) {
+        setError('Too many registration attempts. Please try again later.')
+      } else {
+        setError('Registration failed. Please check your details and try again.')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -136,6 +142,7 @@ export default function VisitorRegistration() {
                   onChange={(e) => update('fullname')(e.target.value)}
                   className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
                 />
+                <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.fullname?.[0] ?? ''}</p>
               </div>
               <div className="space-y-2">
                 <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
@@ -148,6 +155,7 @@ export default function VisitorRegistration() {
                   onChange={(e) => update('contact')(e.target.value)}
                   className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
                 />
+                <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.contact?.[0] ?? ''}</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -166,6 +174,7 @@ export default function VisitorRegistration() {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.purpose?.[0] ?? ''}</p>
             </div>
             {form.purpose === 'Other' && (
               <div className="space-y-2">
@@ -179,20 +188,22 @@ export default function VisitorRegistration() {
                   onChange={(e) => update('purpose_other')(e.target.value)}
                   className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
                 />
+                <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.purpose_other?.[0] ?? ''}</p>
               </div>
             )}
             <div className="space-y-2">
               <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
                 Person / office to visit
               </label>
-              <Input
-                type="text"
-                placeholder="e.g. Registrar's Office"
-                value={form.person_office_to_visit}
-                onChange={(e) => update('person_office_to_visit')(e.target.value)}
-                className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
-              />
-            </div>
+                <Input
+                  type="text"
+                  placeholder="e.g. Registrar's Office"
+                  value={form.person_office_to_visit}
+                  onChange={(e) => update('person_office_to_visit')(e.target.value)}
+                  className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
+                />
+                <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.person_office_to_visit?.[0] ?? ''}</p>
+              </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
@@ -202,27 +213,29 @@ export default function VisitorRegistration() {
                   <SelectTrigger className="w-full h-auto! bg-secondary border-border rounded px-4 py-3 text-sm text-muted-foreground">
                     <SelectValue placeholder="Select ID type" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {validIdTypes.map((idType) => (
-                      <SelectItem key={idType} value={idType}>
-                        {idType}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
-                  ID number
-                </label>
-                <Input
-                  type="text"
-                  placeholder="e.g. D01-234567"
-                  value={form.id_number}
-                  onChange={(e) => update('id_number')(e.target.value)}
-                  className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
-                />
-              </div>
+                <SelectContent>
+                  {validIdTypes.map((idType) => (
+                    <SelectItem key={idType} value={idType}>
+                      {idType}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.id_type?.[0] ?? ''}</p>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
+                ID number
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g. D01-234567"
+                value={form.id_number}
+                onChange={(e) => update('id_number')(e.target.value)}
+                className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
+              />
+              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.id_number?.[0] ?? ''}</p>
+            </div>
             </div>
             <div className="space-y-2 mb-4">
               <label className="block text-xs font-mono text-muted-foreground uppercase tracking-wide">
@@ -233,6 +246,7 @@ export default function VisitorRegistration() {
                 onChange={update('visit_date')}
                 placeholder="Select visit date"
               />
+              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.visit_date?.[0] ?? ''}</p>
             </div>
 
             {error && (
