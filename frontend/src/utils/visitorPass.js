@@ -104,7 +104,7 @@ export async function generateEntryPass(record, qrDataUrl, visitDateLabel) {
   drawBracket(ctx, m, m, 1, 1)
   drawBracket(ctx, W - m, m, -1, 1)
   drawBracket(ctx, m, H - m, 1, -1)
-  drawBracket(ctx, W - m, H - m, -1, 1)
+  drawBracket(ctx, W - m, H - m, -1, -1)
 
   const chipW = 224
   const chipH = 44
