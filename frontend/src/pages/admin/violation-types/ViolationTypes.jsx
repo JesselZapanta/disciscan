@@ -214,19 +214,20 @@ export default function ViolationTypes() {
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-secondary/60">
                 <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={handleSortToggle}
-                    className="inline-flex items-center gap-1 hover:text-foreground transition"
+                    className="inline-flex items-center gap-1 h-auto! p-0 hover:text-foreground"
                     title={sortDir === 'desc' ? 'Sorted descending — click for ascending' : 'Sorted ascending — click for descending'}
                   >
                     ID
                     {sortDir === 'desc' ? (
-                      <ChevronDown className="h-3 w-3" />
+                      <ChevronDown className="size-3" />
                     ) : (
-                      <ChevronUp className="h-3 w-3" />
+                      <ChevronUp className="size-3" />
                     )}
-                  </button>
+                  </Button>
                 </TableHead>
                 <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
                   Name
@@ -281,23 +282,25 @@ export default function ViolationTypes() {
                           violationType={type}
                           onSaved={handleSaved}
                           trigger={
-                            <button
+                            <Button
                               type="button"
-                              className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition"
+                              variant="ghost"
+                              className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary"
                               aria-label={`Edit ${type.name}`}
                             >
-                              <Pencil className="h-4 w-4" />
-                            </button>
+                              <Pencil className="size-4" />
+                            </Button>
                           }
                         />
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
                           onClick={() => handleDeleteRequest(type)}
-                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                           aria-label={`Delete ${type.name}`}
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                          <Trash2 className="size-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -312,39 +315,42 @@ export default function ViolationTypes() {
               Showing {from}–{to} of {total} types
             </span>
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="border border-border rounded px-3 py-1.5 text-foreground hover:border-primary hover:text-primary transition disabled:opacity-40 disabled:pointer-events-none"
+                className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary"
               >
                 ← PREV
-              </button>
+              </Button>
               {pageNumbers.map((num, idx) => {
                 const prev = pageNumbers[idx - 1]
                 const isGap = prev && num - prev > 1
                 return (
                   <span key={num} className="flex items-center gap-2">
                     {isGap && <span className="text-muted-foreground/60">…</span>}
-                    <button
+                    <Button
+                      variant="outline"
                       onClick={() => setPage(num)}
                       className={
                         num === page
-                          ? 'border border-primary text-primary rounded px-3 py-1.5'
-                          : 'border border-border rounded px-3 py-1.5 text-foreground hover:border-primary hover:text-primary transition'
+                          ? 'h-auto! px-3 py-1.5 rounded border-primary text-primary'
+                          : 'h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary'
                       }
                     >
                       {num}
-                    </button>
+                    </Button>
                   </span>
                 )
               })}
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
                 disabled={page >= lastPage}
-                className="border border-border rounded px-3 py-1.5 text-foreground hover:border-primary hover:text-primary transition disabled:opacity-40 disabled:pointer-events-none"
+                className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary"
               >
                 NEXT →
-              </button>
+              </Button>
             </div>
           </div>
         </div>

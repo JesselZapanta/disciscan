@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import StatusChip from '../../components/StatusChip.jsx'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableHeader,
@@ -76,9 +77,9 @@ export default function Dashboard() {
           <span className="flex items-center gap-1.5 text-xs font-mono text-status-cleared border border-status-cleared/30 bg-status-cleared/10 rounded-full px-3 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-status-cleared" /> ALL GATES ONLINE
           </span>
-          <button className="text-xs font-mono border border-border px-4 py-2 rounded text-foreground hover:border-primary hover:text-primary transition">
+          <Button variant="outline" className="h-auto! px-4 py-2 text-xs font-mono rounded hover:border-primary hover:text-primary">
             + NEW REPORT
-          </button>
+          </Button>
         </div>
       </div>
 

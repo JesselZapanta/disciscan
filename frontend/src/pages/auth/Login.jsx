@@ -127,21 +127,22 @@ export default function Login() {
           </div>
           <div className="mt-4 space-y-2">
             {demoAccounts.map((account) => (
-              <button
+              <Button
                 key={account.role}
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setEmail(account.email)
                   setPassword('password')
                   setError('')
                 }}
-                className="w-full flex items-center justify-between border border-border rounded px-3 py-2 hover:border-primary/50 hover:bg-secondary transition cursor-pointer text-left"
+                className="w-full h-auto! flex items-center justify-between rounded px-3 py-2 hover:border-primary/50 hover:bg-secondary cursor-pointer text-left"
               >
                 <span className="text-xs font-semibold text-foreground">{account.role}</span>
                 <span className="text-[11px] text-muted-foreground font-mono">
                   {account.email} / password
                 </span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>

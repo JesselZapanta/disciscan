@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import StatusChip from '../../components/StatusChip.jsx'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import {
   Table,
@@ -92,9 +93,9 @@ export default function Records() {
             <h1 className="text-2xl font-bold mt-1 text-foreground">All records</h1>
           </div>
         </div>
-        <button className="text-xs font-mono bg-primary text-primary-foreground font-bold px-4 py-2.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition">
+        <Button className="h-auto! px-4 py-2.5 text-xs font-mono font-bold rounded hover:text-text dark:hover:bg-white dark:hover:text-text">
           ↓ EXPORT REPORT
-        </button>
+        </Button>
       </header>
 
       <div className="px-6 lg:px-10 py-8">
@@ -205,19 +206,19 @@ export default function Records() {
           <div className="flex items-center justify-between px-5 py-4 border-t border-border text-xs font-mono text-muted-foreground">
             <span>Showing 1–6 of 4,812 records</span>
             <div className="flex items-center gap-2">
-              <button className="border border-border rounded px-3 py-1.5 text-foreground hover:border-primary hover:text-primary transition">
+              <Button variant="outline" className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary">
                 ← PREV
-              </button>
-              <button className="border border-primary text-primary rounded px-3 py-1.5">1</button>
-              <button className="border border-border rounded px-3 py-1.5 text-foreground hover:border-primary hover:text-primary transition">
+              </Button>
+              <Button variant="outline" className="h-auto! px-3 py-1.5 rounded border-primary text-primary">1</Button>
+              <Button variant="outline" className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary">
                 2
-              </button>
-              <button className="border border-border rounded px-3 py-1.5 text-foreground hover:border-primary hover:text-primary transition">
+              </Button>
+              <Button variant="outline" className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary">
                 3
-              </button>
-              <button className="border border-border rounded px-3 py-1.5 text-foreground hover:border-primary hover:text-primary transition">
+              </Button>
+              <Button variant="outline" className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary">
                 NEXT →
-              </button>
+              </Button>
             </div>
           </div>
         </div>

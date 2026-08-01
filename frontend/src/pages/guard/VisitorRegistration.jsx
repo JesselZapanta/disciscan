@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
@@ -107,13 +108,13 @@ export default function VisitorRegistration() {
             </div>
 
             {!qrRevealed && (
-              <button
+              <Button
                 type="button"
                 onClick={() => setQrRevealed(true)}
-                className="w-full bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition"
+                className="w-full h-auto! py-3.5 font-bold text-sm rounded hover:text-text dark:hover:bg-white dark:hover:text-text"
               >
                 Generate My QR Code →
-              </button>
+              </Button>
             )}
           </form>
 
@@ -131,9 +132,12 @@ export default function VisitorRegistration() {
               <p className="text-muted-foreground text-xs font-mono mt-4">
                 VIS-00220 · Valid for today only
               </p>
-              <button className="mt-4 text-xs font-mono border border-border px-4 py-2 rounded text-foreground hover:border-primary hover:text-primary transition">
+              <Button
+                variant="outline"
+                className="mt-4 h-auto! px-4 py-2 text-xs font-mono rounded hover:border-primary hover:text-primary"
+              >
                 ↓ SAVE TO PHONE
-              </button>
+              </Button>
             </div>
           )}
         </CornerBracket>
