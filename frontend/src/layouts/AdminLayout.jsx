@@ -11,10 +11,10 @@ const navItems = [
   { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
   { label: 'User Accounts', path: '/admin/users', icon: Users },
   { label: 'Violation Types', path: '/admin/violation-types', icon: ListChecks },
+  { label: 'Visitor Logs', path: '/admin/visitors', icon: UserCheck },
   { label: 'Records', path: '/admin/records', icon: ClipboardList },
   { label: 'Reports', path: '/admin/reports', icon: BarChart3 },
   { label: 'Compliance', path: '/admin/compliance', icon: ShieldCheck },
-  { label: 'Visitor Logs', path: '/admin/visitors', icon: UserCheck },
 ]
 
 export default function AdminLayout() {

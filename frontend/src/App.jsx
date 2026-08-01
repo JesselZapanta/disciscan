@@ -16,6 +16,7 @@ import Records from './pages/admin/Records.jsx'
 import Violations from './pages/admin/Violations.jsx'
 import Users from './pages/admin/users/Users.jsx'
 import ViolationTypes from './pages/admin/violation-types/ViolationTypes.jsx'
+import Visitors from './pages/admin/visitors/Visitors.jsx'
 import Attendance from './pages/admin/Attendance.jsx'
 import GuardConsole from './pages/guard/GuardConsole.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
@@ -123,7 +124,7 @@ export default function App() {
           />
           <Route
             path="visitors"
-            element={<ModulePlaceholder title="Visitor Logs" description="Visitor entry and exit records." />}
+            element={<Visitors />}
           />
         </Route>
 

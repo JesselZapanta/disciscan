@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
+use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\VisitorRegistrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+
 Route::post('/visitor-registrations', [VisitorRegistrationController::class, 'store'])->middleware('throttle:visitor-registrations');
 
 Route::middleware('auth:api')->group(function () {
@@ -24,5 +26,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/violation-types', [ViolationTypeController::class, 'store']);
         Route::match(['put', 'post'], '/violation-types/{violationType}', [ViolationTypeController::class, 'update']);
         Route::delete('/violation-types/{violationType}', [ViolationTypeController::class, 'destroy']);
+
+        Route::get('/visitor-registrations', [AdminVisitorRegistrationController::class, 'index']);
     });
 });
