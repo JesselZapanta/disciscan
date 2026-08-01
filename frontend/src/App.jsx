@@ -7,7 +7,6 @@ import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import { ToastProvider } from './components/ui/toast.jsx'
 import Landing from './pages/Landing.jsx'
 import Login from './pages/auth/Login.jsx'
-import Register from './pages/auth/Register.jsx'
 import Dashboard from './pages/admin/Dashboard.jsx'
 import Records from './pages/admin/Records.jsx'
 import Violations from './pages/admin/Violations.jsx'
@@ -89,7 +88,6 @@ export default function App() {
 
         {/* Auth routes (full-screen, no public chrome) */}
         <Route path="/login" element={<LoginRoute />} />
-        <Route path="/register" element={<Register />} />
 
         {/* Admin routes */}
         <Route
