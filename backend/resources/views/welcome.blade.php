@@ -116,55 +116,6 @@
 
         .subtitle b { color: #E6EDF3; font-weight: 600; }
 
-        .endpoints {
-            max-width: 640px;
-            margin: 64px auto 0;
-            border: 1px solid rgba(230, 237, 243, 0.12);
-            border-radius: 14px;
-            background: rgba(13, 17, 23, 0.85);
-            overflow: hidden;
-            text-align: left;
-        }
-
-        .endpoints .title {
-            padding: 14px 20px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #8B949E;
-            border-bottom: 1px solid rgba(230, 237, 243, 0.1);
-        }
-
-        .endpoint {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 20px;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(230, 237, 243, 0.06);
-        }
-
-        .endpoint:last-child { border-bottom: none; }
-
-        .method {
-            min-width: 52px;
-            text-align: center;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            border-radius: 6px;
-            padding: 4px 0;
-        }
-
-        .method.post { color: #F5A623; background: rgba(245, 166, 35, 0.12); }
-        .method.get { color: #2ECC71; background: rgba(46, 204, 113, 0.12); }
-        .method.put { color: #58A6FF; background: rgba(88, 166, 255, 0.12); }
-        .method.delete { color: #F85149; background: rgba(248, 81, 73, 0.12); }
-
-        .endpoint .path { color: #E6EDF3; }
-        .endpoint .desc { margin-left: auto; font-size: 11px; color: #8B949E; }
-
         footer {
             padding: 28px 0 36px;
             border-top: 1px solid rgba(230, 237, 243, 0.1);
@@ -180,7 +131,6 @@
 
         @media (max-width: 640px) {
             .hero { padding: 64px 0 40px; }
-            .endpoint .desc { display: none; }
             footer { flex-direction: column; gap: 8px; text-align: center; }
         }
     </style>
@@ -204,35 +154,6 @@
                 <div class="status"><span class="dot"></span> Operational</div>
                 <div class="api-text">API</div>
                 <p class="subtitle">REST API for <b>DisciScan</b> — QR-based disciplinary records &amp; monitoring system</p>
-
-                <div class="endpoints">
-                    <div class="title">Endpoints</div>
-                    <div class="endpoint">
-                        <span class="method post">POST</span>
-                        <span class="path">/api/login</span>
-                        <span class="desc">authenticate</span>
-                    </div>
-                    <div class="endpoint">
-                        <span class="method get">GET</span>
-                        <span class="path">/api/me</span>
-                        <span class="desc">current user</span>
-                    </div>
-                    <div class="endpoint">
-                        <span class="method post">POST</span>
-                        <span class="path">/api/logout</span>
-                        <span class="desc">revoke token</span>
-                    </div>
-                    <div class="endpoint">
-                        <span class="method get">GET</span>
-                        <span class="path">/api/admin/users</span>
-                        <span class="desc">manage users</span>
-                    </div>
-                    <div class="endpoint">
-                        <span class="method get">GET</span>
-                        <span class="path">/api/admin/violation-types</span>
-                        <span class="desc">manage violations</span>
-                    </div>
-                </div>
             </section>
         </main>
 
