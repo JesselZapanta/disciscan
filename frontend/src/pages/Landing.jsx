@@ -1,13 +1,5 @@
-import { useNavigate } from 'react-router-dom'
 import CornerBracket from '../components/CornerBracket.jsx'
 import ScannerVisual from '../components/ScannerVisual.jsx'
-import { Button } from '@/components/ui/button'
-
-const stats = [
-  { value: '150+', label: 'Violations logged / day' },
-  { value: '4', label: 'User roles served' },
-  { value: '<2s', label: 'Scan to ID retrieval' },
-]
 
 const features = [
   {
@@ -33,18 +25,12 @@ const features = [
 ]
 
 export default function Landing() {
-  const navigate = useNavigate()
-
   return (
     <div className="flex flex-col">
       {/* hero */}
       <section className="relative overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-16 pb-24 grid lg:grid-cols-2 gap-14 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 border border-border rounded-full px-3 py-1 text-[11px] font-mono text-muted-foreground mb-7">
-              <span className="w-1.5 h-1.5 rounded-full bg-status-cleared" />
-              LIVE MONITORING — TANGUB CITY GLOBAL COLLEGE
-            </div>
             <h1 className="text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight text-foreground">
               Every gate.
               <br />
@@ -55,33 +41,8 @@ export default function Landing() {
             <p className="mt-6 text-muted-foreground text-lg leading-relaxed max-w-lg">
               DisciScan replaces the logbook with a QR-driven record system —
               student violations, visitor entry and exit, attendance, and office
-              compliance, tracked in real time from the gate to the admin desk.
+              compliance, tracked from the gate to the admin desk.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <Button
-                onClick={() => navigate('/guard')}
-                className="h-auto bg-primary text-primary-foreground font-bold text-sm px-6 py-3.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition"
-              >
-                Open Guard Console
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/admin')}
-                className="h-auto border-border text-foreground font-semibold text-sm px-6 py-3.5 rounded hover:border-muted-foreground transition"
-              >
-                View Admin Dashboard
-              </Button>
-            </div>
-            <div className="mt-14 grid grid-cols-3 gap-8 max-w-md font-mono">
-              {stats.map((stat) => (
-                <div key={stat.label}>
-                  <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                  <div className="text-[11px] text-muted-foreground mt-1 uppercase tracking-wide">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* hero visual: mock scan panel */}
