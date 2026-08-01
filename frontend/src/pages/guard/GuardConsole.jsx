@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import ScannerVisual from '../../components/ScannerVisual.jsx'
@@ -10,7 +10,7 @@ export default function GuardConsole() {
   const { logout } = useAuth()
 
   function handleLogout() {
-    logout().then(() => navigate('/login', { replace: true }))
+    logout().then(() => navigate('/', { replace: true }))
   }
 
   return (
@@ -19,12 +19,14 @@ export default function GuardConsole() {
         {/* status bar */}
         <div className="px-5 pt-5 pb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Logo size={24} />
-            <span className="font-mono text-xs font-bold tracking-widest">
-              <span className="text-primary">GUARD POST</span>
-              <span className="text-muted-foreground"> — </span>
-              <span className="text-brand-green">GATE 1</span>
-            </span>
+            <Link to="/" className="flex items-center gap-2">
+              <Logo size={24} />
+              <span className="font-mono text-xs font-bold tracking-widest">
+                <span className="text-primary">GUARD POST</span>
+                <span className="text-muted-foreground"> — </span>
+                <span className="text-brand-green">GATE 1</span>
+              </span>
+            </Link>
           </div>
           <button
             type="button"
