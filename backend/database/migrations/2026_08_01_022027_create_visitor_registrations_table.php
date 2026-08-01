@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('person_office_to_visit');
             $table->string('id_type');
             $table->string('id_number');
-            $table->dateTime('visit_datetime');
+            $table->date('visit_date');
             $table->string('status')->default('pending');
             $table->timestamps();
         });

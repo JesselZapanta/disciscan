@@ -3,9 +3,11 @@
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\VisitorRegistrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/visitor-registrations', [VisitorRegistrationController::class, 'store'])->middleware('throttle:visitor-registrations');
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -24,7 +24,7 @@ class VisitorRegistration extends Model
         'person_office_to_visit',
         'id_type',
         'id_number',
-        'visit_datetime',
+        'visit_date',
         'status',
     ];
 
@@ -36,7 +36,7 @@ class VisitorRegistration extends Model
     protected function casts(): array
     {
         return [
-            'visit_datetime' => 'datetime',
+            'visit_date' => 'date',
         ];
     }
 }

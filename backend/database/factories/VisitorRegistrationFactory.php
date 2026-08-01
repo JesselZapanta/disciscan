@@ -35,14 +35,17 @@ class VisitorRegistrationFactory extends Factory
                 'Library',
             ]),
             'id_type' => fake()->randomElement([
-                'Driver\'s License',
+                "Driver's License",
                 'Passport',
                 'National ID',
-                'SSS ID',
+                'UMID (SSS)',
+                'PRC License',
+                'Postal ID',
+                'TIN ID',
                 'School ID',
             ]),
             'id_number' => fake()->numerify('####-####-####'),
-            'visit_datetime' => fake()->dateTimeBetween('-1 week', '+1 week'),
+            'visit_date' => fake()->date(),
             'status' => fake()->randomElement(['pending', 'checked_in', 'checked_out']),
         ];
     }
