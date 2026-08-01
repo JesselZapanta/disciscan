@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserIsGuard;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'jwt.auth' => JwtMiddleware::class,
             'admin' => EnsureUserIsAdmin::class,
+            'guard' => EnsureUserIsGuard::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext.jsx'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'User Accounts', path: '/admin/users', icon: Users },
   { label: 'Violation Types', path: '/admin/violation-types', icon: ListChecks },
   { label: 'Visitor Logs', path: '/admin/visitors', icon: UserCheck },
@@ -36,10 +36,7 @@ export default function AdminLayout() {
 
         <nav className="flex-1 px-3 py-5 space-y-1 text-sm overflow-y-auto overflow-x-hidden">
           {navItems.map((item) => {
-            const isActive =
-              item.path === '/admin'
-                ? location.pathname === '/admin'
-                : location.pathname.startsWith(item.path)
+            const isActive = location.pathname === item.path
 
             return (
               <Link
@@ -99,7 +96,6 @@ export default function AdminLayout() {
 
       <MobileBottomNav
         items={navItems}
-        rootPath="/admin"
         renderFooter={(close) => (
           <>
             <Link

@@ -18,7 +18,7 @@ import Users from './pages/admin/users/Users.jsx'
 import ViolationTypes from './pages/admin/violation-types/ViolationTypes.jsx'
 import Visitors from './pages/admin/visitors/Visitors.jsx'
 import Attendance from './pages/admin/Attendance.jsx'
-import GuardConsole from './pages/guard/GuardConsole.jsx'
+import VisitorScanner from './pages/guard/visitor-scanner/VisitorScanner.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
 import ViolationForm from './pages/guard/ViolationForm.jsx'
 import VisitorRegistration from './pages/guard/VisitorRegistration.jsx'
@@ -48,7 +48,7 @@ function ProtectedRoute({ children, role }) {
   }
 
   if (role && user.role !== role) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/guard/dashboard'} replace />
+    return <Navigate to={user.role === 'admin' ? '/admin/dashboard' : '/guard/dashboard'} replace />
   }
 
   return children
@@ -62,7 +62,7 @@ function LoginRoute() {
   }
 
   if (user) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/guard/dashboard'} replace />
+    return <Navigate to={user.role === 'admin' ? '/admin/dashboard' : '/guard/dashboard'} replace />
   }
 
   return <Login />
@@ -107,7 +107,8 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="records" element={<Records />} />
           <Route path="violations" element={<Violations />} />
           <Route path="users" element={<Users />} />
@@ -130,25 +131,19 @@ export default function App() {
 
         {/* Guard routes */}
         <Route
-          path="/guard/dashboard"
+          path="/guard"
           element={
             <ProtectedRoute role="guard">
               <GuardLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<GuardDashboard />} />
+          <Route index element={<Navigate to="/guard/visitor/scan" replace />} />
+          <Route path="visitor/scan" element={<VisitorScanner />} />
+          <Route path="dashboard" element={<GuardDashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>
 
-        <Route
-          path="/guard"
-          element={
-            <ProtectedRoute role="guard">
-              <GuardConsole />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/guard/violation"
           element={
@@ -158,7 +153,7 @@ export default function App() {
           }
         />
         <Route
-          path="/visitor/register"
+          path="/guard/visitor-register"
           element={
             <ProtectedRoute role="guard">
               <VisitorRegistration />

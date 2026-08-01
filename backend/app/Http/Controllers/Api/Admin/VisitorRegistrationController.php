@@ -13,6 +13,7 @@ class VisitorRegistrationController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $registrations = VisitorRegistration::query()
+            ->with(['timeLogs.performedBy:id,name'])
             ->when($request->filled('search'), function ($query) use ($request): void {
                 $search = trim($request->input('search'));
                 $query->where(function ($query) use ($search): void {

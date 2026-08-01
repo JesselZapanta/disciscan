@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('id_type');
             $table->string('id_number');
             $table->date('visit_date');
+            $table->string('type')->default('visitor');
             $table->string('status')->default('pending');
             $table->timestamps();
         });

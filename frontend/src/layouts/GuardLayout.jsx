@@ -9,9 +9,9 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { label: 'Dashboard', path: '/guard/dashboard', icon: LayoutDashboard },
-  { label: 'Scan Console', path: '/guard', icon: QrCode },
+  { label: 'Visitor Scanner', path: '/guard/visitor/scan', icon: QrCode },
   { label: 'Violation Form', path: '/guard/violation', icon: FileWarning },
-  { label: 'Visitor Registration', path: '/visitor/register', icon: UserPlus },
+  { label: 'Visitor Registration', path: '/guard/visitor-register', icon: UserPlus },
 ]
 
 export default function GuardLayout() {
@@ -33,10 +33,7 @@ export default function GuardLayout() {
 
         <nav className="flex-1 px-3 py-5 space-y-1 text-sm overflow-y-auto overflow-x-hidden">
           {navItems.map((item) => {
-            const isActive =
-              item.path === '/guard/dashboard'
-                ? location.pathname === '/guard/dashboard'
-                : location.pathname.startsWith(item.path)
+            const isActive = location.pathname === item.path
 
             return (
               <Link
@@ -58,7 +55,7 @@ export default function GuardLayout() {
 
         <div className="px-3 py-5 border-t border-border space-y-2">
           <Link
-            to="/guard/dashboard/profile"
+            to="/guard/profile"
             className="flex items-center gap-3 px-3 py-2 rounded bg-secondary border border-transparent hover:border-border transition"
           >
             <UserAvatar user={user} className="w-8 h-8 rounded" textClassName="text-xs" />
@@ -96,11 +93,10 @@ export default function GuardLayout() {
 
       <MobileBottomNav
         items={navItems}
-        rootPath="/guard/dashboard"
         renderFooter={(close) => (
           <>
             <Link
-              to="/guard/dashboard/profile"
+              to="/guard/profile"
               onClick={close}
               className="flex items-center gap-3 px-3 py-2 rounded bg-secondary border border-transparent hover:border-border transition"
             >

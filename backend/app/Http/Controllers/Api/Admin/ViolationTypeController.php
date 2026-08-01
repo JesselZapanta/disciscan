@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreViolationTypeRequest;
 use App\Http\Requests\Admin\UpdateViolationTypeRequest;
-use App\Http\Resources\ViolationTypeResource;
+use App\Http\Resources\Admin\ViolationTypeResource;
 use App\Models\ViolationType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

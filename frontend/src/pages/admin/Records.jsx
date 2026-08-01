@@ -79,7 +79,7 @@ export default function Records() {
       <header className="border-b border-border px-6 lg:px-10 py-5 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <Link
-            to="/admin"
+            to="/admin/dashboard"
             className="text-muted-foreground hover:text-foreground transition text-sm"
           >
             ← Back

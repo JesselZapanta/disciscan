@@ -318,7 +318,7 @@ export default function Profile() {
                   type="button"
                   variant="ghost"
                   className="gap-2"
-                  onClick={() => navigate(user?.role === 'admin' ? '/admin' : '/guard/dashboard')}
+                  onClick={() => navigate(user?.role === 'admin' ? '/admin/dashboard' : '/guard/dashboard')}
                 >
                   <X className="h-4 w-4" />
                   Cancel

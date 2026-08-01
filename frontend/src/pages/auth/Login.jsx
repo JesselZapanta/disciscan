@@ -23,7 +23,7 @@ export default function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'admin' ? '/admin' : '/guard/dashboard', { replace: true })
+      navigate(user.role === 'admin' ? '/admin/dashboard' : '/guard/dashboard', { replace: true })
     }
   }, [user, navigate])
 

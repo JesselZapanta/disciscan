@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-export default function MobileBottomNav({ items, rootPath, renderFooter }) {
+export default function MobileBottomNav({ items, renderFooter }) {
   const location = useLocation()
   const [moreOpen, setMoreOpen] = useState(false)
 
@@ -20,8 +20,7 @@ export default function MobileBottomNav({ items, rootPath, renderFooter }) {
     setMoreOpen(false)
   }, [location.pathname])
 
-  const isActive = (path) =>
-    path === rootPath ? location.pathname === rootPath : location.pathname.startsWith(path)
+  const isActive = (path) => location.pathname === path
 
   const visible = items.slice(0, 3)
   const more = items.slice(3)
