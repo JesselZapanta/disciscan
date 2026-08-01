@@ -25,7 +25,7 @@ export default function PublicLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const { user, loading } = useAuth()
-  const dashboardPath = user?.role === 'admin' ? '/admin' : '/guard/dashboard'
+  const dashboardPath = user?.role === 'admin' ? '/admin/dashboard' : '/guard/dashboard'
 
   useEffect(() => {
     setMenuOpen(false)

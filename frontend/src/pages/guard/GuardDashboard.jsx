@@ -82,7 +82,7 @@ export default function GuardDashboard() {
             <span className="w-1.5 h-1.5 rounded-full bg-status-cleared" /> GATE 1 ONLINE
           </span>
           <Link
-            to="/guard"
+            to="/guard/visitor/scan"
             className="text-xs font-mono border border-border px-4 py-2 rounded text-foreground hover:border-primary hover:text-primary transition"
           >
             OPEN SCANNER →
@@ -174,7 +174,7 @@ export default function GuardDashboard() {
         <div className="mt-6 border border-border bg-card rounded-lg overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <h2 className="font-semibold text-sm text-foreground">Recent scans</h2>
-            <Link to="/guard" className="text-[11px] font-mono text-primary hover:underline">
+            <Link to="/guard/visitor/scan" className="text-[11px] font-mono text-primary hover:underline">
               OPEN SCANNER →
             </Link>
           </div>

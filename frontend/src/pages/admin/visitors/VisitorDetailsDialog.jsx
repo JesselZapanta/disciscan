@@ -76,6 +76,7 @@ export default function VisitorDetailsDialog({ visitor, open, onOpenChange }) {
           </div>
 
           <dl className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+            <Field label="Type" value={visitor?.type === 'student' ? 'Student' : 'Visitor'} />
             <Field label="Contact number" value={visitor?.contact || '—'} mono />
             <Field label="Date of visit" value={formatDate(visitor?.visit_date)} mono />
             <Field label="Purpose of visit" value={visitor?.purpose || '—'} wide />
@@ -86,6 +87,20 @@ export default function VisitorDetailsDialog({ visitor, open, onOpenChange }) {
             <Field label="Valid ID type" value={visitor?.id_type || '—'} />
             <Field label="ID number" value={visitor?.id_number || '—'} mono />
             <Field label="Registered" value={formatDateTime(visitor?.created_at)} wide />
+            {visitor?.checked_in_at && (
+              <Field
+                label="Checked in"
+                value={`${formatDateTime(visitor.checked_in_at)}${visitor.checked_in_by ? ` by ${visitor.checked_in_by.name}` : ''}`}
+                wide
+              />
+            )}
+            {visitor?.checked_out_at && (
+              <Field
+                label="Checked out"
+                value={`${formatDateTime(visitor.checked_out_at)}${visitor.checked_out_by ? ` by ${visitor.checked_out_by.name}` : ''}`}
+                wide
+              />
+            )}
           </dl>
 
           <div className="mt-6 flex justify-end">

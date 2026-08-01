@@ -1,10 +1,11 @@
 import Logo from './Logo.jsx'
 
 export default function ScannerVisual({ className = '', size = 'default' }) {
-  const gridClass = size === 'large' ? 'w-36 h-36' : 'w-32 h-32'
+  const gridClass = size === 'large' ? 'w-36 h-36' : size === 'fill' ? 'w-40 h-40' : 'w-32 h-32'
+  const heightClass = size === 'fill' ? '' : size === 'large' ? 'h-72' : 'h-56'
   return (
     <div
-      className={`relative bg-background border border-border rounded flex items-center justify-center overflow-hidden ${size === 'large' ? 'h-72' : 'h-56'} ${className}`}
+      className={`relative bg-background border border-border rounded flex items-center justify-center overflow-hidden ${heightClass} ${className}`}
     >
       {/* QR-like pattern */}
       <div className={`${gridClass} border border-muted-foreground/30 grid grid-cols-4 grid-rows-4 gap-1 p-2 opacity-60`}>
@@ -31,15 +32,17 @@ export default function ScannerVisual({ className = '', size = 'default' }) {
       <div className="scanline" />
 
       {/* scanning status */}
-      <div className="absolute bottom-2.5 left-0 right-0 flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-brand-green">
-        <span className="w-1.5 h-1.5 rounded-full bg-brand-green scan-blink" />
-        Scanning
-        <span className="flex gap-0.5">
-          <span className="w-1 h-1 rounded-full bg-brand-green scan-dot" />
-          <span className="w-1 h-1 rounded-full bg-brand-green scan-dot" style={{ animationDelay: '0.2s' }} />
-          <span className="w-1 h-1 rounded-full bg-brand-green scan-dot" style={{ animationDelay: '0.4s' }} />
-        </span>
-      </div>
+      {size !== 'fill' && (
+        <div className="absolute bottom-2.5 left-0 right-0 flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-brand-green">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand-green scan-blink" />
+          Scanning
+          <span className="flex gap-0.5">
+            <span className="w-1 h-1 rounded-full bg-brand-green scan-dot" />
+            <span className="w-1 h-1 rounded-full bg-brand-green scan-dot" style={{ animationDelay: '0.2s' }} />
+            <span className="w-1 h-1 rounded-full bg-brand-green scan-dot" style={{ animationDelay: '0.4s' }} />
+          </span>
+        </div>
+      )}
     </div>
   )
 }

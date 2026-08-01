@@ -17,7 +17,7 @@ export default function ViolationForm() {
         <Button
           type="button"
           variant="ghost"
-          onClick={() => navigate('/guard')}
+          onClick={() => navigate('/guard/visitor/scan')}
           className="h-auto! p-0 text-muted-foreground hover:text-foreground text-sm mb-5"
         >
           ← Back to console
@@ -107,14 +107,14 @@ export default function ViolationForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/guard')}
+                onClick={() => navigate('/guard/visitor/scan')}
                 className="flex-1 h-auto border-border rounded py-3.5 text-sm font-semibold hover:border-muted-foreground"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                onClick={() => navigate('/guard')}
+                onClick={() => navigate('/guard/visitor/scan')}
                 className="flex-1 h-auto bg-primary text-primary-foreground rounded py-3.5 text-sm font-bold hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition"
               >
                 Save Record

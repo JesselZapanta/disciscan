@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\VisitorRegistrationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VisitorRegistration extends Model
 {
@@ -25,6 +26,7 @@ class VisitorRegistration extends Model
         'id_type',
         'id_number',
         'visit_date',
+        'type',
         'status',
     ];
 
@@ -38,5 +40,10 @@ class VisitorRegistration extends Model
         return [
             'visit_date' => 'date',
         ];
+    }
+
+    public function timeLogs(): HasMany
+    {
+        return $this->hasMany(VisitorTimeLog::class)->orderByDesc('time');
     }
 }
