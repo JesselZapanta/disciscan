@@ -10,7 +10,8 @@ export default function GuardConsole() {
   const { logout } = useAuth()
 
   function handleLogout() {
-    logout().then(() => navigate('/', { replace: true }))
+    navigate('/', { replace: true })
+    logout()
   }
 
   return (
