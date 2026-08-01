@@ -228,3 +228,56 @@ body {
 .pulse {
   animation: pulse-ring 1.8s ease-out infinite;
 }
+
+/*
+  Scanner status blinking light
+*/
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.scan-blink {
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+/*
+  Scanner animated loading dots
+*/
+@keyframes scan-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+.scan-dot {
+  animation: scan-dot 1.2s ease-in-out infinite;
+}
+
+/*
+  Logo lock-on ring pulse
+*/
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.scan-ring {
+  animation: ring-pulse 2.2s ease-out infinite;
+}
