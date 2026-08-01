@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => explode(',', (string) env('CORS_ALLOWED_ORIGINS', '*')),
+    'allowed_origins' => array_map(
+        static fn ($origin) => rtrim((string) $origin, '/'),
+        explode(',', (string) env('CORS_ALLOWED_ORIGINS', '*'))
+    ),
 
     'allowed_origins_patterns' => [],
 
