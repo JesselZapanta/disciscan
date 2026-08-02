@@ -58,6 +58,10 @@ function formatDate(value) {
   })
 }
 
+function todayString() {
+  return format(new Date(), 'yyyy-MM-dd')
+}
+
 function parseDecodedText(text) {
   try {
     const data = JSON.parse(text)
@@ -102,6 +106,9 @@ export default function VisitorScanner() {
   const [actionLoading, setActionLoading] = useState(false)
   const [form, setForm] = useState(prefillForm({}))
   const [formErrors, setFormErrors] = useState({})
+
+  const visitDateValue = form.visit_date ? format(form.visit_date, 'yyyy-MM-dd') : null
+  const isVisitDateToday = visitDateValue === todayString()
 
   function updateMode(next) {
     modeRef.current = next
@@ -253,7 +260,7 @@ export default function VisitorScanner() {
   }
 
   async function handleCheckIn() {
-    if (!visitor) return
+    if (!visitor || !isVisitDateToday) return
     setActionLoading(true)
     setScanError('')
     try {
@@ -277,7 +284,7 @@ export default function VisitorScanner() {
   }
 
   async function handleCheckOut() {
-    if (!visitor) return
+    if (!visitor || !isVisitDateToday) return
     setActionLoading(true)
     setScanError('')
     try {
@@ -556,6 +563,18 @@ export default function VisitorScanner() {
                   </span>
                 </div>
 
+                {/* date of visit mismatch */}
+                {!isVisitDateToday && (
+                  <div className="mt-3 flex items-start gap-2 text-[11px] font-mono text-status-flagged bg-status-flagged/5 border border-status-flagged/30 rounded-lg px-3 py-2.5">
+                    <TriangleAlert className="size-4 shrink-0 mt-0.5" />
+                    <span>
+                      Date of visit is set to {formatDate(form.visit_date)}. This does not match
+                      today&apos;s date ({formatDate(new Date())}) — you cannot check in or check
+                      out unless the date of visit is edited to today.
+                    </span>
+                  </div>
+                )}
+
                 <VisitorDetailsForm form={form} formErrors={formErrors} onFieldChange={update} />
 
                 {/* actions */}
@@ -564,7 +583,7 @@ export default function VisitorScanner() {
                     <Button
                       type="button"
                       onClick={handleCheckIn}
-                      disabled={actionLoading}
+                      disabled={actionLoading || !isVisitDateToday}
                       className="w-full h-auto! bg-status-cleared text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-status-cleared/85"
                     >
                       {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isDirty() ? <Save className="size-4" /> : <LogIn className="size-4" />}
@@ -575,7 +594,7 @@ export default function VisitorScanner() {
                     <Button
                       type="button"
                       onClick={handleCheckOut}
-                      disabled={actionLoading}
+                      disabled={actionLoading || !isVisitDateToday}
                       className="w-full h-auto! bg-info text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-info/85"
                     >
                       {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isDirty() ? <Save className="size-4" /> : <LogOut className="size-4" />}
