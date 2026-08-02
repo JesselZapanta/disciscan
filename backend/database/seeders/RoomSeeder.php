@@ -23,6 +23,15 @@ class RoomSeeder extends Seeder
             ['building' => 'Annex Building', 'prefix' => 'AN'],
         ];
 
+        // Deterministically inactive rooms (stable across re-seeds, no faker dependency).
+        $inactiveRooms = [
+            'MB-105',
+            'AS-103',
+            'AN-104',
+            'AN-203',
+            'AN-303',
+        ];
+
         $rooms = [];
 
         // Generate numbered rooms per building and floor.
@@ -60,12 +69,14 @@ class RoomSeeder extends Seeder
                 ];
 
                 foreach ($designations as $designation) {
+                    $roomName = $building['prefix'].'-'.$designation;
+
                     $rooms[] = [
-                        'room_name' => $building['prefix'].'-'.$designation,
+                        'room_name' => $roomName,
                         'building' => $building['building'],
                         'floor' => $floorLabel,
                         'type' => $typesByDesignation[$designation] ?? 'Lecture Room',
-                        'status' => fake()->randomElement(['Active', 'Active', 'Active', 'Inactive']),
+                        'status' => in_array($roomName, $inactiveRooms, true) ? 'Inactive' : 'Active',
                     ];
                 }
             }
