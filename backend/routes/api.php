@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\RoomController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
@@ -30,6 +31,11 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/violation-types', [ViolationTypeController::class, 'store']);
         Route::match(['put', 'post'], '/violation-types/{violationType}', [ViolationTypeController::class, 'update']);
         Route::delete('/violation-types/{violationType}', [ViolationTypeController::class, 'destroy']);
+
+        Route::get('/rooms', [RoomController::class, 'index']);
+        Route::post('/rooms', [RoomController::class, 'store']);
+        Route::match(['put', 'post'], '/rooms/{room}', [RoomController::class, 'update']);
+        Route::delete('/rooms/{room}', [RoomController::class, 'destroy']);
 
         Route::get('/visitor-registrations', [AdminVisitorRegistrationController::class, 'index']);
     });
