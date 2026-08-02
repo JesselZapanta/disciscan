@@ -35,6 +35,13 @@ class VisitorScanController extends Controller
 
     public function checkIn(Request $request, VisitorRegistration $visitor): VisitorRegistrationResource|JsonResponse
     {
+        if (! $this->visitDateIsToday($visitor)) {
+            return response()->json(
+                ['message' => 'Cannot check in — the date of visit is not today. Update the date of visit to today first.'],
+                Response::HTTP_CONFLICT
+            );
+        }
+
         if ($visitor->status === 'checked_in') {
             return response()->json(['message' => 'Visitor is already checked in.'], Response::HTTP_CONFLICT);
         }
@@ -53,6 +60,13 @@ class VisitorScanController extends Controller
 
     public function checkOut(Request $request, VisitorRegistration $visitor): VisitorRegistrationResource|JsonResponse
     {
+        if (! $this->visitDateIsToday($visitor)) {
+            return response()->json(
+                ['message' => 'Cannot check out — the date of visit is not today. Update the date of visit to today first.'],
+                Response::HTTP_CONFLICT
+            );
+        }
+
         if ($visitor->status !== 'checked_in') {
             return response()->json(['message' => 'Visitor must be checked in before checking out.'], Response::HTTP_CONFLICT);
         }
@@ -75,6 +89,11 @@ class VisitorScanController extends Controller
         $visitor->load(['timeLogs.performedBy:'.implode(',', self::OPERATOR_SELECT)]);
 
         return new VisitorRegistrationResource($visitor);
+    }
+
+    private function visitDateIsToday(VisitorRegistration $visitor): bool
+    {
+        return $visitor->visit_date !== null && $visitor->visit_date->isToday();
     }
 
     private function parseRecordNo(string $recordNo): ?int

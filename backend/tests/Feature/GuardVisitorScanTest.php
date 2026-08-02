@@ -101,6 +101,48 @@ it('rejects a second check-in while already checked in', function () {
         ->assertJsonPath('message', 'Visitor is already checked in.');
 });
 
+it('rejects check-in when the visit date is not today', function () {
+    $guard = User::factory()->create(['role' => 'guard']);
+    $visitor = VisitorRegistration::factory()->create([
+        'status' => 'pending',
+        'visit_date' => now()->addDay()->toDateString(),
+    ]);
+
+    $this->withHeaders(apiAs($guard))
+        ->postJson("/api/guard/visitors/{$visitor->id}/check-in")
+        ->assertStatus(409)
+        ->assertJsonPath('message', 'Cannot check in — the date of visit is not today. Update the date of visit to today first.');
+
+    expect(VisitorTimeLog::query()->where('visitor_registration_id', $visitor->id)->count())->toBe(0);
+});
+
+it('allows check-in after the visit date is edited to today', function () {
+    $guard = User::factory()->create(['role' => 'guard']);
+    $visitor = VisitorRegistration::factory()->create([
+        'status' => 'pending',
+        'contact' => '09171234567',
+        'visit_date' => now()->addDay()->toDateString(),
+    ]);
+
+    $this->withHeaders(apiAs($guard))
+        ->putJson("/api/guard/visitors/{$visitor->id}", [
+            'fullname' => $visitor->fullname,
+            'contact' => '09171234567',
+            'purpose' => 'Meeting with faculty/staff',
+            'purpose_other' => null,
+            'person_office_to_visit' => $visitor->person_office_to_visit,
+            'id_type' => $visitor->id_type,
+            'id_number' => $visitor->id_number,
+            'visit_date' => now()->toDateString(),
+        ])
+        ->assertOk();
+
+    $this->withHeaders(apiAs($guard))
+        ->postJson("/api/guard/visitors/{$visitor->id}/check-in")
+        ->assertOk()
+        ->assertJsonPath('data.status', 'checked_in');
+});
+
 it('checks out a checked-in visitor and records the time log', function () {
     $guard = User::factory()->create(['role' => 'guard', 'name' => 'Jose Guard']);
     $visitor = VisitorRegistration::factory()->create(['type' => 'visitor', 'status' => 'checked_in']);
@@ -131,6 +173,21 @@ it('rejects checkout when the visitor is not checked in', function () {
         ->postJson("/api/guard/visitors/{$visitor->id}/check-out")
         ->assertStatus(409)
         ->assertJsonPath('message', 'Visitor must be checked in before checking out.');
+});
+
+it('rejects check-out when the visit date is not today', function () {
+    $guard = User::factory()->create(['role' => 'guard']);
+    $visitor = VisitorRegistration::factory()->create([
+        'status' => 'checked_in',
+        'visit_date' => now()->subDay()->toDateString(),
+    ]);
+
+    $this->withHeaders(apiAs($guard))
+        ->postJson("/api/guard/visitors/{$visitor->id}/check-out")
+        ->assertStatus(409)
+        ->assertJsonPath('message', 'Cannot check out — the date of visit is not today. Update the date of visit to today first.');
+
+    expect(VisitorTimeLog::query()->where('visitor_registration_id', $visitor->id)->count())->toBe(0);
 });
 
 it('rejects a second checkout', function () {
