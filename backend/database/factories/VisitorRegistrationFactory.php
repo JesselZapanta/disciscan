@@ -45,7 +45,7 @@ class VisitorRegistrationFactory extends Factory
                 'School ID',
             ]),
             'id_number' => fake()->numerify('####-####-####'),
-            'visit_date' => fake()->date(),
+            'visit_date' => now()->toDateString(),
             'type' => fake()->randomElement(['student', 'visitor']),
             'status' => fake()->randomElement(['pending', 'checked_in', 'checked_out']),
         ];
