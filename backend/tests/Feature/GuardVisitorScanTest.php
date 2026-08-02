@@ -128,7 +128,8 @@ it('allows check-in after the visit date is edited to today', function () {
         ->putJson("/api/guard/visitors/{$visitor->id}", [
             'fullname' => $visitor->fullname,
             'contact' => '09171234567',
-            'purpose' => $visitor->purpose,
+            'purpose' => 'Meeting with faculty/staff',
+            'purpose_other' => null,
             'person_office_to_visit' => $visitor->person_office_to_visit,
             'id_type' => $visitor->id_type,
             'id_number' => $visitor->id_number,
