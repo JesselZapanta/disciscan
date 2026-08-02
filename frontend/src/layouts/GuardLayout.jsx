@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { label: 'Dashboard', path: '/guard/dashboard', icon: LayoutDashboard },
+  { label: 'Visitor Logs', path: '/guard/visitor', icon: QrCode },
+  { label: 'Visitor Registration', path: '/guard/visitor/register', icon: UserPlus },
   { label: 'Visitor Scanner', path: '/guard/visitor/scan', icon: QrCode },
   { label: 'Violation Form', path: '/guard/violation', icon: FileWarning },
-  { label: 'Visitor Registration', path: '/guard/visitor-register', icon: UserPlus },
 ]
 
 export default function GuardLayout() {

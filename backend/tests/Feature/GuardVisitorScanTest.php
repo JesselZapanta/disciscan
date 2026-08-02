@@ -234,3 +234,38 @@ it('ignores its own contact when validating uniqueness on update', function () {
         ->assertJsonPath('data.fullname', 'Updated Name')
         ->assertJsonPath('data.status', 'checked_in');
 });
+
+it('requires authentication to list visitors', function () {
+    $this->getJson('/api/guard/visitors')->assertStatus(401);
+});
+
+it('forbids admins from listing visitors on the guard endpoint', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->withHeaders(apiAs($admin))
+        ->getJson('/api/guard/visitors')
+        ->assertStatus(403);
+});
+
+it('lists visitor registrations for guards with record numbers', function () {
+    $guard = User::factory()->create(['role' => 'guard']);
+    VisitorRegistration::factory()->count(3)->create(['status' => 'pending']);
+
+    $this->withHeaders(apiAs($guard))
+        ->getJson('/api/guard/visitors')
+        ->assertOk()
+        ->assertJsonStructure(['data', 'meta'])
+        ->assertJsonCount(3, 'data');
+});
+
+it('searches visitor registrations for guards by name or contact', function () {
+    $guard = User::factory()->create(['role' => 'guard']);
+    VisitorRegistration::factory()->create(['fullname' => 'Alice Doe', 'contact' => '09170000001']);
+    VisitorRegistration::factory()->create(['fullname' => 'Bob Smith', 'contact' => '09170000002']);
+
+    $this->withHeaders(apiAs($guard))
+        ->getJson('/api/guard/visitors?search=Alice')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.fullname', 'Alice Doe');
+});

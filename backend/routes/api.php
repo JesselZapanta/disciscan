@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Guard\VisitorRegistrationController as GuardVisitorRegistrationController;
 use App\Http\Controllers\Api\Guard\VisitorScanController;
 use App\Http\Controllers\Api\VisitorRegistrationController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('guard')->middleware('guard')->group(function () {
+        Route::get('/visitors', [GuardVisitorRegistrationController::class, 'index']);
         Route::get('/visitors/lookup/{recordNo}', [VisitorScanController::class, 'lookup']);
         Route::match(['put', 'post'], '/visitors/{visitor}', [VisitorScanController::class, 'update']);
         Route::post('/visitors/{visitor}/check-in', [VisitorScanController::class, 'checkIn']);

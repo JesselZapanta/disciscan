@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { Html5Qrcode } from 'html5-qrcode'
 import {
@@ -86,11 +86,13 @@ function prefillForm(visitor) {
 
 export default function VisitorScanner() {
   const navigate = useNavigate()
+  const location = useLocation()
 
   const scannerRef = useRef(null)
   const modeRef = useRef('idle')
   const lookupTimerRef = useRef(null)
   const lastLookupRef = useRef('')
+  const prefilledRecordRef = useRef('')
   const [mode, setMode] = useState('idle')
   const [scanType, setScanType] = useState('in')
   const [visitor, setVisitor] = useState(null)
@@ -114,6 +116,14 @@ export default function VisitorScanner() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    const recordNo = location.state?.recordNo
+    if (!recordNo || prefilledRecordRef.current === recordNo) return
+    prefilledRecordRef.current = recordNo
+    setManualInput(recordNo)
+    lookupByRecord(recordNo)
+  }, [location.state])
 
   async function startScanner() {
     setScanError('')
@@ -494,7 +504,7 @@ export default function VisitorScanner() {
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => navigate('/guard/visitor-register')}
+                onClick={() => navigate('/guard/visitor/register')}
                 className="w-full h-auto! flex flex-col items-center justify-center gap-1.5 border border-border bg-secondary rounded-xl py-4 hover:border-primary"
               >
                 <UserPlus className="size-4 text-muted-foreground" />

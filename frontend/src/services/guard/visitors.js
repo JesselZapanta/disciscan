@@ -1,5 +1,10 @@
 import api from '../api'
 
+export async function listVisitors(params = {}) {
+  const res = await api.get('/guard/visitors', { params })
+  return res.data
+}
+
 export async function lookupVisitor(recordNo) {
   const res = await api.get(`/guard/visitors/lookup/${encodeURIComponent(recordNo)}`)
   return res.data.data

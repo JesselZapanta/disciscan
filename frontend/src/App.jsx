@@ -17,6 +17,8 @@ import Violations from './pages/admin/Violations.jsx'
 import Users from './pages/admin/users/Users.jsx'
 import ViolationTypes from './pages/admin/violation-types/ViolationTypes.jsx'
 import Visitors from './pages/admin/visitors/Visitors.jsx'
+import GuardVisitors from './pages/guard/visitors/Visitors.jsx'
+import GuardVisitorRegistration from './pages/guard/visitors/VisitorRegistration.jsx'
 import Attendance from './pages/admin/Attendance.jsx'
 import VisitorScanner from './pages/guard/visitor-scanner/VisitorScanner.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
@@ -139,7 +141,9 @@ export default function App() {
           }
         >
           <Route index element={<Navigate to="/guard/visitor/scan" replace />} />
+          <Route path="visitor" element={<GuardVisitors />} />
           <Route path="visitor/scan" element={<VisitorScanner />} />
+          <Route path="visitor/register" element={<GuardVisitorRegistration />} />
           <Route path="dashboard" element={<GuardDashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>
