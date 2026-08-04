@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, FileText, CircleCheck } from 'lucide-react'
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
-import ComplianceFormDialog from './ComplianceFormDialog.jsx'
-import ComplianceStatusDialog from './ComplianceStatusDialog.jsx'
+import AcademicYearFormDialog from './AcademicYearFormDialog.jsx'
 import {
   Dialog,
   DialogTrigger,
@@ -18,17 +16,17 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table'
 import { useToast } from '@/components/ui/toast'
-import * as complianceService from '../../../services/admin/compliance'
+import * as academicYearService from '../../../services/admin/academicYears'
 
-const statusOptions = ['ALL STATUS', 'Non-Compliant', 'Resolved']
+const statusOptions = ['ALL STATUS', 'active', 'inactive']
 
 const statusStyles = {
-  'Non-Compliant': { text: 'text-status-flagged', border: 'border-status-flagged/40', bg: 'bg-status-flagged/10', dot: 'bg-status-flagged' },
-  Resolved: { text: 'text-status-cleared', border: 'border-status-cleared/40', bg: 'bg-status-cleared/10', dot: 'bg-status-cleared' },
+  active: { text: 'text-status-cleared', border: 'border-status-cleared/40', bg: 'bg-status-cleared/10', dot: 'bg-status-cleared' },
+  inactive: { text: 'text-muted-foreground', border: 'border-border', bg: 'bg-secondary/60', dot: 'bg-muted-foreground/50' },
 }
 
 function StatusChip({ status }) {
-  const style = statusStyles[status] || statusStyles.Resolved
+  const style = statusStyles[status] || statusStyles.inactive
   return (
     <span
       className={`inline-flex items-center gap-1.5 text-xs font-mono rounded-full px-2.5 py-1 border ${style.text} ${style.border} ${style.bg}`}
@@ -39,40 +37,8 @@ function StatusChip({ status }) {
   )
 }
 
-function PhotoCell({ photos }) {
-  const count = photos?.length || 0
-  if (count === 0) {
-    return <span className="text-muted-foreground/60 text-xs font-mono">—</span>
-  }
-  return (
-    <div className="flex items-center gap-1.5">
-      <div className="flex -space-x-2">
-        {photos.slice(0, 3).map((photo) => (
-          <img
-            key={photo.id}
-            src={photo.url}
-            alt="Evidence"
-            className="size-7 rounded-md object-cover border-2 border-card"
-          />
-        ))}
-      </div>
-      <span className="text-xs font-mono text-muted-foreground">{count} photo{count > 1 ? 's' : ''}</span>
-    </div>
-  )
-}
-
-function formatDate(value) {
-  if (!value) return '—'
-  return new Date(value).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-export default function Compliance() {
-  const navigate = useNavigate()
-  const [records, setRecords] = useState([])
+export default function AcademicYears() {
+  const [academicYears, setAcademicYears] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchInput, setSearchInput] = useState('')
@@ -101,8 +67,8 @@ export default function Compliance() {
     setLoading(true)
     setError('')
 
-    complianceService
-      .listCompliances({
+    academicYearService
+      .listAcademicYears({
         search,
         status: status === 'ALL STATUS' ? undefined : status,
         page,
@@ -111,13 +77,13 @@ export default function Compliance() {
       })
       .then((res) => {
         if (cancelled) return
-        setRecords(res.data || [])
+        setAcademicYears(res.data || [])
         setTotal(res.meta?.total ?? 0)
         setLastPage(res.meta?.last_page ?? 1)
       })
       .catch(() => {
         if (cancelled) return
-        setError('Failed to load compliance records.')
+        setError('Failed to load academic years.')
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -133,17 +99,17 @@ export default function Compliance() {
     setPage(1)
   }
 
-  function handleSaved(label, isEdit) {
+  function handleSaved(code, isEdit) {
     setRefreshKey((k) => k + 1)
     toast({
       variant: 'success',
-      title: isEdit ? 'Compliance record updated' : 'Compliance record created',
-      description: `${label || 'Record'} was ${isEdit ? 'updated' : 'created'} successfully.`,
+      title: isEdit ? 'Academic year updated' : 'Academic year created',
+      description: `${code} was ${isEdit ? 'updated' : 'created'} successfully.`,
     })
   }
 
-  function handleDeleteRequest(record) {
-    setDeleting(record)
+  function handleDeleteRequest(academicYear) {
+    setDeleting(academicYear)
     setDeleteOpen(true)
   }
 
@@ -151,24 +117,25 @@ export default function Compliance() {
     if (!deleting) return
     setDeleteBusy(true)
     try {
-      await complianceService.deleteCompliance(deleting.id)
+      await academicYearService.deleteAcademicYear(deleting.id)
       toast({
         variant: 'success',
-        title: 'Compliance record deleted',
-        description: `Record for ${deleting.room?.room_name || deleting.id} was removed.`,
+        title: 'Academic year deleted',
+        description: `${deleting.code} was removed.`,
       })
       setDeleteOpen(false)
       setDeleting(null)
-      if (records.length === 1 && page > 1) {
+      if (academicYears.length === 1 && page > 1) {
         setPage(page - 1)
       } else {
         setRefreshKey((k) => k + 1)
       }
-    } catch {
+    } catch (err) {
+      const serverMessage = err.response?.data?.errors?.status?.[0]
       toast({
         variant: 'error',
         title: 'Delete failed',
-        description: 'Could not delete the compliance record. Please try again.',
+        description: serverMessage || `Could not delete ${deleting.code}. Please try again.`,
       })
     } finally {
       setDeleteBusy(false)
@@ -192,16 +159,16 @@ export default function Compliance() {
             <div className="text-[11px] font-mono uppercase tracking-widest">
               <span className="text-primary">Admin</span>
               <span className="text-muted-foreground"> / </span>
-              <span className="text-brand-green">Compliance</span>
+              <span className="text-brand-green">Academic Years</span>
             </div>
-            <h1 className="text-2xl font-bold mt-1 text-foreground">Compliance</h1>
+            <h1 className="text-2xl font-bold mt-1 text-foreground">Academic Years</h1>
           </div>
         </div>
-        <ComplianceFormDialog
+        <AcademicYearFormDialog
           trigger={
             <Button className="text-xs font-mono bg-primary text-primary-foreground font-bold px-4 py-2.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition gap-2">
               <Plus className="h-4 w-4" />
-              ADD RECORD
+              ADD YEAR
             </Button>
           }
           onSaved={handleSaved}
@@ -217,17 +184,17 @@ export default function Compliance() {
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by room, issue, remarks or recorder"
+              placeholder="Search by code or description"
               className="bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground/60 flex-1"
             />
           </div>
           <Select value={status} onValueChange={(value) => { setStatus(value); setPage(1) }}>
-            <SelectTrigger className="w-auto h-auto bg-card border-border rounded px-3 py-2.5 text-xs font-mono text-muted-foreground">
+            <SelectTrigger className="w-auto h-auto bg-card border-border rounded px-3 py-2.5 text-xs font-mono text-muted-foreground uppercase">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {statusOptions.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="uppercase">
                   {option}
                 </SelectItem>
               ))}
@@ -235,7 +202,7 @@ export default function Compliance() {
           </Select>
         </div>
 
-        {/* compliance table */}
+        {/* academic years table */}
         <div className="border border-border bg-card rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
@@ -257,19 +224,10 @@ export default function Compliance() {
                   </Button>
                 </TableHead>
                 <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
-                  Room
+                  Code
                 </TableHead>
                 <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
-                  Issues
-                </TableHead>
-                <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
-                  Evidence
-                </TableHead>
-                <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
-                  Recorded By
-                </TableHead>
-                <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
-                  Created At
+                  Description
                 </TableHead>
                 <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
                   Status
@@ -280,83 +238,43 @@ export default function Compliance() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-12 text-center text-muted-foreground font-mono text-xs">
-                    LOADING RECORDS…
+                  <TableCell colSpan={5} className="py-12 text-center text-muted-foreground font-mono text-xs">
+                    LOADING ACADEMIC YEARS…
                   </TableCell>
                 </TableRow>
-              ) : records.length === 0 ? (
+              ) : academicYears.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-12 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
                     <div className="text-2xl mb-2 text-info">◉</div>
-                    {error || 'No compliance records found'}
+                    {error || 'No academic years found'}
                   </TableCell>
                 </TableRow>
               ) : (
-                records.map((record) => (
-                  <TableRow key={record.id}>
+                academicYears.map((academicYear) => (
+                  <TableRow key={academicYear.id}>
                     <TableCell className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
-                      #{record.id}
+                      #{academicYear.id}
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
-                      <span className="font-medium text-foreground">{record.room?.room_name}</span>
-                      <span className="block text-[11px] font-mono text-muted-foreground mt-0.5">
-                        {record.room?.building} · {record.room?.floor}
-                      </span>
+                      <span className="font-medium text-foreground font-mono">{academicYear.code}</span>
                     </TableCell>
                     <TableCell className="px-5 py-3.5 text-muted-foreground max-w-[280px]">
-                      <span className="line-clamp-2 text-xs">{record.issues}</span>
-                      {record.remarks && (
-                        <span className="block text-[11px] text-muted-foreground/70 mt-0.5 italic line-clamp-1">
-                          {record.remarks}
-                        </span>
-                      )}
+                      <span className="line-clamp-2">{academicYear.description}</span>
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
-                      <PhotoCell photos={record.photo_evidences} />
-                    </TableCell>
-                    <TableCell className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
-                      {record.recorded_by}
-                    </TableCell>
-                    <TableCell className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
-                      {formatDate(record.created_at)}
-                    </TableCell>
-                    <TableCell className="px-5 py-3.5">
-                      <StatusChip status={record.status} />
+                      <StatusChip status={academicYear.status} />
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => navigate(`/admin/compliance/report/${record.id}`)}
-                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-secondary"
-                          aria-label="View report"
-                        >
-                          <FileText className="size-4" />
-                        </Button>
-                        <ComplianceStatusDialog
-                          compliance={record}
-                          onSaved={handleSaved}
-                          trigger={
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-status-cleared hover:bg-secondary"
-                              aria-label="Change status"
-                            >
-                              <CircleCheck className="size-4" />
-                            </Button>
-                          }
-                        />
-                        <ComplianceFormDialog
-                          compliance={record}
+                        <AcademicYearFormDialog
+                          academicYear={academicYear}
                           onSaved={handleSaved}
                           trigger={
                             <Button
                               type="button"
                               variant="ghost"
                               className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary"
-                              aria-label="Edit record"
+                              aria-label={`Edit ${academicYear.code}`}
                             >
                               <Pencil className="size-4" />
                             </Button>
@@ -365,9 +283,9 @@ export default function Compliance() {
                         <Button
                           type="button"
                           variant="ghost"
-                          onClick={() => handleDeleteRequest(record)}
+                          onClick={() => handleDeleteRequest(academicYear)}
                           className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                          aria-label="Delete record"
+                          aria-label={`Delete ${academicYear.code}`}
                         >
                           <Trash2 className="size-4" />
                         </Button>
@@ -382,7 +300,7 @@ export default function Compliance() {
           {/* pagination */}
           <div className="flex items-center justify-between px-5 py-4 border-t border-border text-xs font-mono text-muted-foreground flex-wrap gap-3">
             <span>
-              Showing {from}–{to} of {total} records
+              Showing {from}–{to} of {total} academic years
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -432,10 +350,10 @@ export default function Compliance() {
         <DialogPortal>
           <DialogBackdrop />
           <DialogPopup>
-            <DialogTitle className="text-base font-semibold text-foreground">Delete compliance record?</DialogTitle>
+            <DialogTitle className="text-base font-semibold text-foreground">Delete academic year?</DialogTitle>
             <DialogDescription className="mt-1">
-              This will permanently remove the record for {deleting?.room?.room_name || 'this room'} along
-              with all its photo evidence. This action cannot be undone.
+              This will permanently remove {deleting?.code || 'this academic year'}. This action cannot be
+              undone.
             </DialogDescription>
             <div className="mt-6 flex justify-end gap-2">
               <DialogClose render={<Button variant="outline">Cancel</Button>} />

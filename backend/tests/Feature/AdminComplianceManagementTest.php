@@ -203,6 +203,43 @@ it('allows updating without photo evidences', function () {
         ->assertJsonPath('data.issues', 'Windows not locked');
 });
 
+it('lets an admin change only the status of a compliance', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $room = Room::factory()->create();
+    $compliance = Compliance::factory()->create([
+        'room_id' => $room->id,
+        'issues' => 'Aircon left on',
+        'status' => 'Non-Compliant',
+    ]);
+
+    $response = $this->withHeaders(apiAs($admin))->postJson("/api/admin/compliances/{$compliance->id}", [
+        'room_id' => $room->id,
+        'status' => 'Resolved',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.status', 'Resolved')
+        ->assertJsonPath('data.issues', 'Aircon left on');
+
+    $this->assertDatabaseHas('compliances', [
+        'id' => $compliance->id,
+        'status' => 'Resolved',
+        'issues' => 'Aircon left on',
+    ]);
+});
+
+it('rejects an invalid status value', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $room = Room::factory()->create();
+    $compliance = Compliance::factory()->create(['room_id' => $room->id]);
+
+    $this->withHeaders(apiAs($admin))->postJson("/api/admin/compliances/{$compliance->id}", [
+        'room_id' => $room->id,
+        'status' => 'Maybe',
+    ])->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+});
+
 it('deletes a compliance and its photo evidences', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $room = Room::factory()->create();
