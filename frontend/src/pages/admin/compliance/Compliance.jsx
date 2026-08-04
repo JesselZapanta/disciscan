@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, FileText } from 'lucide-react'
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, FileText, CircleCheck } from 'lucide-react'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import ComplianceFormDialog from './ComplianceFormDialog.jsx'
+import ComplianceStatusDialog from './ComplianceStatusDialog.jsx'
 import {
   Dialog,
   DialogTrigger,
@@ -333,6 +334,20 @@ export default function Compliance() {
                         >
                           <FileText className="size-4" />
                         </Button>
+                        <ComplianceStatusDialog
+                          compliance={record}
+                          onSaved={handleSaved}
+                          trigger={
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-status-cleared hover:bg-secondary"
+                              aria-label="Change status"
+                            >
+                              <CircleCheck className="size-4" />
+                            </Button>
+                          }
+                        />
                         <ComplianceFormDialog
                           compliance={record}
                           onSaved={handleSaved}
