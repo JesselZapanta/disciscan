@@ -41,7 +41,7 @@ function StatusChip({ status }) {
 function PhotoCell({ photos }) {
   const count = photos?.length || 0
   if (count === 0) {
-    return <span className="text-muted-foreground/60 text-xs font-mono">â€”</span>
+    return <span className="text-muted-foreground/60 text-xs font-mono">—</span>
   }
   return (
     <div className="flex items-center gap-1.5">
@@ -61,7 +61,7 @@ function PhotoCell({ photos }) {
 }
 
 function formatDate(value) {
-  if (!value) return 'â€”'
+  if (!value) return '—'
   return new Date(value).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -245,7 +245,7 @@ export default function Compliance() {
                     variant="ghost"
                     onClick={handleSortToggle}
                     className="inline-flex items-center gap-1 h-auto! p-0 hover:text-foreground"
-                    title={sortDir === 'desc' ? 'Sorted descending â€” click for ascending' : 'Sorted ascending â€” click for descending'}
+                    title={sortDir === 'desc' ? 'Sorted descending — click for ascending' : 'Sorted ascending — click for descending'}
                   >
                     ID
                     {sortDir === 'desc' ? (
@@ -280,13 +280,13 @@ export default function Compliance() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={8} className="py-12 text-center text-muted-foreground font-mono text-xs">
-                    LOADING RECORDSâ€¦
+                    LOADING RECORDS…
                   </TableCell>
                 </TableRow>
               ) : records.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="py-12 text-center text-muted-foreground">
-                    <div className="text-2xl mb-2 text-info">â—‰</div>
+                    <div className="text-2xl mb-2 text-info">◉</div>
                     {error || 'No compliance records found'}
                   </TableCell>
                 </TableRow>
@@ -299,7 +299,7 @@ export default function Compliance() {
                     <TableCell className="px-5 py-3.5">
                       <span className="font-medium text-foreground">{record.room?.room_name}</span>
                       <span className="block text-[11px] font-mono text-muted-foreground mt-0.5">
-                        {record.room?.building} Â· {record.room?.floor}
+                        {record.room?.building} · {record.room?.floor}
                       </span>
                     </TableCell>
                     <TableCell className="px-5 py-3.5 text-muted-foreground max-w-[280px]">
@@ -367,7 +367,7 @@ export default function Compliance() {
           {/* pagination */}
           <div className="flex items-center justify-between px-5 py-4 border-t border-border text-xs font-mono text-muted-foreground flex-wrap gap-3">
             <span>
-              Showing {from}â€“{to} of {total} records
+              Showing {from}–{to} of {total} records
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -376,14 +376,14 @@ export default function Compliance() {
                 disabled={page <= 1}
                 className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary"
               >
-                â† PREV
+                ← PREV
               </Button>
               {pageNumbers.map((num, idx) => {
                 const prev = pageNumbers[idx - 1]
                 const isGap = prev && num - prev > 1
                 return (
                   <span key={num} className="flex items-center gap-2">
-                    {isGap && <span className="text-muted-foreground/60">â€¦</span>}
+                    {isGap && <span className="text-muted-foreground/60">…</span>}
                     <Button
                       variant="outline"
                       onClick={() => setPage(num)}
@@ -404,7 +404,7 @@ export default function Compliance() {
                 disabled={page >= lastPage}
                 className="h-auto! px-3 py-1.5 rounded text-foreground hover:border-primary hover:text-primary"
               >
-                NEXT â†’
+                NEXT →
               </Button>
             </div>
           </div>
@@ -426,7 +426,7 @@ export default function Compliance() {
               <DialogClose render={<Button variant="outline">Cancel</Button>} />
               <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteBusy} className="gap-2">
                 <Trash2 className="h-4 w-4" />
-                {deleteBusy ? 'DELETINGâ€¦' : 'DELETE'}
+                {deleteBusy ? 'DELETING…' : 'DELETE'}
               </Button>
             </div>
           </DialogPopup>
