@@ -23,6 +23,8 @@ import ComplianceReport from './pages/admin/compliance/ComplianceReport.jsx'
 import GuardComplianceReport from './pages/guard/compliance/ComplianceReport.jsx'
 import Visitors from './pages/admin/visitors/Visitors.jsx'
 import AcademicYears from './pages/admin/academic-years/AcademicYears.jsx'
+import Students from './pages/admin/students/Students.jsx'
+import StudentImport from './pages/admin/students/StudentImport.jsx'
 import GuardVisitors from './pages/guard/visitors/Visitors.jsx'
 import GuardVisitorRegistration from './pages/guard/visitors/VisitorRegistration.jsx'
 import GuardCompliance from './pages/guard/compliance/Compliance.jsx'
@@ -141,6 +143,14 @@ export default function App() {
           <Route
             path="academic-years"
             element={<AcademicYears />}
+          />
+          <Route
+            path="students"
+            element={<Students />}
+          />
+          <Route
+            path="students/import"
+            element={<StudentImport />}
           />
         </Route>
 

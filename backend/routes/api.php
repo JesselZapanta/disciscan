@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\AcademicYearController;
 use App\Http\Controllers\Api\Admin\ComplianceController;
 use App\Http\Controllers\Api\Admin\IssueController;
 use App\Http\Controllers\Api\Admin\RoomController;
+use App\Http\Controllers\Api\Admin\StudentController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
@@ -50,6 +51,13 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/academic-years', [AcademicYearController::class, 'store']);
         Route::match(['put', 'post'], '/academic-years/{academicYear}', [AcademicYearController::class, 'update']);
         Route::delete('/academic-years/{academicYear}', [AcademicYearController::class, 'destroy']);
+
+        Route::get('/students', [StudentController::class, 'index']);
+        Route::post('/students', [StudentController::class, 'store']);
+        Route::get('/students/import-template', [StudentController::class, 'importTemplate']);
+        Route::post('/students/import', [StudentController::class, 'import']);
+        Route::match(['put', 'post'], '/students/{student}', [StudentController::class, 'update']);
+        Route::delete('/students/{student}', [StudentController::class, 'destroy']);
 
         Route::get('/compliances', [ComplianceController::class, 'index']);
         Route::get('/compliances/{compliance}', [ComplianceController::class, 'show']);
