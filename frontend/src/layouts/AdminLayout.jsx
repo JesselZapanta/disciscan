@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ClipboardList, BarChart3, ShieldCheck, Users, UserCheck, ListChecks, DoorOpen } from 'lucide-react'
+import { LayoutDashboard, ClipboardList, BarChart3, ShieldCheck, Users, UserCheck, ListChecks, DoorOpen, TriangleAlert } from 'lucide-react'
 import Logo from '../components/Logo.jsx'
 import UserAvatar from '../components/UserAvatar.jsx'
 import SignOutButton from '../components/SignOutButton.jsx'
@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Violation Types', path: '/admin/violation-types', icon: ListChecks },
   { label: 'Visitor Logs', path: '/admin/visitors', icon: UserCheck },
   { label: 'Rooms', path: '/admin/rooms', icon: DoorOpen },
+  { label: 'Issues', path: '/admin/issues', icon: TriangleAlert },
   { label: 'Records', path: '/admin/records', icon: ClipboardList },
   { label: 'Reports', path: '/admin/reports', icon: BarChart3 },
   { label: 'Compliance', path: '/admin/compliance', icon: ShieldCheck },

@@ -17,6 +17,7 @@ import Violations from './pages/admin/Violations.jsx'
 import Users from './pages/admin/users/Users.jsx'
 import ViolationTypes from './pages/admin/violation-types/ViolationTypes.jsx'
 import Rooms from './pages/admin/rooms/Rooms.jsx'
+import Issues from './pages/admin/issues/Issues.jsx'
 import Visitors from './pages/admin/visitors/Visitors.jsx'
 import GuardVisitors from './pages/guard/visitors/Visitors.jsx'
 import GuardVisitorRegistration from './pages/guard/visitors/VisitorRegistration.jsx'
@@ -117,6 +118,7 @@ export default function App() {
           <Route path="users" element={<Users />} />
           <Route path="violation-types" element={<ViolationTypes />} />
           <Route path="rooms" element={<Rooms />} />
+          <Route path="issues" element={<Issues />} />
           <Route path="attendance" element={<Attendance />} />
           <Route path="profile" element={<Profile />} />
           <Route
