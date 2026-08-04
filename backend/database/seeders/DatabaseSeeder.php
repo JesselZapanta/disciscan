@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             VisitorRegistrationSeeder::class,
             RoomSeeder::class,
             IssueSeeder::class,
+            AcademicYearSeeder::class,
         ]);
     }
 }

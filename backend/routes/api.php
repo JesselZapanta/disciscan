@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AcademicYearController;
 use App\Http\Controllers\Api\Admin\ComplianceController;
 use App\Http\Controllers\Api\Admin\IssueController;
 use App\Http\Controllers\Api\Admin\RoomController;
@@ -44,6 +45,11 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/issues', [IssueController::class, 'store']);
         Route::match(['put', 'post'], '/issues/{issue}', [IssueController::class, 'update']);
         Route::delete('/issues/{issue}', [IssueController::class, 'destroy']);
+
+        Route::get('/academic-years', [AcademicYearController::class, 'index']);
+        Route::post('/academic-years', [AcademicYearController::class, 'store']);
+        Route::match(['put', 'post'], '/academic-years/{academicYear}', [AcademicYearController::class, 'update']);
+        Route::delete('/academic-years/{academicYear}', [AcademicYearController::class, 'destroy']);
 
         Route::get('/compliances', [ComplianceController::class, 'index']);
         Route::get('/compliances/{compliance}', [ComplianceController::class, 'show']);
