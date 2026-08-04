@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\IssueController;
 use App\Http\Controllers\Api\Admin\RoomController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
@@ -36,6 +37,11 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/rooms', [RoomController::class, 'store']);
         Route::match(['put', 'post'], '/rooms/{room}', [RoomController::class, 'update']);
         Route::delete('/rooms/{room}', [RoomController::class, 'destroy']);
+
+        Route::get('/issues', [IssueController::class, 'index']);
+        Route::post('/issues', [IssueController::class, 'store']);
+        Route::match(['put', 'post'], '/issues/{issue}', [IssueController::class, 'update']);
+        Route::delete('/issues/{issue}', [IssueController::class, 'destroy']);
 
         Route::get('/visitor-registrations', [AdminVisitorRegistrationController::class, 'index']);
     });
