@@ -18,9 +18,13 @@ import Users from './pages/admin/users/Users.jsx'
 import ViolationTypes from './pages/admin/violation-types/ViolationTypes.jsx'
 import Rooms from './pages/admin/rooms/Rooms.jsx'
 import Issues from './pages/admin/issues/Issues.jsx'
+import Compliance from './pages/admin/compliance/Compliance.jsx'
+import ComplianceReport from './pages/admin/compliance/ComplianceReport.jsx'
+import GuardComplianceReport from './pages/guard/compliance/ComplianceReport.jsx'
 import Visitors from './pages/admin/visitors/Visitors.jsx'
 import GuardVisitors from './pages/guard/visitors/Visitors.jsx'
 import GuardVisitorRegistration from './pages/guard/visitors/VisitorRegistration.jsx'
+import GuardCompliance from './pages/guard/compliance/Compliance.jsx'
 import Attendance from './pages/admin/Attendance.jsx'
 import VisitorScanner from './pages/guard/visitor-scanner/VisitorScanner.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
@@ -127,7 +131,7 @@ export default function App() {
           />
           <Route
             path="compliance"
-            element={<ModulePlaceholder title="Compliance" description="Office and facility compliance monitoring." />}
+            element={<Compliance />}
           />
           <Route
             path="visitors"
@@ -148,6 +152,7 @@ export default function App() {
           <Route path="visitor" element={<GuardVisitors />} />
           <Route path="visitor/scan" element={<VisitorScanner />} />
           <Route path="visitor/register" element={<GuardVisitorRegistration />} />
+          <Route path="compliance" element={<GuardCompliance />} />
           <Route path="dashboard" element={<GuardDashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>
@@ -165,6 +170,22 @@ export default function App() {
           element={
             <ProtectedRoute role="guard">
               <VisitorRegistration />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/compliance/report/:id"
+          element={
+            <ProtectedRoute role="admin">
+              <ComplianceReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guard/compliance/report/:id"
+          element={
+            <ProtectedRoute role="guard">
+              <GuardComplianceReport />
             </ProtectedRoute>
           }
         />
