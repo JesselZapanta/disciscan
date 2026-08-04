@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\ComplianceController;
 use App\Http\Controllers\Api\Admin\IssueController;
 use App\Http\Controllers\Api\Admin\RoomController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Guard\ComplianceController as GuardComplianceController;
 use App\Http\Controllers\Api\Guard\VisitorRegistrationController as GuardVisitorRegistrationController;
 use App\Http\Controllers\Api\Guard\VisitorScanController;
 use App\Http\Controllers\Api\VisitorRegistrationController;
@@ -43,6 +45,12 @@ Route::middleware('auth:api')->group(function () {
         Route::match(['put', 'post'], '/issues/{issue}', [IssueController::class, 'update']);
         Route::delete('/issues/{issue}', [IssueController::class, 'destroy']);
 
+        Route::get('/compliances', [ComplianceController::class, 'index']);
+        Route::get('/compliances/{compliance}', [ComplianceController::class, 'show']);
+        Route::post('/compliances', [ComplianceController::class, 'store']);
+        Route::match(['put', 'post'], '/compliances/{compliance}', [ComplianceController::class, 'update']);
+        Route::delete('/compliances/{compliance}', [ComplianceController::class, 'destroy']);
+
         Route::get('/visitor-registrations', [AdminVisitorRegistrationController::class, 'index']);
     });
 
@@ -52,5 +60,14 @@ Route::middleware('auth:api')->group(function () {
         Route::match(['put', 'post'], '/visitors/{visitor}', [VisitorScanController::class, 'update']);
         Route::post('/visitors/{visitor}/check-in', [VisitorScanController::class, 'checkIn']);
         Route::post('/visitors/{visitor}/check-out', [VisitorScanController::class, 'checkOut']);
+
+        Route::get('/rooms', [RoomController::class, 'index']);
+        Route::get('/issues', [IssueController::class, 'index']);
+
+        Route::get('/compliances', [GuardComplianceController::class, 'index']);
+        Route::get('/compliances/{compliance}', [GuardComplianceController::class, 'show']);
+        Route::post('/compliances', [GuardComplianceController::class, 'store']);
+        Route::match(['put', 'post'], '/compliances/{compliance}', [GuardComplianceController::class, 'update']);
+        Route::delete('/compliances/{compliance}', [GuardComplianceController::class, 'destroy']);
     });
 });

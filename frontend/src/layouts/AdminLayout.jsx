@@ -14,9 +14,9 @@ const navItems = [
   { label: 'Visitor Logs', path: '/admin/visitors', icon: UserCheck },
   { label: 'Rooms', path: '/admin/rooms', icon: DoorOpen },
   { label: 'Issues', path: '/admin/issues', icon: TriangleAlert },
+  { label: 'Compliance', path: '/admin/compliance', icon: ShieldCheck },
   { label: 'Records', path: '/admin/records', icon: ClipboardList },
   { label: 'Reports', path: '/admin/reports', icon: BarChart3 },
-  { label: 'Compliance', path: '/admin/compliance', icon: ShieldCheck },
 ]
 
 export default function AdminLayout() {
