@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ViolationTypeSeeder::class,
             VisitorRegistrationSeeder::class,
             RoomSeeder::class,
+            IssueSeeder::class,
         ]);
     }
 }
