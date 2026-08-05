@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Guard\ComplianceController as GuardComplianceController;
+use App\Http\Controllers\Api\Guard\StudentScanController;
 use App\Http\Controllers\Api\Guard\VisitorRegistrationController as GuardVisitorRegistrationController;
 use App\Http\Controllers\Api\Guard\VisitorScanController;
 use App\Http\Controllers\Api\VisitorRegistrationController;
@@ -74,6 +75,10 @@ Route::middleware('auth:api')->group(function () {
         Route::match(['put', 'post'], '/visitors/{visitor}', [VisitorScanController::class, 'update']);
         Route::post('/visitors/{visitor}/check-in', [VisitorScanController::class, 'checkIn']);
         Route::post('/visitors/{visitor}/check-out', [VisitorScanController::class, 'checkOut']);
+
+        Route::get('/students/lookup/{idNumber}', [StudentScanController::class, 'lookup']);
+        Route::post('/students/{student}/check-in', [StudentScanController::class, 'checkIn']);
+        Route::post('/students/{student}/check-out', [StudentScanController::class, 'checkOut']);
 
         Route::get('/rooms', [RoomController::class, 'index']);
         Route::get('/issues', [IssueController::class, 'index']);

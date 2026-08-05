@@ -1,45 +1,38 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { format } from 'date-fns'
 import { Html5Qrcode } from 'html5-qrcode'
 import {
-  BadgeCheck,
   CheckCircle2,
-  CircleUserRound,
   Clock,
+  GraduationCap,
   Loader2,
   LogIn,
   LogOut,
   RefreshCcw,
-  Save,
   ScanLine,
   Search,
   TriangleAlert,
-  UserPlus,
   Video,
   X,
 } from 'lucide-react'
 import CornerBracket from '../../../components/CornerBracket.jsx'
 import ScannerVisual from '../../../components/ScannerVisual.jsx'
-import VisitorDetailsForm from './VisitorDetailsForm.jsx'
+import StudentDetailsForm from './StudentDetailsForm.jsx'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import {
-  checkInVisitor,
-  checkOutVisitor,
-  lookupVisitor,
-  updateVisitor,
-} from '../../../services/guard/visitors.js'
+  checkInStudent,
+  checkOutStudent,
+  lookupStudent,
+} from '../../../services/guard/students.js'
 import { playFailure, playSuccess, unlockAudio } from '../../../utils/scannerSounds.js'
 
 const statusConfig = {
-  pending: { label: 'PENDING', chip: 'text-status-pending border-status-pending/40 bg-status-pending/10', dot: 'bg-status-pending' },
-  checked_in: { label: 'CHECKED IN', chip: 'text-status-cleared border-status-cleared/40 bg-status-cleared/10', dot: 'bg-status-cleared' },
-  checked_out: { label: 'CHECKED OUT', chip: 'text-info border-info/40 bg-info/10', dot: 'bg-info' },
+  in: { label: 'CHECKED IN', chip: 'text-status-cleared border-status-cleared/40 bg-status-cleared/10', dot: 'bg-status-cleared' },
+  out: { label: 'CHECKED OUT', chip: 'text-info border-info/40 bg-info/10', dot: 'bg-info' },
 }
 
-const statusFallback = { label: 'UNKNOWN', chip: 'text-muted-foreground border-border bg-secondary/60', dot: 'bg-muted-foreground/50' }
+const statusFallback = { label: 'NOT SCANNED', chip: 'text-muted-foreground border-border bg-secondary/60', dot: 'bg-muted-foreground/50' }
 
 function formatTime(value) {
   if (!value) return '—'
@@ -59,57 +52,27 @@ function formatDate(value) {
   })
 }
 
-function todayString() {
-  return format(new Date(), 'yyyy-MM-dd')
-}
-
-function parseDecodedText(text) {
-  try {
-    const data = JSON.parse(text)
-    if (data && typeof data.record_no === 'string') {
-      return data.record_no.trim()
-    }
-  } catch {
-    // fall through to raw text
-  }
+function parseIdNumber(text) {
+  const match = String(text).match(/IdNumber:([^;]+)/)
+  if (match) return match[1].trim()
   const raw = String(text).trim()
-  return /^(VIS-\d+|\d+)$/i.test(raw) ? raw : null
+  return /^\d+$/.test(raw) ? raw : null
 }
 
-function prefillForm(visitor) {
-  return {
-    fullname: visitor.fullname || '',
-    contact: visitor.contact || '',
-    purpose: visitor.purpose || '',
-    purpose_other: visitor.purpose_other || '',
-    person_office_to_visit: visitor.person_office_to_visit || '',
-    id_type: visitor.id_type || '',
-    id_number: visitor.id_number || '',
-    visit_date: visitor.visit_date ? new Date(`${visitor.visit_date}T00:00:00`) : null,
-  }
-}
-
-export default function VisitorScanner() {
-  const navigate = useNavigate()
-  const location = useLocation()
-
+export default function StudentScanner() {
   const scannerRef = useRef(null)
   const modeRef = useRef('idle')
   const lookupTimerRef = useRef(null)
   const lastLookupRef = useRef('')
-  const prefilledRecordRef = useRef('')
   const [mode, setMode] = useState('idle')
   const [scanType, setScanType] = useState('in')
-  const [visitor, setVisitor] = useState(null)
+  const scanTypeRef = useRef('in')
+  const [student, setStudent] = useState(null)
   const [capturedShot, setCapturedShot] = useState(null)
   const [scanError, setScanError] = useState('')
   const [manualInput, setManualInput] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
-  const [form, setForm] = useState(prefillForm({}))
-  const [formErrors, setFormErrors] = useState({})
-
-  const visitDateValue = form.visit_date ? format(form.visit_date, 'yyyy-MM-dd') : null
-  const isVisitDateToday = visitDateValue === todayString()
+  const [savedLog, setSavedLog] = useState(null)
 
   function updateMode(next) {
     modeRef.current = next
@@ -125,13 +88,23 @@ export default function VisitorScanner() {
     }
   }, [])
 
+  const restartScannerRef = useRef(() => {})
   useEffect(() => {
-    const recordNo = location.state?.recordNo
-    if (!recordNo || prefilledRecordRef.current === recordNo) return
-    prefilledRecordRef.current = recordNo
-    setManualInput(recordNo)
-    lookupByRecord(recordNo)
-  }, [location.state])
+    restartScannerRef.current = () => {
+      setStudent(null)
+      setSavedLog(null)
+      setScanError('')
+      setManualInput('')
+      updateMode('idle')
+      startScanner()
+    }
+  })
+
+  useEffect(() => {
+    if (mode !== 'done') return
+    const timer = setTimeout(() => restartScannerRef.current(), 2000)
+    return () => clearTimeout(timer)
+  }, [mode])
 
   async function startScanner() {
     unlockAudio()
@@ -153,7 +126,7 @@ export default function VisitorScanner() {
       } catch {
         if (modeRef.current === 'scanning') {
           updateMode('idle')
-          setScanError('Camera unavailable. Allow camera access or enter the record number manually.')
+          setScanError('Camera unavailable. Allow camera access or enter the ID number manually.')
         }
       }
     })
@@ -194,36 +167,33 @@ export default function VisitorScanner() {
   async function handleDecoded(decodedText) {
     const shot = captureFrame()
     await stopScanner()
-    const recordNo = parseDecodedText(decodedText)
-    if (!recordNo) {
+    const idNumber = parseIdNumber(decodedText)
+    if (!idNumber) {
       playFailure()
       updateMode('idle')
-      setScanError('Unrecognized QR. Please scan a DisciScan entry pass.')
+      setScanError('Unrecognized QR. Please scan a DisciScan student QR.')
       return
     }
-    await lookupByRecord(recordNo, shot)
+    await lookupByNumber(idNumber, shot)
   }
 
-  async function lookupByRecord(recordNo, shot = null) {
+  async function lookupByNumber(idNumber, shot = null) {
     updateMode('processing')
     setScanError('')
+    setSavedLog(null)
     try {
-      const data = await lookupVisitor(recordNo)
-      setVisitor(data)
+      const data = await lookupStudent(idNumber)
+      setStudent(data)
       setCapturedShot(shot)
-      setForm(prefillForm(data))
-      setFormErrors({})
-      setScanType(data.status === 'checked_in' ? 'out' : 'in')
-      playSuccess()
-      updateMode('result')
+      await autoSave(data)
     } catch (err) {
       playFailure()
       setCapturedShot(null)
       const status = err.response?.status
       if (status === 404) {
-        setScanError('No visitor record found for this QR.')
+        setScanError(err.response?.data?.message || 'Student not found for the active academic year.')
       } else if (status === 422) {
-        setScanError('Invalid record number.')
+        setScanError('Invalid student ID number.')
       } else {
         setScanError('Lookup failed. Check your connection and try again.')
       }
@@ -231,93 +201,49 @@ export default function VisitorScanner() {
     }
   }
 
-  const update = (field) => (value) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
-  }
-
-  function isDirty() {
-    const current = prefillForm(visitor)
-    const visitDate = form.visit_date ? format(form.visit_date, 'yyyy-MM-dd') : null
-    const currentDate = current.visit_date ? format(current.visit_date, 'yyyy-MM-dd') : null
-    return (
-      form.fullname !== current.fullname ||
-      form.contact !== current.contact ||
-      form.purpose !== current.purpose ||
-      form.purpose_other !== current.purpose_other ||
-      form.person_office_to_visit !== current.person_office_to_visit ||
-      form.id_type !== current.id_type ||
-      form.id_number !== current.id_number ||
-      visitDate !== currentDate
-    )
-  }
-
-  function buildPayload() {
-    return {
-      fullname: form.fullname,
-      contact: form.contact.replace(/[\s()-]/g, ''),
-      purpose: form.purpose,
-      purpose_other: form.purpose === 'Other' ? form.purpose_other : null,
-      person_office_to_visit: form.person_office_to_visit,
-      id_type: form.id_type,
-      id_number: form.id_number,
-      visit_date: form.visit_date ? format(form.visit_date, 'yyyy-MM-dd') : null,
+  async function autoSave(data) {
+    try {
+      const updated =
+        scanTypeRef.current === 'out'
+          ? await checkOutStudent(data.id)
+          : await checkInStudent(data.id)
+      setStudent(updated)
+      setSavedLog(updated.time_logs?.[0] ?? null)
+      playSuccess()
+      updateMode('done')
+    } catch (err) {
+      playFailure()
+      setScanError(err.response?.data?.message || 'Could not record the time automatically. Try again.')
+      updateMode('result')
     }
   }
 
-  async function handleCheckIn() {
-    if (!visitor || !isVisitDateToday) return
+  async function handleRetrySave() {
+    if (!student || actionLoading) return
     setActionLoading(true)
     setScanError('')
     try {
-      let current = visitor
-      if (isDirty()) {
-        current = await updateVisitor(visitor.id, buildPayload())
-      }
-      const updated = await checkInVisitor(current.id)
-      setVisitor(updated)
-      setForm(prefillForm(updated))
-      playSuccess()
+      const updated =
+        scanTypeRef.current === 'out'
+          ? await checkOutStudent(student.id)
+          : await checkInStudent(student.id)
+      setStudent(updated)
+      setSavedLog(updated.time_logs?.[0] ?? null)
+      updateMode('done')
     } catch (err) {
-      playFailure()
-      if (err.response?.status === 422) {
-        setFormErrors(err.response.data.errors || {})
-        setScanError('Some details are invalid. Fix them and try again.')
-      } else {
-        setScanError(err.response?.data?.message || 'Check-in failed. Try again.')
-      }
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  async function handleCheckOut() {
-    if (!visitor || !isVisitDateToday) return
-    setActionLoading(true)
-    setScanError('')
-    try {
-      let current = visitor
-      if (isDirty()) {
-        current = await updateVisitor(visitor.id, buildPayload())
-      }
-      const updated = await checkOutVisitor(current.id)
-      setVisitor(updated)
-      setForm(prefillForm(updated))
-      playSuccess()
-    } catch (err) {
-      playFailure()
-      setScanError(err.response?.data?.message || 'Check-out failed. Try again.')
+      setScanError(err.response?.data?.message || 'Action failed. Try again.')
     } finally {
       setActionLoading(false)
     }
   }
 
   function resetScan() {
-    setVisitor(null)
+    setStudent(null)
+    setSavedLog(null)
     setCapturedShot(null)
     setScanError('')
-    setFormErrors({})
-    updateMode('idle')
     setManualInput('')
+    updateMode('idle')
   }
 
   function handleManualChange(e) {
@@ -333,7 +259,7 @@ export default function VisitorScanner() {
     lookupTimerRef.current = setTimeout(() => {
       if (trimmed === lastLookupRef.current || modeRef.current !== 'idle') return
       lastLookupRef.current = trimmed
-      lookupByRecord(trimmed)
+      lookupByNumber(trimmed)
     }, 600)
   }
 
@@ -342,10 +268,11 @@ export default function VisitorScanner() {
     const value = manualInput.trim()
     if (!value) return
     lastLookupRef.current = value
-    lookupByRecord(value)
+    lookupByNumber(value)
   }
 
-  const status = visitor ? statusConfig[visitor.status] || statusFallback : null
+  const status = student ? statusConfig[student.status] || statusFallback : null
+  const isCheckOut = scanType === 'out'
 
   return (
     <div>
@@ -355,11 +282,12 @@ export default function VisitorScanner() {
           <div className="text-[11px] font-mono uppercase tracking-widest">
             <span className="text-primary">Guard</span>
             <span className="text-muted-foreground"> / </span>
-            <span className="text-brand-green">Visitor Scanner</span>
+            <span className="text-brand-green">Student Scanner</span>
           </div>
-          <h1 className="text-2xl font-bold mt-1 text-foreground">Visitor scanner</h1>
+          <h1 className="text-2xl font-bold mt-1 text-foreground">Student scanner</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Pick scan type, scan an entry pass, then record the visitor&apos;s time in or out.
+            Scan a student QR to record time in or out. Students are matched to the active
+            academic year.
           </p>
         </div>
       </div>
@@ -372,7 +300,10 @@ export default function VisitorScanner() {
             <div className="grid grid-cols-2 gap-1.5 border border-border bg-secondary/50 rounded-xl p-1.5 mb-4">
               <button
                 type="button"
-                onClick={() => setScanType('in')}
+                onClick={() => {
+                  scanTypeRef.current = 'in'
+                  setScanType('in')
+                }}
                 className={cn(
                   'flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-mono font-bold transition',
                   scanType === 'in'
@@ -384,7 +315,10 @@ export default function VisitorScanner() {
               </button>
               <button
                 type="button"
-                onClick={() => setScanType('out')}
+                onClick={() => {
+                  scanTypeRef.current = 'out'
+                  setScanType('out')
+                }}
                 className={cn(
                   'flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-mono font-bold transition',
                   scanType === 'out'
@@ -423,12 +357,12 @@ export default function VisitorScanner() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/60 backdrop-blur-sm">
                     <Loader2 className="size-7 text-brand-green animate-spin" />
                     <span className="text-[10px] font-mono text-muted-foreground tracking-widest">
-                      LOOKING UP VISITOR…
+                      LOOKING UP STUDENT…
                     </span>
                   </div>
                 )}
 
-                {mode === 'result' && visitor && (
+                {(mode === 'result' || mode === 'saving' || mode === 'done') && (
                   capturedShot ? (
                     <img
                       src={capturedShot}
@@ -489,9 +423,27 @@ export default function VisitorScanner() {
                   <RefreshCcw className="size-4" /> SCAN ANOTHER
                 </Button>
               )}
+              {mode === 'saving' && (
+                <Button
+                  type="button"
+                  disabled
+                  className="w-full h-auto! bg-secondary text-muted-foreground font-mono font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2"
+                >
+                  <Loader2 className="size-4 animate-spin" /> SAVING…
+                </Button>
+              )}
+              {mode === 'done' && (
+                <Button
+                  type="button"
+                  disabled
+                  className="w-full h-auto! bg-status-cleared/10 text-status-cleared font-mono font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2"
+                >
+                  <Loader2 className="size-4 animate-spin" /> NEXT SCAN IN 2S…
+                </Button>
+              )}
 
               {/* manual lookup — alternative when camera is unavailable */}
-              {mode !== 'result' && (
+              {mode !== 'result' && mode !== 'saving' && mode !== 'done' && (
                 <>
                   <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                     <span className="flex-1 h-px bg-border" />
@@ -505,7 +457,7 @@ export default function VisitorScanner() {
                         type="text"
                         value={manualInput}
                         onChange={handleManualChange}
-                        placeholder="No camera? Enter record no. (VIS-00001)…"
+                        placeholder="No camera? Enter student ID no. (238380)…"
                         className="h-9 pl-9 pr-3 font-mono text-xs bg-secondary border-border rounded-lg"
                         disabled={mode === 'scanning'}
                       />
@@ -514,40 +466,34 @@ export default function VisitorScanner() {
                 </>
               )}
             </div>
-
-            {/* quick actions */}
-            <div className="mt-4">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => navigate('/guard/visitor/register')}
-                className="w-full h-auto! flex flex-col items-center justify-center gap-1.5 border border-border bg-secondary rounded-xl py-4 hover:border-primary"
-              >
-                <UserPlus className="size-4 text-muted-foreground" />
-                <span className="text-[11px] font-mono font-semibold text-muted-foreground">
-                  REGISTER VISITOR
-                </span>
-              </Button>
-            </div>
           </div>
 
           {/* result panel */}
           <div className="lg:col-span-3">
-            {mode === 'result' && visitor ? (
+            {(mode === 'result' || mode === 'done') && student ? (
               <div className="border border-border bg-card rounded-xl p-5">
+                {mode === 'done' && savedLog && (
+                  <div className="mb-4 flex items-start gap-2 text-[11px] font-mono text-status-cleared bg-status-cleared/10 border border-status-cleared/30 rounded-lg px-3 py-2.5">
+                    <CheckCircle2 className="size-4 shrink-0 mt-0.5" />
+                    <span>
+                      {savedLog.type === 'out' ? 'CHECKED OUT' : 'CHECKED IN'} at{' '}
+                      {formatTime(savedLog.time)} — saved automatically. Camera restarts for the
+                      next student in 2 seconds.
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3">
                   <div className="size-12 rounded-lg bg-border shrink-0 flex items-center justify-center">
-                    <CircleUserRound className="size-7 text-muted-foreground" />
+                    <GraduationCap className="size-7 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-base text-foreground truncate">
-                      {visitor.fullname}
+                      {student.name}
                     </div>
-                    <div className="text-muted-foreground text-[11px] font-mono">
-                      {visitor.record_no} · {visitor.type === 'student' ? 'STUDENT' : 'VISITOR'} ·{' '}
-                      <span className={scanType === 'in' ? 'text-status-cleared' : 'text-info'}>
-                        {scanType === 'in' ? 'CHECK IN' : 'CHECK OUT'}
-                      </span>
+                    <div className="text-muted-foreground text-[11px] font-mono truncate">
+                      {student.id_number} · {student.program_and_year} ·{' '}
+                      {student.academic_year?.code ?? '—'}
                     </div>
                   </div>
                   {status && (
@@ -563,77 +509,75 @@ export default function VisitorScanner() {
                   )}
                 </div>
 
-                {/* verification hint */}
-                <div className="mt-4 flex items-start gap-2 text-[11px] font-mono text-muted-foreground bg-secondary/60 border border-border rounded-lg px-3 py-2.5">
-                  <BadgeCheck className="size-4 shrink-0 mt-0.5 text-status-cleared" />
-                  <span>
-                    Check these details against the visitor&apos;s physical ID. Edit any mismatched
-                    information, then save and record the time.
-                  </span>
-                </div>
+                {/* student details form */}
+                <StudentDetailsForm student={student} />
 
-                {/* date of visit mismatch */}
-                {!isVisitDateToday && (
-                  <div className="mt-3 flex items-start gap-2 text-[11px] font-mono text-status-flagged bg-status-flagged/5 border border-status-flagged/30 rounded-lg px-3 py-2.5">
-                    <TriangleAlert className="size-4 shrink-0 mt-0.5" />
+                {mode === 'result' && (
+                  <div className="mt-4 flex items-start gap-2 text-[11px] font-mono text-muted-foreground bg-secondary/60 border border-border rounded-lg px-3 py-2.5">
+                    <LogIn className="size-4 shrink-0 mt-0.5 text-status-cleared" />
                     <span>
-                      Date of visit is set to {formatDate(form.visit_date)}. This does not match
-                      today&apos;s date ({formatDate(new Date())}) — you cannot check in or check
-                      out unless the date of visit is edited to today.
+                      {isCheckOut
+                        ? 'CHECK OUT selected — the time out saves automatically when a student is found.'
+                        : 'CHECK IN selected — the time in saves automatically when a student is found.'}
                     </span>
                   </div>
                 )}
 
-                <VisitorDetailsForm form={form} formErrors={formErrors} onFieldChange={update} />
+                {scanError && mode === 'result' && (
+                  <div className="mt-3 flex items-start gap-2 text-[11px] font-mono text-status-flagged bg-status-flagged/5 border border-status-flagged/30 rounded-lg px-3 py-2.5">
+                    <TriangleAlert className="size-4 shrink-0 mt-0.5" />
+                    <span>{scanError}</span>
+                  </div>
+                )}
 
                 {/* actions */}
-                <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {scanType === 'in' && visitor.status !== 'checked_in' && (
+                {mode === 'result' && (
+                  <div className="mt-5 grid grid-cols-2 gap-3">
                     <Button
                       type="button"
-                      onClick={handleCheckIn}
-                      disabled={actionLoading || !isVisitDateToday}
-                      className="w-full h-auto! bg-status-cleared text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-status-cleared/85"
+                      onClick={handleRetrySave}
+                      disabled={actionLoading}
+                      className={cn(
+                        'w-full h-auto! font-mono font-bold text-xs py-3 rounded-xl',
+                        isCheckOut
+                          ? 'bg-info text-white hover:bg-info/85'
+                          : 'bg-status-cleared text-white hover:bg-status-cleared/85'
+                      )}
                     >
-                      {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isDirty() ? <Save className="size-4" /> : <LogIn className="size-4" />}
-                      {isDirty() ? 'SAVE CHANGES & CHECK IN' : 'NO CHANGES — CHECK IN'}
+                      {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isCheckOut ? <LogOut className="size-4" /> : <LogIn className="size-4" />}
+                      {isCheckOut ? 'RETRY CHECK OUT' : 'RETRY CHECK IN'}
                     </Button>
-                  )}
-                  {scanType === 'out' && visitor.status === 'checked_in' && (
                     <Button
                       type="button"
-                      onClick={handleCheckOut}
-                      disabled={actionLoading || !isVisitDateToday}
-                      className="w-full h-auto! bg-info text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-info/85"
+                      variant="outline"
+                      onClick={resetScan}
+                      className="w-full h-auto! font-mono font-bold text-xs py-3 rounded-xl"
                     >
-                      {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isDirty() ? <Save className="size-4" /> : <LogOut className="size-4" />}
-                      {isDirty() ? 'SAVE CHANGES & CHECK OUT' : 'NO CHANGES — CHECK OUT'}
+                      <RefreshCcw className="size-4" />
+                      NEW SCAN
                     </Button>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={resetScan}
-                    className="w-full h-auto! font-mono font-bold text-xs py-3 rounded-xl"
-                  >
-                    <RefreshCcw className="size-4" />
-                    NEW SCAN
-                  </Button>
-                </div>
+                  </div>
+                )}
 
-                {/* visit log */}
-                {visitor.time_logs?.length > 0 && (
+                {mode === 'done' && (
+                  <div className="mt-5 flex items-center gap-2 text-[10px] font-mono text-muted-foreground tracking-widest">
+                    <Loader2 className="size-3.5 animate-spin" /> SCANNING NEXT IN 2S…
+                  </div>
+                )}
+
+                {/* time log */}
+                {student.time_logs?.length > 0 && (
                   <div className="mt-5 border-t border-border pt-4">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                        <Clock className="size-3" /> VISIT LOG
+                        <Clock className="size-3" /> TIME LOG
                       </div>
                       <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground">
-                        {visitor.time_logs.length} {visitor.time_logs.length === 1 ? 'ENTRY' : 'ENTRIES'}
+                        {student.time_logs.length} {student.time_logs.length === 1 ? 'ENTRY' : 'ENTRIES'}
                       </span>
                     </div>
                     <div className="mt-3 space-y-2">
-                      {visitor.time_logs.map((log) => {
+                      {student.time_logs.map((log) => {
                         const isIn = log.type === 'in'
                         return (
                           <div
@@ -676,24 +620,30 @@ export default function VisitorScanner() {
                   </div>
                 )}
               </div>
-            ) : scanError ? (
+            ) : scanError && mode === 'idle' ? (
               <div className="border border-status-flagged/30 bg-status-flagged/5 rounded-xl p-8 flex flex-col items-center justify-center text-center min-h-[300px]">
                 <div className="size-14 rounded-2xl bg-status-flagged/10 flex items-center justify-center">
                   <TriangleAlert className="size-7 text-status-flagged" />
                 </div>
                 <h2 className="mt-4 text-base font-semibold text-status-flagged">Scan failed</h2>
                 <p className="mt-1 text-sm text-muted-foreground max-w-sm">{scanError}</p>
+                <Button
+                  type="button"
+                  onClick={startScanner}
+                  className="mt-5 w-full h-auto! font-mono font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2"
+                >
+                  <ScanLine className="size-4" /> SCAN AGAIN
+                </Button>
               </div>
             ) : (
               <div className="border border-border bg-card rounded-xl p-8 flex flex-col items-center justify-center text-center min-h-[300px]">
                 <div className="size-14 rounded-2xl bg-secondary flex items-center justify-center">
                   <ScanLine className="size-7 text-muted-foreground" />
                 </div>
-                <h2 className="mt-4 text-base font-semibold text-foreground">No visitor scanned yet</h2>
+                <h2 className="mt-4 text-base font-semibold text-foreground">No student scanned yet</h2>
                 <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-                  Pick <span className={scanType === 'in' ? 'text-status-cleared' : 'text-info'}>{scanType === 'in' ? 'CHECK IN' : 'CHECK OUT'}</span>,
-                  then scan an entry pass or enter a record number to identify the visitor, review or edit
-                  their details, and record the time.
+                  Scan a student QR or enter an ID number to identify the student, then record their
+                  time in or out. Students are matched to the active academic year.
                 </p>
               </div>
             )}

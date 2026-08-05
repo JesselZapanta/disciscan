@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, GraduationCap, FileSpreadsheet } from 'lucide-react'
+import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, GraduationCap, FileSpreadsheet, QrCode, Loader2 } from 'lucide-react'
+import QRCode from 'qrcode'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import StudentFormDialog from './StudentFormDialog.jsx'
+import { generateStudentPass, studentQrText } from '../../../utils/studentPass.js'
 import {
   Dialog,
   DialogTrigger,
@@ -46,6 +48,11 @@ export default function Students() {
   const [deleting, setDeleting] = useState(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
+  const [qrOpen, setQrOpen] = useState(false)
+  const [qrStudent, setQrStudent] = useState(null)
+  const [qrPassUrl, setQrPassUrl] = useState('')
+  const [qrBusy, setQrBusy] = useState(false)
+  const qrRequestRef = useRef(0)
   const [refreshKey, setRefreshKey] = useState(0)
   const { toast } = useToast()
 
@@ -130,6 +137,29 @@ export default function Students() {
   function handleDeleteRequest(student) {
     setDeleting(student)
     setDeleteOpen(true)
+  }
+
+  async function handleQrRequest(student) {
+    const requestId = ++qrRequestRef.current
+    setQrStudent(student)
+    setQrPassUrl('')
+    setQrOpen(true)
+    setQrBusy(true)
+    try {
+      const qrDataUrl = await QRCode.toDataURL(studentQrText(student), { width: 400, margin: 2 })
+      const passUrl = await generateStudentPass(student, qrDataUrl)
+      if (qrRequestRef.current !== requestId) return
+      setQrPassUrl(passUrl)
+    } catch {
+      if (qrRequestRef.current !== requestId) return
+      toast({
+        variant: 'error',
+        title: 'QR generation failed',
+        description: `Could not generate the QR for ${student.name}. Please try again.`,
+      })
+    } finally {
+      if (qrRequestRef.current === requestId) setQrBusy(false)
+    }
   }
 
   async function handleDeleteConfirm() {
@@ -332,6 +362,16 @@ export default function Students() {
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => handleQrRequest(student)}
+                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-secondary"
+                          aria-label={`Generate QR for ${student.name}`}
+                          title="Generate QR"
+                        >
+                          <QrCode className="size-4" />
+                        </Button>
                         <StudentFormDialog
                           student={student}
                           onSaved={handleSaved}
@@ -427,6 +467,44 @@ export default function Students() {
                 <Trash2 className="h-4 w-4" />
                 {deleteBusy ? 'DELETING…' : 'DELETE'}
               </Button>
+            </div>
+          </DialogPopup>
+        </DialogPortal>
+      </Dialog>
+
+      {/* student QR dialog */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogTrigger className="hidden" />
+        <DialogPortal>
+          <DialogBackdrop />
+          <DialogPopup>
+            <DialogTitle className="text-base font-semibold text-foreground">Student QR code</DialogTitle>
+            <DialogDescription className="mt-1">
+              {qrStudent?.name} ({qrStudent?.id_number})
+            </DialogDescription>
+            <div className="mt-5 flex justify-center">
+              {qrBusy || !qrPassUrl ? (
+                <div className="py-12 flex items-center gap-2 text-muted-foreground font-mono text-xs">
+                  <Loader2 className="size-4 animate-spin" />
+                  GENERATING QR…
+                </div>
+              ) : (
+                <div className="w-56 rounded-lg overflow-hidden border border-border">
+                  <img src={qrPassUrl} alt={`QR pass for ${qrStudent.name}`} className="w-full h-auto" />
+                </div>
+              )}
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <DialogClose render={<Button variant="outline">Cancel</Button>} />
+              {qrPassUrl && qrStudent && (
+                <Button
+                  render={<a href={qrPassUrl} download={`${qrStudent.id_number}-student-qr.png`} />}
+                  className="gap-2"
+                >
+                  <QrCode className="h-4 w-4" />
+                  DOWNLOAD QR
+                </Button>
+              )}
             </div>
           </DialogPopup>
         </DialogPortal>

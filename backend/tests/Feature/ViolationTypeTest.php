@@ -43,12 +43,18 @@ it('enforces a unique name', function () {
         ->toThrow(QueryException::class, 'UNIQUE constraint failed');
 });
 
-it('seeds the default violation types', function () {
+it('seeds the default violation types and replaces stale ones', function () {
+    ViolationType::create(['name' => 'Truancy', 'description' => 'old type', 'is_active' => true]);
+
     $this->seed(ViolationTypeSeeder::class);
 
-    expect(ViolationType::count())->toBe(21)
-        ->and(ViolationType::where('name', 'Incomplete uniform')->exists())->toBeTrue()
-        ->and(ViolationType::where('name', 'Cutting classes')->exists())->toBeTrue()
+    expect(ViolationType::count())->toBe(6)
+        ->and(ViolationType::where('name', 'Failure to Wear Prescribed Uniform')->exists())->toBeTrue()
+        ->and(ViolationType::where('name', 'Failure to Wear School ID')->exists())->toBeTrue()
+        ->and(ViolationType::where('name', 'Failure to Wear Prescribed Footwear')->exists())->toBeTrue()
+        ->and(ViolationType::where('name', 'Improper Upper Garment')->exists())->toBeTrue()
+        ->and(ViolationType::where('name', 'Improper Lower Garment')->exists())->toBeTrue()
         ->and(ViolationType::where('name', 'Other')->exists())->toBeTrue()
-        ->and(ViolationType::where('is_active', true)->count())->toBe(21);
+        ->and(ViolationType::where('name', 'Truancy')->doesntExist())->toBeTrue()
+        ->and(ViolationType::where('is_active', true)->count())->toBe(6);
 });

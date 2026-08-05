@@ -32,6 +32,7 @@ import GuardCompliance from './pages/guard/compliance/Compliance.jsx'
 import GuardComplianceFormPage from './pages/guard/compliance/ComplianceFormPage.jsx'
 import Attendance from './pages/admin/Attendance.jsx'
 import VisitorScanner from './pages/guard/visitor-scanner/VisitorScanner.jsx'
+import StudentScanner from './pages/guard/student-scanner/StudentScanner.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
 import ViolationForm from './pages/guard/ViolationForm.jsx'
 import VisitorRegistration from './pages/guard/VisitorRegistration.jsx'
@@ -177,6 +178,7 @@ export default function App() {
           <Route path="visitor" element={<GuardVisitors />} />
           <Route path="visitor/scan" element={<VisitorScanner />} />
           <Route path="visitor/register" element={<GuardVisitorRegistration />} />
+          <Route path="student/scan" element={<StudentScanner />} />
           <Route path="compliance" element={<GuardCompliance />} />
           <Route path="compliance/new" element={<GuardComplianceFormPage />} />
           <Route path="compliance/:id/edit" element={<GuardComplianceFormPage />} />

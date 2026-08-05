@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 export default function CameraCapture({ onCapture, onClose }) {
   const videoRef = useRef(null)
   const streamRef = useRef(null)
+  const capturingRef = useRef(false)
   const [status, setStatus] = useState('starting')
   const [error, setError] = useState('')
   const [captured, setCaptured] = useState(0)
@@ -52,7 +53,8 @@ export default function CameraCapture({ onCapture, onClose }) {
 
   function handleCapture() {
     const video = videoRef.current
-    if (!video || !video.videoWidth || closing) return
+    if (!video || !video.videoWidth || capturingRef.current) return
+    capturingRef.current = true
     setClosing(true)
     const canvas = document.createElement('canvas')
     canvas.width = video.videoWidth
@@ -60,6 +62,7 @@ export default function CameraCapture({ onCapture, onClose }) {
     canvas.getContext('2d').drawImage(video, 0, 0)
     canvas.toBlob((blob) => {
       if (!blob) {
+        capturingRef.current = false
         setClosing(false)
         return
       }
@@ -122,7 +125,10 @@ export default function CameraCapture({ onCapture, onClose }) {
             </p>
             <button
               type="button"
-              onClick={handleCapture}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleCapture()
+              }}
               disabled={closing}
               className="flex size-20 items-center justify-center rounded-full border-4 border-white bg-white/20 backdrop-blur-sm transition active:scale-95 disabled:opacity-60"
               aria-label="Capture photo"
