@@ -1,4 +1,4 @@
-function roundRectPath(ctx, x, y, w, h, r) {
+export function roundRectPath(ctx, x, y, w, h, r) {
   ctx.beginPath()
   if (ctx.roundRect) {
     ctx.roundRect(x, y, w, h, r)
@@ -7,7 +7,7 @@ function roundRectPath(ctx, x, y, w, h, r) {
   }
 }
 
-function drawShield(ctx, cx, cy, size) {
+export function drawShield(ctx, cx, cy, size) {
   const s = size / 40
   ctx.save()
   ctx.translate(cx - 20 * s, cy - 20 * s)
@@ -54,7 +54,7 @@ function drawShield(ctx, cx, cy, size) {
   ctx.restore()
 }
 
-function drawBracket(ctx, x, y, dirX, dirY) {
+export function drawBracket(ctx, x, y, dirX, dirY) {
   const len = 44
   ctx.strokeStyle = '#F5A623'
   ctx.lineWidth = 4
@@ -66,7 +66,7 @@ function drawBracket(ctx, x, y, dirX, dirY) {
   ctx.stroke()
 }
 
-function text(ctx, content, x, y, { color = '#E6EDF3', size = 18, weight = '400', align = 'center' } = {}) {
+export function text(ctx, content, x, y, { color = '#E6EDF3', size = 18, weight = '400', align = 'center' } = {}) {
   ctx.font = `${weight} ${size}px 'JetBrains Mono', ui-monospace, monospace`
   ctx.fillStyle = color
   ctx.textAlign = align
@@ -74,11 +74,11 @@ function text(ctx, content, x, y, { color = '#E6EDF3', size = 18, weight = '400'
   ctx.fillText(content, x, y)
 }
 
-function truncate(str, max) {
+export function truncate(str, max) {
   return str.length > max ? `${str.slice(0, max - 1)}…` : str
 }
 
-function loadImage(src) {
+export function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => resolve(img)
