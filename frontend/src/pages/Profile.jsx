@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { STORAGE_URL } from '../services/config'
+import { compressImage } from '../utils/image'
 
 export default function Profile() {
   const { user, updateUser } = useAuth()
@@ -67,7 +68,7 @@ export default function Profile() {
     const payload = new FormData()
     payload.append('name', name)
     if (profileFile) {
-      payload.append('profile', profileFile)
+      payload.append('profile', await compressImage(profileFile))
     } else if (removeProfile) {
       payload.append('remove_profile', '1')
     }
@@ -88,6 +89,8 @@ export default function Profile() {
       if (err.response?.status === 422) {
         setErrors(err.response.data.errors || {})
         setMessage('')
+      } else if (err.response?.status === 413) {
+        setMessage('The photo is too large for the server. Please use a smaller image.')
       } else {
         setMessage('Something went wrong. Please try again.')
       }

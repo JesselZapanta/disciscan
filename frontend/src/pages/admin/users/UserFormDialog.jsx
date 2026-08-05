@@ -16,6 +16,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 import * as userService from '../../../services/admin/users'
+import { compressImage } from '../../../utils/image'
 import { STORAGE_URL } from '../../../services/config'
 
 function initialsOf(name) {
@@ -70,7 +71,7 @@ export default function UserFormDialog({ trigger, user, onSaved }) {
     payload.append('email', form.email)
     payload.append('role', form.role)
     if (profileFile) {
-      payload.append('profile', profileFile)
+      payload.append('profile', await compressImage(profileFile))
     } else if (isEdit && removeProfile) {
       payload.append('remove_profile', '1')
     }
@@ -90,6 +91,12 @@ export default function UserFormDialog({ trigger, user, onSaved }) {
     } catch (err) {
       if (err.response?.status === 422) {
         setErrors(err.response.data.errors || {})
+      } else if (err.response?.status === 413) {
+        toast({
+          variant: 'error',
+          title: 'Save failed',
+          description: 'The photo is too large for the server. Please use a smaller image.',
+        })
       } else {
         toast({
           variant: 'error',
