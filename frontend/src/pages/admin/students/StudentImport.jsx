@@ -205,7 +205,7 @@ export default function StudentImport() {
             <div className="mt-6 text-xs text-muted-foreground font-mono leading-relaxed">
               <div className="uppercase tracking-widest text-[10px] mb-2 text-muted-foreground/70">Expected columns</div>
               <div className="bg-secondary/50 border border-border rounded px-3 py-2 text-muted-foreground">
-                id_number · firstname · middlename · lastname · contact_no · program_and_year · academic_year_id
+                id_number · firstname · middlename · lastname · extension · contact_no · program_and_year · academic_year_id
               </div>
               <ul className="mt-3 space-y-1">
                 <li>· Rows with duplicate <span className="text-foreground">ID numbers in the same academic year</span> are skipped.</li>

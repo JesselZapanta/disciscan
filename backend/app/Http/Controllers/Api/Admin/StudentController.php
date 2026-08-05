@@ -31,6 +31,7 @@ class StudentController extends Controller
                         ->orWhere('firstname', 'like', "%{$search}%")
                         ->orWhere('middlename', 'like', "%{$search}%")
                         ->orWhere('lastname', 'like', "%{$search}%")
+                        ->orWhere('extension', 'like', "%{$search}%")
                         ->orWhere('contact_no', 'like', "%{$search}%")
                         ->orWhere('program_and_year', 'like', "%{$search}%");
                 });
@@ -70,7 +71,7 @@ class StudentController extends Controller
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $expectedHeaders = ['id_number', 'firstname', 'middlename', 'lastname', 'contact_no', 'program_and_year', 'academic_year_id'];
+        $expectedHeaders = ['id_number', 'firstname', 'middlename', 'lastname', 'extension', 'contact_no', 'program_and_year', 'academic_year_id'];
         $foundHeaders = array_map(fn ($cell) => strtolower($this->normalizeCell($cell)), $rows[0]);
 
         if ($foundHeaders !== $expectedHeaders) {
@@ -107,9 +108,9 @@ class StudentController extends Controller
         $seen = [];
 
         foreach ($rows as $index => $row) {
-            [$idNumber, $firstname, $middlename, $lastname, $contactNo, $programAndYear, $academicYearId] = array_map(
+            [$idNumber, $firstname, $middlename, $lastname, $extension, $contactNo, $programAndYear, $academicYearId] = array_map(
                 fn ($cell) => $this->normalizeCell($cell),
-                array_pad($row, 7, '')
+                array_pad($row, 8, '')
             );
 
             if ($idNumber === '' && $firstname === '' && $lastname === '') {
@@ -122,7 +123,7 @@ class StudentController extends Controller
 
             if (isset($seen[$duplicateKey]) || isset($existingIds[$duplicateKey])) {
                 $skippedDuplicates++;
-                $reportRows[] = $this->reportRow($index, $idNumber, $firstname, $lastname, 'Duplicate ID number in the same academic year', 'duplicate');
+                $reportRows[] = $this->reportRow($index, $idNumber, $firstname, $lastname, $extension, 'Duplicate ID number in the same academic year', 'duplicate');
 
                 continue;
             }
@@ -130,7 +131,7 @@ class StudentController extends Controller
             $reason = $this->rowValidationReason($idNumber, $firstname, $lastname, $contactNo, $programAndYear, $academicYearId, $existingYearIds);
             if ($reason !== null) {
                 $failed++;
-                $reportRows[] = $this->reportRow($index, $idNumber, $firstname, $lastname, $reason, 'invalid');
+                $reportRows[] = $this->reportRow($index, $idNumber, $firstname, $lastname, $extension, $reason, 'invalid');
 
                 continue;
             }
@@ -141,6 +142,7 @@ class StudentController extends Controller
                 'firstname' => $firstname,
                 'middlename' => $middlename === '' ? null : $middlename,
                 'lastname' => $lastname,
+                'extension' => $extension === '' ? null : $extension,
                 'contact_no' => $contactNo,
                 'program_and_year' => $programAndYear,
                 'academic_year_id' => $academicYearId === '' ? null : (int) $academicYearId,
@@ -235,12 +237,12 @@ class StudentController extends Controller
         return null;
     }
 
-    private function reportRow(int $index, string $idNumber, string $firstname, string $lastname, string $reason, string $type): array
+    private function reportRow(int $index, string $idNumber, string $firstname, string $lastname, string $extension, string $reason, string $type): array
     {
         return [
             'row' => $index + 2,
             'id_number' => $idNumber,
-            'name' => trim($firstname.' '.$lastname),
+            'name' => trim($firstname.' '.$lastname.' '.$extension),
             'reason' => $reason,
             'type' => $type,
         ];

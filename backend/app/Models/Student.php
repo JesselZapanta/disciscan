@@ -22,6 +22,7 @@ class Student extends Model
         'firstname',
         'middlename',
         'lastname',
+        'extension',
         'contact_no',
         'program_and_year',
         'academic_year_id',
@@ -32,7 +33,7 @@ class Student extends Model
      */
     public function getFullNameAttribute(): string
     {
-        return collect([$this->firstname, $this->middlename, $this->lastname])
+        return collect([$this->firstname, $this->middlename, $this->lastname, $this->extension])
             ->filter()
             ->implode(' ');
     }

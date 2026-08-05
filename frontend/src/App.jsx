@@ -20,6 +20,7 @@ import Rooms from './pages/admin/rooms/Rooms.jsx'
 import Issues from './pages/admin/issues/Issues.jsx'
 import Compliance from './pages/admin/compliance/Compliance.jsx'
 import ComplianceReport from './pages/admin/compliance/ComplianceReport.jsx'
+import ComplianceFormPage from './pages/admin/compliance/ComplianceFormPage.jsx'
 import GuardComplianceReport from './pages/guard/compliance/ComplianceReport.jsx'
 import Visitors from './pages/admin/visitors/Visitors.jsx'
 import AcademicYears from './pages/admin/academic-years/AcademicYears.jsx'
@@ -28,6 +29,7 @@ import StudentImport from './pages/admin/students/StudentImport.jsx'
 import GuardVisitors from './pages/guard/visitors/Visitors.jsx'
 import GuardVisitorRegistration from './pages/guard/visitors/VisitorRegistration.jsx'
 import GuardCompliance from './pages/guard/compliance/Compliance.jsx'
+import GuardComplianceFormPage from './pages/guard/compliance/ComplianceFormPage.jsx'
 import Attendance from './pages/admin/Attendance.jsx'
 import VisitorScanner from './pages/guard/visitor-scanner/VisitorScanner.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
@@ -137,6 +139,14 @@ export default function App() {
             element={<Compliance />}
           />
           <Route
+            path="compliance/new"
+            element={<ComplianceFormPage />}
+          />
+          <Route
+            path="compliance/:id/edit"
+            element={<ComplianceFormPage />}
+          />
+          <Route
             path="visitors"
             element={<Visitors />}
           />
@@ -168,6 +178,8 @@ export default function App() {
           <Route path="visitor/scan" element={<VisitorScanner />} />
           <Route path="visitor/register" element={<GuardVisitorRegistration />} />
           <Route path="compliance" element={<GuardCompliance />} />
+          <Route path="compliance/new" element={<GuardComplianceFormPage />} />
+          <Route path="compliance/:id/edit" element={<GuardComplianceFormPage />} />
           <Route path="dashboard" element={<GuardDashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>

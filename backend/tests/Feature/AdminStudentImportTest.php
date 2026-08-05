@@ -16,7 +16,7 @@ function makeStudentXlsx(array $rows): UploadedFile
 
     $spreadsheet = new Spreadsheet;
     $spreadsheet->getActiveSheet()->fromArray([
-        ['id_number', 'firstname', 'middlename', 'lastname', 'contact_no', 'program_and_year', 'academic_year_id'],
+        ['id_number', 'firstname', 'middlename', 'lastname', 'extension', 'contact_no', 'program_and_year', 'academic_year_id'],
         ...$rows,
     ], null, 'A1');
 
@@ -54,8 +54,8 @@ it('imports students from a valid excel file', function () {
     $academicYear = AcademicYear::factory()->create();
 
     $file = makeStudentXlsx([
-        ['2610001', 'Juan', 'Dela Cruz', 'Santos', '09171234567', 'BSIT 1A', $academicYear->id],
-        ['2610002', 'Maria', '', 'Reyes', '09181234567', 'BSIT 1A', $academicYear->id],
+        ['2610001', 'Juan', 'Dela Cruz', 'Santos', 'Jr.', '09171234567', 'BSIT 1A', $academicYear->id],
+        ['2610002', 'Maria', '', 'Reyes', '', '09181234567', 'BSIT 1A', $academicYear->id],
     ]);
 
     $response = $this->withHeaders(apiAs($admin))
@@ -72,9 +72,10 @@ it('imports students from a valid excel file', function () {
         'firstname' => 'Juan',
         'middlename' => 'Dela Cruz',
         'lastname' => 'Santos',
+        'extension' => 'Jr.',
         'academic_year_id' => $academicYear->id,
     ]);
-    $this->assertDatabaseHas('students', ['id_number' => '2610002', 'middlename' => null]);
+    $this->assertDatabaseHas('students', ['id_number' => '2610002', 'middlename' => null, 'extension' => null]);
 });
 
 it('skips duplicate id numbers that already exist and reports them', function () {
@@ -83,8 +84,8 @@ it('skips duplicate id numbers that already exist and reports them', function ()
     Student::factory()->create(['id_number' => '2610001', 'academic_year_id' => $academicYear->id]);
 
     $file = makeStudentXlsx([
-        ['2610001', 'Juan', '', 'Santos', '09171234567', 'BSIT 1A', $academicYear->id],
-        ['2610002', 'Maria', '', 'Reyes', '09181234567', 'BSIT 1A', $academicYear->id],
+        ['2610001', 'Juan', '', 'Santos', '', '09171234567', 'BSIT 1A', $academicYear->id],
+        ['2610002', 'Maria', '', 'Reyes', '', '09181234567', 'BSIT 1A', $academicYear->id],
     ]);
 
     $response = $this->withHeaders(apiAs($admin))
@@ -108,7 +109,7 @@ it('imports duplicate id numbers across different academic years already in the 
     Student::factory()->create(['id_number' => '2610001', 'academic_year_id' => $ay1->id]);
 
     $file = makeStudentXlsx([
-        ['2610001', 'Juan', '', 'Santos', '09171234567', 'BSIT 1A', $ay2->id],
+        ['2610001', 'Juan', '', 'Santos', '', '09171234567', 'BSIT 1A', $ay2->id],
     ]);
 
     $this->withHeaders(apiAs($admin))
@@ -126,8 +127,8 @@ it('imports duplicate id numbers within the same file when academic years differ
     $ay2 = AcademicYear::factory()->create();
 
     $file = makeStudentXlsx([
-        ['2610001', 'Juan', '', 'Santos', '09171234567', 'BSIT 1A', $ay1->id],
-        ['2610001', 'Juan', '', 'Santos', '09171234567', 'BSIT 1A', $ay2->id],
+        ['2610001', 'Juan', '', 'Santos', '', '09171234567', 'BSIT 1A', $ay1->id],
+        ['2610001', 'Juan', '', 'Santos', '', '09171234567', 'BSIT 1A', $ay2->id],
     ]);
 
     $this->withHeaders(apiAs($admin))
@@ -144,8 +145,8 @@ it('skips duplicate id numbers within the same file', function () {
     $academicYear = AcademicYear::factory()->create();
 
     $file = makeStudentXlsx([
-        ['2610001', 'Juan', '', 'Santos', '09171234567', 'BSIT 1A', $academicYear->id],
-        ['2610001', 'Juan', '', 'Santos', '09171234567', 'BSIT 1A', $academicYear->id],
+        ['2610001', 'Juan', '', 'Santos', '', '09171234567', 'BSIT 1A', $academicYear->id],
+        ['2610001', 'Juan', '', 'Santos', '', '09171234567', 'BSIT 1A', $academicYear->id],
     ]);
 
     $response = $this->withHeaders(apiAs($admin))
@@ -162,10 +163,10 @@ it('reports rows with invalid data instead of importing them', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
     $file = makeStudentXlsx([
-        ['2610001', 'Juan', '', '', '09171234567', 'BSIT 1A', ''],
-        ['2610002', 'Maria', '', 'Reyes', 'not-a-number', 'BSIT 1A', ''],
-        ['2610003', 'Pedro', '', 'Mendoza', '09191234567', 'BSIT 1A', '999999'],
-        ['2610004', '', '', 'Reyes', '09191234567', 'BSIT 1A', ''],
+        ['2610001', 'Juan', '', '', '', '09171234567', 'BSIT 1A', ''],
+        ['2610002', 'Maria', '', 'Reyes', '', 'not-a-number', 'BSIT 1A', ''],
+        ['2610003', 'Pedro', '', 'Mendoza', '', '09191234567', 'BSIT 1A', '999999'],
+        ['2610004', '', '', 'Reyes', '', '09191234567', 'BSIT 1A', ''],
     ]);
 
     $response = $this->withHeaders(apiAs($admin))
@@ -188,7 +189,7 @@ it('imports a large file in bulk', function () {
 
     $rows = [];
     foreach (range(1, 2500) as $i) {
-        $rows[] = [sprintf('ID%05d', $i), 'Student', '', 'Test', '09170000000', 'BSIT 1A', $academicYear->id];
+        $rows[] = [sprintf('ID%05d', $i), 'Student', '', 'Test', '', '09170000000', 'BSIT 1A', $academicYear->id];
     }
 
     $file = makeStudentXlsx($rows);
@@ -228,7 +229,7 @@ it('rejects a file with the wrong header format', function () {
         ->assertJsonValidationErrors(['file'])
         ->assertJsonPath(
             'message',
-            'The file header does not match the required format. Expected: id_number, firstname, middlename, lastname, contact_no, program_and_year, academic_year_id. Found: name, email, course.'
+            'The file header does not match the required format. Expected: id_number, firstname, middlename, lastname, extension, contact_no, program_and_year, academic_year_id. Found: name, email, course.'
         );
 
     $this->assertSame(0, Student::count());
@@ -238,7 +239,7 @@ it('rejects a header-only file with no student rows', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
     $file = makeStudentXlsxWithHeaders(
-        ['id_number', 'firstname', 'middlename', 'lastname', 'contact_no', 'program_and_year', 'academic_year_id'],
+        ['id_number', 'firstname', 'middlename', 'lastname', 'extension', 'contact_no', 'program_and_year', 'academic_year_id'],
         []
     );
 
@@ -256,8 +257,8 @@ it('accepts headers with leading or trailing whitespace and case differences', f
     $academicYear = AcademicYear::factory()->create();
 
     $file = makeStudentXlsxWithHeaders(
-        [' ID_NUMBER ', 'Firstname', 'Middlename', 'Lastname', 'Contact_No', 'Program_and_Year', 'Academic_Year_Id'],
-        [['2610001', 'Juan', '', 'Santos', '09171234567', 'BSIT 1A', $academicYear->id]]
+        [' ID_NUMBER ', 'Firstname', 'Middlename', 'Lastname', 'Extension', 'Contact_No', 'Program_and_Year', 'Academic_Year_Id'],
+        [['2610001', 'Juan', '', 'Santos', 'III', '09171234567', 'BSIT 1A', $academicYear->id]]
     );
 
     $response = $this->withHeaders(apiAs($admin))

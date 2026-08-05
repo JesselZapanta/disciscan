@@ -22,6 +22,7 @@ class UpdateStudentRequest extends FormRequest
             'firstname' => ['required', 'string', 'max:255'],
             'middlename' => ['nullable', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
+            'extension' => ['nullable', 'string', 'max:20'],
             'contact_no' => ['required', 'string', 'max:20', 'regex:/^[0-9+\-\s]+$/'],
             'program_and_year' => ['required', 'string', 'max:255'],
             'academic_year_id' => ['nullable', 'integer', 'exists:academic_years,id'],
