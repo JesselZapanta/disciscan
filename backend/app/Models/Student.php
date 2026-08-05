@@ -6,6 +6,7 @@ use Database\Factories\StudentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
 {
@@ -41,5 +42,10 @@ class Student extends Model
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function timeLogs(): HasMany
+    {
+        return $this->hasMany(StudentTimeLog::class)->orderByDesc('time')->orderByDesc('id');
     }
 }
