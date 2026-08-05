@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, QrCode, FileWarning, UserPlus, ClipboardCheck } from 'lucide-react'
+import { LayoutDashboard, QrCode, FileWarning, UserPlus, ClipboardCheck, GraduationCap } from 'lucide-react'
 import Logo from '../components/Logo.jsx'
 import UserAvatar from '../components/UserAvatar.jsx'
 import SignOutButton from '../components/SignOutButton.jsx'
@@ -12,6 +12,7 @@ const navItems = [
   { label: 'Visitor Logs', path: '/guard/visitor', icon: QrCode },
   { label: 'Visitor Registration', path: '/guard/visitor/register', icon: UserPlus },
   { label: 'Visitor Scanner', path: '/guard/visitor/scan', icon: QrCode },
+  { label: 'Student Scanner', path: '/guard/student/scan', icon: GraduationCap },
   { label: 'Compliance', path: '/guard/compliance', icon: ClipboardCheck },
   { label: 'Violation Form', path: '/guard/violation', icon: FileWarning },
 ]
