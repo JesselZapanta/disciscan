@@ -12,7 +12,7 @@ it('lists students with search, academic year filter and pagination', function (
     $ay1 = AcademicYear::factory()->create();
     $ay2 = AcademicYear::factory()->create();
 
-    Student::factory()->create(['id_number' => '2610001', 'firstname' => 'Juan', 'middlename' => null, 'lastname' => 'Santos', 'academic_year_id' => $ay1->id]);
+    Student::factory()->create(['id_number' => '2610001', 'firstname' => 'Juan', 'middlename' => null, 'lastname' => 'Santos', 'extension' => null, 'academic_year_id' => $ay1->id]);
     Student::factory()->create(['id_number' => '2610002', 'firstname' => 'Maria', 'lastname' => 'Reyes', 'academic_year_id' => $ay1->id]);
     Student::factory()->create(['id_number' => '2510001', 'firstname' => 'Pedro', 'lastname' => 'Mendoza', 'academic_year_id' => $ay2->id]);
 
@@ -71,6 +71,7 @@ it('creates a student', function () {
         'firstname' => 'Juan',
         'middlename' => 'Dela Cruz',
         'lastname' => 'Santos',
+        'extension' => 'Jr.',
         'contact_no' => '09171234567',
         'program_and_year' => 'BSIT 1A',
         'academic_year_id' => $academicYear->id,
@@ -78,13 +79,15 @@ it('creates a student', function () {
 
     $response->assertStatus(201)
         ->assertJsonPath('data.id_number', '2610001')
-        ->assertJsonPath('data.name', 'Juan Dela Cruz Santos')
+        ->assertJsonPath('data.name', 'Juan Dela Cruz Santos Jr.')
+        ->assertJsonPath('data.extension', 'Jr.')
         ->assertJsonPath('data.program_and_year', 'BSIT 1A')
         ->assertJsonPath('data.academic_year.id', $academicYear->id);
 
     $this->assertDatabaseHas('students', [
         'id_number' => '2610001',
         'firstname' => 'Juan',
+        'extension' => 'Jr.',
     ]);
 });
 
@@ -185,6 +188,7 @@ it('updates a student', function () {
         'firstname' => 'Maria',
         'middlename' => '',
         'lastname' => 'Reyes',
+        'extension' => 'II',
         'contact_no' => '09181234567',
         'program_and_year' => 'BSCS 2A',
         'academic_year_id' => $academicYear->id,
@@ -192,11 +196,12 @@ it('updates a student', function () {
 
     $response->assertOk()
         ->assertJsonPath('data.id_number', '2610002')
-        ->assertJsonPath('data.name', 'Maria Reyes')
+        ->assertJsonPath('data.name', 'Maria Reyes II')
         ->assertJsonPath('data.program_and_year', 'BSCS 2A');
 
     $student->refresh();
     $this->assertSame('2610002', $student->id_number);
+    $this->assertSame('II', $student->extension);
     $this->assertSame($academicYear->id, $student->academic_year_id);
 });
 
@@ -242,7 +247,7 @@ it('seeds the default students', function () {
     $this->seed(DatabaseSeeder::class);
 
     expect(Student::count())->toBe(3)
-        ->and(Student::where('id_number', '261001')->where('program_and_year', 'BSCS 1')->exists())->toBeTrue()
+        ->and(Student::where('id_number', '261001')->where('program_and_year', 'BSCS 1')->where('extension', 'Jr.')->exists())->toBeTrue()
         ->and(Student::where('id_number', '261002')->where('program_and_year', 'BSCS 1')->exists())->toBeTrue()
         ->and(Student::where('id_number', '251001')->where('program_and_year', 'BSCS 2')->exists())->toBeTrue();
 });

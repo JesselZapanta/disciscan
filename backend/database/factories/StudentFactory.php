@@ -23,6 +23,7 @@ class StudentFactory extends Factory
             'firstname' => fake()->firstName(),
             'middlename' => fake()->optional()->lastName(),
             'lastname' => fake()->lastName(),
+            'extension' => fake()->optional()->randomElement(['Jr.', 'Sr.', 'II', 'III']),
             'contact_no' => fake()->regexify('09[0-9]{9}'),
             'program_and_year' => fake()->randomElement(['BSIT 1A', 'BSIT 2B', 'BSCS 3A', 'BSBA 1A', 'BSEd 4A', 'BSN 2A']),
             'academic_year_id' => AcademicYear::factory(),

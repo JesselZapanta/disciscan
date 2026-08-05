@@ -14,14 +14,14 @@ class StudentSeeder extends Seeder
     /**
      * Seed the default students.
      *
-     * @return array<int, array{id_number: string, firstname: string, middlename: string, lastname: string, contact_no: string, program_and_year: string}>
+     * @return array<int, array{id_number: string, firstname: string, middlename: string, lastname: string, extension: ?string, contact_no: string, program_and_year: string}>
      */
     private function students(): array
     {
         return [
-            ['id_number' => '261001', 'firstname' => 'Juan', 'middlename' => 'Dela Cruz', 'lastname' => 'Santos', 'contact_no' => '09171234567', 'program_and_year' => 'BSCS 1'],
-            ['id_number' => '261002', 'firstname' => 'Maria', 'middlename' => 'Lopez', 'lastname' => 'Reyes', 'contact_no' => '09181234567', 'program_and_year' => 'BSCS 1'],
-            ['id_number' => '251001', 'firstname' => 'Pedro', 'middlename' => 'Garcia', 'lastname' => 'Mendoza', 'contact_no' => '09191234567', 'program_and_year' => 'BSCS 2'],
+            ['id_number' => '261001', 'firstname' => 'Juan', 'middlename' => 'Dela Cruz', 'lastname' => 'Santos', 'extension' => 'Jr.', 'contact_no' => '09171234567', 'program_and_year' => 'BSCS 1'],
+            ['id_number' => '261002', 'firstname' => 'Maria', 'middlename' => 'Lopez', 'lastname' => 'Reyes', 'extension' => null, 'contact_no' => '09181234567', 'program_and_year' => 'BSCS 1'],
+            ['id_number' => '251001', 'firstname' => 'Pedro', 'middlename' => 'Garcia', 'lastname' => 'Mendoza', 'extension' => null, 'contact_no' => '09191234567', 'program_and_year' => 'BSCS 2'],
         ];
     }
 
@@ -34,7 +34,7 @@ class StudentSeeder extends Seeder
 
         foreach ($this->students() as $student) {
             Student::updateOrCreate(
-                ['id_number' => $student['id_number']],
+                ['id_number' => $student['id_number'], 'academic_year_id' => $academicYear->id],
                 [...$student, 'academic_year_id' => $academicYear->id]
             );
         }

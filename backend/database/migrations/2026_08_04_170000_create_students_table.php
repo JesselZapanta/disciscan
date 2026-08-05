@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('firstname');
             $table->string('middlename')->nullable();
             $table->string('lastname');
+            $table->string('extension')->nullable();
             $table->string('contact_no');
             $table->string('program_and_year');
             $table->foreignId('academic_year_id')->nullable()->constrained('academic_years')->nullOnDelete();
