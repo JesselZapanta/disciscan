@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->string('id_number')->unique();
+            $table->string('id_number');
             $table->string('firstname');
             $table->string('middlename')->nullable();
             $table->string('lastname');
             $table->string('contact_no');
             $table->string('program_and_year');
             $table->foreignId('academic_year_id')->nullable()->constrained('academic_years')->nullOnDelete();
+            $table->unique(['id_number', 'academic_year_id']);
             $table->timestamps();
         });
     }
