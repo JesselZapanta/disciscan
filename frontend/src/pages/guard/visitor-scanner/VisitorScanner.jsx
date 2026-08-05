@@ -31,6 +31,7 @@ import {
   lookupVisitor,
   updateVisitor,
 } from '../../../services/guard/visitors.js'
+import { playFailure, playSuccess, unlockAudio } from '../../../utils/scannerSounds.js'
 
 const statusConfig = {
   pending: { label: 'PENDING', chip: 'text-status-pending border-status-pending/40 bg-status-pending/10', dot: 'bg-status-pending' },
@@ -133,6 +134,7 @@ export default function VisitorScanner() {
   }, [location.state])
 
   async function startScanner() {
+    unlockAudio()
     setScanError('')
     updateMode('scanning')
     requestAnimationFrame(async () => {
@@ -194,6 +196,7 @@ export default function VisitorScanner() {
     await stopScanner()
     const recordNo = parseDecodedText(decodedText)
     if (!recordNo) {
+      playFailure()
       updateMode('idle')
       setScanError('Unrecognized QR. Please scan a DisciScan entry pass.')
       return
@@ -211,8 +214,10 @@ export default function VisitorScanner() {
       setForm(prefillForm(data))
       setFormErrors({})
       setScanType(data.status === 'checked_in' ? 'out' : 'in')
+      playSuccess()
       updateMode('result')
     } catch (err) {
+      playFailure()
       setCapturedShot(null)
       const status = err.response?.status
       if (status === 404) {
@@ -271,7 +276,9 @@ export default function VisitorScanner() {
       const updated = await checkInVisitor(current.id)
       setVisitor(updated)
       setForm(prefillForm(updated))
+      playSuccess()
     } catch (err) {
+      playFailure()
       if (err.response?.status === 422) {
         setFormErrors(err.response.data.errors || {})
         setScanError('Some details are invalid. Fix them and try again.')
@@ -295,7 +302,9 @@ export default function VisitorScanner() {
       const updated = await checkOutVisitor(current.id)
       setVisitor(updated)
       setForm(prefillForm(updated))
+      playSuccess()
     } catch (err) {
+      playFailure()
       setScanError(err.response?.data?.message || 'Check-out failed. Try again.')
     } finally {
       setActionLoading(false)
