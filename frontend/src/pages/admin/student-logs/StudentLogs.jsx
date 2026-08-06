@@ -1,25 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, FileSpreadsheet, QrCode, Loader2 } from 'lucide-react'
-import QRCode from 'qrcode'
+import { ChevronDown, ChevronUp, Eye } from 'lucide-react'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
-import StudentFormDialog from './StudentFormDialog.jsx'
-import { generateStudentPass, studentQrText } from '../../../utils/studentPass.js'
-import {
-  Dialog,
-  DialogTrigger,
-  DialogPortal,
-  DialogBackdrop,
-  DialogPopup,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from '@/components/ui/dialog'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table'
-import { useToast } from '@/components/ui/toast'
-import * as studentService from '../../../services/admin/students'
+import * as studentLogService from '../../../services/admin/studentLogs'
 import * as academicYearService from '../../../services/admin/academicYears'
 
 function initialsOf(student) {
@@ -31,7 +17,7 @@ function initialsOf(student) {
   return initials || 'ST'
 }
 
-export default function Students() {
+export default function StudentLogs() {
   const navigate = useNavigate()
   const [students, setStudents] = useState([])
   const [academicYears, setAcademicYears] = useState([])
@@ -45,16 +31,6 @@ export default function Students() {
   const [sortDir, setSortDir] = useState('desc')
   const [total, setTotal] = useState(0)
   const [lastPage, setLastPage] = useState(1)
-  const [deleting, setDeleting] = useState(null)
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const [deleteBusy, setDeleteBusy] = useState(false)
-  const [qrOpen, setQrOpen] = useState(false)
-  const [qrStudent, setQrStudent] = useState(null)
-  const [qrPassUrl, setQrPassUrl] = useState('')
-  const [qrBusy, setQrBusy] = useState(false)
-  const qrRequestRef = useRef(0)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const { toast } = useToast()
 
   useEffect(() => {
     let cancelled = false
@@ -93,8 +69,8 @@ export default function Students() {
     setLoading(true)
     setError('')
 
-    studentService
-      .listStudents({
+    studentLogService
+      .listStudentLogs({
         search,
         academic_year_id: academicYearId === 'ALL' ? undefined : academicYearId,
         page,
@@ -118,77 +94,11 @@ export default function Students() {
     return () => {
       cancelled = true
     }
-  }, [search, academicYearId, page, sortDir, refreshKey, academicYearsLoaded])
+  }, [search, academicYearId, page, sortDir, academicYearsLoaded])
 
   function handleSortToggle() {
     setSortDir((dir) => (dir === 'desc' ? 'asc' : 'desc'))
     setPage(1)
-  }
-
-  function handleSaved(idNumber, isEdit) {
-    setRefreshKey((k) => k + 1)
-    toast({
-      variant: 'success',
-      title: isEdit ? 'Student updated' : 'Student created',
-      description: `${idNumber} was ${isEdit ? 'updated' : 'created'} successfully.`,
-    })
-  }
-
-  function handleDeleteRequest(student) {
-    setDeleting(student)
-    setDeleteOpen(true)
-  }
-
-  async function handleQrRequest(student) {
-    const requestId = ++qrRequestRef.current
-    setQrStudent(student)
-    setQrPassUrl('')
-    setQrOpen(true)
-    setQrBusy(true)
-    try {
-      const qrDataUrl = await QRCode.toDataURL(studentQrText(student), { width: 400, margin: 2 })
-      const passUrl = await generateStudentPass(student, qrDataUrl)
-      if (qrRequestRef.current !== requestId) return
-      setQrPassUrl(passUrl)
-    } catch {
-      if (qrRequestRef.current !== requestId) return
-      toast({
-        variant: 'error',
-        title: 'QR generation failed',
-        description: `Could not generate the QR for ${student.name}. Please try again.`,
-      })
-    } finally {
-      if (qrRequestRef.current === requestId) setQrBusy(false)
-    }
-  }
-
-  async function handleDeleteConfirm() {
-    if (!deleting) return
-    setDeleteBusy(true)
-    try {
-      await studentService.deleteStudent(deleting.id)
-      toast({
-        variant: 'success',
-        title: 'Student deleted',
-        description: `${deleting.name} was removed.`,
-      })
-      setDeleteOpen(false)
-      setDeleting(null)
-      if (students.length === 1 && page > 1) {
-        setPage(page - 1)
-      } else {
-        setRefreshKey((k) => k + 1)
-      }
-    } catch (err) {
-      const serverMessage = err.response?.data?.errors?.status?.[0]
-      toast({
-        variant: 'error',
-        title: 'Delete failed',
-        description: serverMessage || `Could not delete ${deleting.name}. Please try again.`,
-      })
-    } finally {
-      setDeleteBusy(false)
-    }
   }
 
   const from = total === 0 ? 0 : (page - 1) * 10 + 1
@@ -201,36 +111,18 @@ export default function Students() {
   })()
 
   return (
-    <div className="min-h-full dot-grid">
-      <header className="border-b border-border px-6 lg:px-10 py-5 flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <div>
-            <div className="text-[11px] font-mono uppercase tracking-widest">
-              <span className="text-primary">Admin</span>
-              <span className="text-muted-foreground"> / </span>
-              <span className="text-brand-green">Students</span>
-            </div>
-            <h1 className="text-2xl font-bold mt-1 text-foreground">Students</h1>
+    <div className="min-h-full">
+      <header className="border-b border-border px-6 lg:px-10 py-5">
+        <div>
+          <div className="text-[11px] font-mono uppercase tracking-widest">
+            <span className="text-primary">Admin</span>
+            <span className="text-muted-foreground"> / </span>
+            <span className="text-brand-green">Student Logs</span>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/admin/students/import')}
-            className="text-xs font-mono font-bold px-4 py-2.5 rounded gap-2 text-foreground hover:border-primary hover:text-primary"
-          >
-            <FileSpreadsheet className="h-4 w-4" />
-            IMPORT
-          </Button>
-          <StudentFormDialog
-            trigger={
-              <Button className="text-xs font-mono bg-primary text-primary-foreground font-bold px-4 py-2.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition gap-2">
-                <Plus className="h-4 w-4" />
-                ADD STUDENT
-              </Button>
-            }
-            onSaved={handleSaved}
-          />
+          <h1 className="text-2xl font-bold mt-1 text-foreground">Student Logs</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            View time in / out logs for every student, organized by day.
+          </p>
         </div>
       </header>
 
@@ -345,39 +237,16 @@ export default function Students() {
                       {student.contact_no}
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end">
                         <Button
                           type="button"
                           variant="ghost"
-                          onClick={() => handleQrRequest(student)}
-                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-secondary"
-                          aria-label={`Generate QR for ${student.name}`}
-                          title="Generate QR"
+                          onClick={() => navigate(`/admin/student-logs/${student.id}`)}
+                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary"
+                          aria-label={`View logs for ${student.name}`}
+                          title="View logs"
                         >
-                          <QrCode className="size-4" />
-                        </Button>
-                        <StudentFormDialog
-                          student={student}
-                          onSaved={handleSaved}
-                          trigger={
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary"
-                              aria-label={`Edit ${student.name}`}
-                            >
-                              <Pencil className="size-4" />
-                            </Button>
-                          }
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => handleDeleteRequest(student)}
-                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                          aria-label={`Delete ${student.name}`}
-                        >
-                          <Trash2 className="size-4" />
+                          <Eye className="size-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -433,66 +302,6 @@ export default function Students() {
           </div>
         </div>
       </div>
-
-      {/* delete confirmation */}
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogTrigger className="hidden" />
-        <DialogPortal>
-          <DialogBackdrop />
-          <DialogPopup>
-            <DialogTitle className="text-base font-semibold text-foreground">Delete student?</DialogTitle>
-            <DialogDescription className="mt-1">
-              This will permanently remove {deleting?.name || 'this student'} ({deleting?.id_number}). This
-              action cannot be undone.
-            </DialogDescription>
-            <div className="mt-6 flex justify-end gap-2">
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
-              <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteBusy} className="gap-2">
-                <Trash2 className="h-4 w-4" />
-                {deleteBusy ? 'DELETING…' : 'DELETE'}
-              </Button>
-            </div>
-          </DialogPopup>
-        </DialogPortal>
-      </Dialog>
-
-      {/* student QR dialog */}
-      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
-        <DialogTrigger className="hidden" />
-        <DialogPortal>
-          <DialogBackdrop />
-          <DialogPopup>
-            <DialogTitle className="text-base font-semibold text-foreground">Student QR code</DialogTitle>
-            <DialogDescription className="mt-1">
-              {qrStudent?.name} ({qrStudent?.id_number})
-            </DialogDescription>
-            <div className="mt-5 flex justify-center">
-              {qrBusy || !qrPassUrl ? (
-                <div className="py-12 flex items-center gap-2 text-muted-foreground font-mono text-xs">
-                  <Loader2 className="size-4 animate-spin" />
-                  GENERATING QR…
-                </div>
-              ) : (
-                <div className="w-56 rounded-lg overflow-hidden border border-border">
-                  <img src={qrPassUrl} alt={`QR pass for ${qrStudent.name}`} className="w-full h-auto" />
-                </div>
-              )}
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
-              {qrPassUrl && qrStudent && (
-                <Button
-                  render={<a href={qrPassUrl} download={`${qrStudent.id_number}-student-qr.png`} />}
-                  className="gap-2"
-                >
-                  <QrCode className="h-4 w-4" />
-                  DOWNLOAD QR
-                </Button>
-              )}
-            </div>
-          </DialogPopup>
-        </DialogPortal>
-      </Dialog>
     </div>
   )
 }

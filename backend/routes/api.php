@@ -5,12 +5,15 @@ use App\Http\Controllers\Api\Admin\ComplianceController;
 use App\Http\Controllers\Api\Admin\IssueController;
 use App\Http\Controllers\Api\Admin\RoomController;
 use App\Http\Controllers\Api\Admin\StudentController;
+use App\Http\Controllers\Api\Admin\StudentLogController;
+use App\Http\Controllers\Api\Admin\StudentViolationController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Guard\ComplianceController as GuardComplianceController;
 use App\Http\Controllers\Api\Guard\StudentScanController;
+use App\Http\Controllers\Api\Guard\ViolationController;
 use App\Http\Controllers\Api\Guard\VisitorRegistrationController as GuardVisitorRegistrationController;
 use App\Http\Controllers\Api\Guard\VisitorScanController;
 use App\Http\Controllers\Api\VisitorRegistrationController;
@@ -60,6 +63,12 @@ Route::middleware('auth:api')->group(function () {
         Route::match(['put', 'post'], '/students/{student}', [StudentController::class, 'update']);
         Route::delete('/students/{student}', [StudentController::class, 'destroy']);
 
+        Route::get('/student-logs', [StudentLogController::class, 'index']);
+        Route::get('/student-logs/{student}', [StudentLogController::class, 'show']);
+
+        Route::get('/student-violations', [StudentViolationController::class, 'index']);
+        Route::get('/student-violations/{student}', [StudentViolationController::class, 'show']);
+
         Route::get('/compliances', [ComplianceController::class, 'index']);
         Route::get('/compliances/{compliance}', [ComplianceController::class, 'show']);
         Route::post('/compliances', [ComplianceController::class, 'store']);
@@ -79,6 +88,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/students/lookup/{idNumber}', [StudentScanController::class, 'lookup']);
         Route::post('/students/{student}/check-in', [StudentScanController::class, 'checkIn']);
         Route::post('/students/{student}/check-out', [StudentScanController::class, 'checkOut']);
+        Route::post('/students/{student}/violations', [ViolationController::class, 'store']);
+
+        Route::get('/violation-types', [ViolationController::class, 'violationTypes']);
 
         Route::get('/rooms', [RoomController::class, 'index']);
         Route::get('/issues', [IssueController::class, 'index']);

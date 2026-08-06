@@ -6,6 +6,7 @@ const statusConfig = {
   Flagged: 'bg-status-flagged/15 text-status-flagged',
   Pending: 'bg-status-pending/15 text-status-pending',
   Logged: 'bg-info/15 text-info',
+  'Non-compliant': 'bg-status-flagged/15 text-status-flagged',
 }
 
 const dotColors = {
@@ -14,6 +15,7 @@ const dotColors = {
   Flagged: 'bg-status-flagged',
   Pending: 'bg-status-pending',
   Logged: 'bg-info',
+  'Non-compliant': 'bg-status-flagged',
 }
 
 export default function StatusChip({ status = 'Pending' }) {

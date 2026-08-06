@@ -48,4 +48,9 @@ class Student extends Model
     {
         return $this->hasMany(StudentTimeLog::class)->orderByDesc('time')->orderByDesc('id');
     }
+
+    public function violations(): HasMany
+    {
+        return $this->hasMany(StudentViolation::class)->latest();
+    }
 }
