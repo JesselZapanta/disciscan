@@ -68,6 +68,10 @@ Route::middleware('auth:api')->group(function () {
 
         Route::get('/student-violations', [StudentViolationController::class, 'index']);
         Route::get('/student-violations/{student}', [StudentViolationController::class, 'show']);
+        Route::post('/student-violations/{studentViolation}/resolve', [StudentViolationController::class, 'resolve']);
+        Route::post('/student-violations/{student}/resolve-all', [StudentViolationController::class, 'resolveAll']);
+
+        Route::post('/student-violations/{student}/unresolve-all', [StudentViolationController::class, 'unresolveAll']);
 
         Route::get('/compliances', [ComplianceController::class, 'index']);
         Route::get('/compliances/{compliance}', [ComplianceController::class, 'show']);

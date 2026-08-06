@@ -5,6 +5,7 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table'
+import StatusChip from '@/components/StatusChip'
 import * as studentViolationService from '../../../services/admin/studentViolations'
 import * as academicYearService from '../../../services/admin/academicYears'
 
@@ -194,19 +195,22 @@ export default function StudentViolations() {
                 <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
                   Contact No.
                 </TableHead>
+                <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
+                  Status
+                </TableHead>
                 <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-12 text-center text-muted-foreground font-mono text-xs">
+                  <TableCell colSpan={7} className="py-12 text-center text-muted-foreground font-mono text-xs">
                     LOADING STUDENTS…
                   </TableCell>
                 </TableRow>
               ) : students.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
                     <div className="text-2xl mb-2 text-info">◉</div>
                     {error || 'No students found'}
                   </TableCell>
@@ -235,6 +239,9 @@ export default function StudentViolations() {
                     </TableCell>
                     <TableCell className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
                       {student.contact_no}
+                    </TableCell>
+                    <TableCell className="px-5 py-3.5">
+                      <StatusChip status={student.status || 'Non-compliant'} />
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
                       <div className="flex items-center justify-end">
