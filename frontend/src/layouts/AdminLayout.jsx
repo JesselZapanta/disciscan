@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ClipboardList, BarChart3, ShieldCheck, Users, UserCheck, ListChecks, DoorOpen, TriangleAlert, CalendarDays, GraduationCap } from 'lucide-react'
+import { LayoutDashboard, ClipboardList, BarChart3, ShieldCheck, Users, UserCheck, ListChecks, DoorOpen, TriangleAlert, CalendarDays, GraduationCap, History, FileWarning } from 'lucide-react'
 import Logo from '../components/Logo.jsx'
 import UserAvatar from '../components/UserAvatar.jsx'
 import SignOutButton from '../components/SignOutButton.jsx'
@@ -17,6 +17,8 @@ const navItems = [
   { label: 'Compliance', path: '/admin/compliance', icon: ShieldCheck },
   { label: 'Academic Year', path: '/admin/academic-years', icon: CalendarDays },
   { label: 'Students', path: '/admin/students', icon: GraduationCap },
+  { label: 'Student Logs', path: '/admin/student-logs', icon: History },
+  { label: 'Student Violations', path: '/admin/student-violations', icon: FileWarning },
   { label: 'Records', path: '/admin/records', icon: ClipboardList },
   { label: 'Reports', path: '/admin/reports', icon: BarChart3 },
 ]

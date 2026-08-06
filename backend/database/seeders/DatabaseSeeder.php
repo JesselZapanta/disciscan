@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             IssueSeeder::class,
             AcademicYearSeeder::class,
             StudentSeeder::class,
+            StudentTimeLogSeeder::class,
+            StudentViolationSeeder::class,
         ]);
     }
 }

@@ -26,6 +26,10 @@ import Visitors from './pages/admin/visitors/Visitors.jsx'
 import AcademicYears from './pages/admin/academic-years/AcademicYears.jsx'
 import Students from './pages/admin/students/Students.jsx'
 import StudentImport from './pages/admin/students/StudentImport.jsx'
+import StudentLogs from './pages/admin/student-logs/StudentLogs.jsx'
+import StudentLogDetail from './pages/admin/student-logs/StudentLogDetail.jsx'
+import StudentViolations from './pages/admin/student-violations/StudentViolations.jsx'
+import StudentViolationDetail from './pages/admin/student-violations/StudentViolationDetail.jsx'
 import GuardVisitors from './pages/guard/visitors/Visitors.jsx'
 import GuardVisitorRegistration from './pages/guard/visitors/VisitorRegistration.jsx'
 import GuardCompliance from './pages/guard/compliance/Compliance.jsx'
@@ -33,6 +37,7 @@ import GuardComplianceFormPage from './pages/guard/compliance/ComplianceFormPage
 import Attendance from './pages/admin/Attendance.jsx'
 import VisitorScanner from './pages/guard/visitor-scanner/VisitorScanner.jsx'
 import StudentScanner from './pages/guard/student-scanner/StudentScanner.jsx'
+import ViolationScanner from './pages/guard/violation-scanner/ViolationScanner.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
 import ViolationForm from './pages/guard/ViolationForm.jsx'
 import VisitorRegistration from './pages/guard/VisitorRegistration.jsx'
@@ -163,6 +168,22 @@ export default function App() {
             path="students/import"
             element={<StudentImport />}
           />
+          <Route
+            path="student-logs"
+            element={<StudentLogs />}
+          />
+          <Route
+            path="student-logs/:id"
+            element={<StudentLogDetail />}
+          />
+          <Route
+            path="student-violations"
+            element={<StudentViolations />}
+          />
+          <Route
+            path="student-violations/:id"
+            element={<StudentViolationDetail />}
+          />
         </Route>
 
         {/* Guard routes */}
@@ -179,6 +200,7 @@ export default function App() {
           <Route path="visitor/scan" element={<VisitorScanner />} />
           <Route path="visitor/register" element={<GuardVisitorRegistration />} />
           <Route path="student/scan" element={<StudentScanner />} />
+          <Route path="violation/scan" element={<ViolationScanner />} />
           <Route path="compliance" element={<GuardCompliance />} />
           <Route path="compliance/new" element={<GuardComplianceFormPage />} />
           <Route path="compliance/:id/edit" element={<GuardComplianceFormPage />} />

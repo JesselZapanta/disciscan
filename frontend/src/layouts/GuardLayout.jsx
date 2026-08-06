@@ -13,8 +13,8 @@ const navItems = [
   { label: 'Visitor Registration', path: '/guard/visitor/register', icon: UserPlus },
   { label: 'Visitor Scanner', path: '/guard/visitor/scan', icon: QrCode },
   { label: 'Student Scanner', path: '/guard/student/scan', icon: GraduationCap },
+  { label: 'Violation Scanner', path: '/guard/violation/scan', icon: FileWarning },
   { label: 'Compliance', path: '/guard/compliance', icon: ClipboardCheck },
-  { label: 'Violation Form', path: '/guard/violation', icon: FileWarning },
 ]
 
 export default function GuardLayout() {

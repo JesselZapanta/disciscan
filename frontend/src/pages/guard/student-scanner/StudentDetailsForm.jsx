@@ -1,70 +1,38 @@
-import { Input } from '@/components/ui/input'
+import { UserRound } from 'lucide-react'
+
+function Field({ label, value }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+        {label}
+      </div>
+      <div className="mt-1.5 text-sm font-semibold text-foreground break-words leading-snug">
+        {value || '—'}
+      </div>
+    </div>
+  )
+}
 
 export default function StudentDetailsForm({ student }) {
   return (
-    <form
-      className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-4"
-      onSubmit={(e) => e.preventDefault()}
-    >
-      <div className="space-y-1.5">
-        <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-          Full name
-        </label>
-        <Input
-          type="text"
-          value={student.name}
-          readOnly
-          className="h-9 text-sm bg-secondary border-border rounded-md"
-        />
+    <div className="mt-5 border-t border-border pt-4">
+      <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+        <UserRound className="size-3" /> Student details
       </div>
-      <div className="space-y-1.5">
-        <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-          ID number
-        </label>
-        <Input
-          type="text"
-          value={student.id_number}
-          readOnly
-          className="h-9 text-sm bg-secondary border-border rounded-md"
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-          Contact number
-        </label>
-        <Input
-          type="text"
-          value={student.contact_no}
-          readOnly
-          className="h-9 text-sm bg-secondary border-border rounded-md"
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-          Program &amp; year
-        </label>
-        <Input
-          type="text"
-          value={student.program_and_year}
-          readOnly
-          className="h-9 text-sm bg-secondary border-border rounded-md"
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-          Academic year
-        </label>
-        <Input
-          type="text"
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+        <Field label="Full name" value={student.name} />
+        <Field label="ID number" value={student.id_number} />
+        <Field label="Contact number" value={student.contact_no} />
+        <Field label="Program &amp; year" value={student.program_and_year} />
+        <Field
+          label="Academic year"
           value={
             student.academic_year?.code
               ? `${student.academic_year.code} — ${student.academic_year.description}`
               : '—'
           }
-          readOnly
-          className="h-9 text-sm bg-secondary border-border rounded-md"
         />
       </div>
-    </form>
+    </div>
   )
 }
