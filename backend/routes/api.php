@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AcademicYearController;
+use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\ComplianceController;
 use App\Http\Controllers\Api\Admin\IssueController;
 use App\Http\Controllers\Api\Admin\RoomController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\Admin\ViolationTypeController;
 use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitorRegistrationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Guard\ComplianceController as GuardComplianceController;
+use App\Http\Controllers\Api\Guard\GuardDashboardController;
 use App\Http\Controllers\Api\Guard\StudentScanController;
 use App\Http\Controllers\Api\Guard\ViolationController;
 use App\Http\Controllers\Api\Guard\VisitorRegistrationController as GuardVisitorRegistrationController;
@@ -31,6 +33,8 @@ Route::middleware('auth:api')->group(function () {
     Route::match(['put', 'post'], '/profile', [AuthController::class, 'updateProfile']);
 
     Route::prefix('admin')->middleware('admin')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::match(['put', 'post'], '/users/{user}', [UserController::class, 'update']);
@@ -68,6 +72,10 @@ Route::middleware('auth:api')->group(function () {
 
         Route::get('/student-violations', [StudentViolationController::class, 'index']);
         Route::get('/student-violations/{student}', [StudentViolationController::class, 'show']);
+        Route::post('/student-violations/{studentViolation}/resolve', [StudentViolationController::class, 'resolve']);
+        Route::post('/student-violations/{student}/resolve-all', [StudentViolationController::class, 'resolveAll']);
+
+        Route::post('/student-violations/{student}/unresolve-all', [StudentViolationController::class, 'unresolveAll']);
 
         Route::get('/compliances', [ComplianceController::class, 'index']);
         Route::get('/compliances/{compliance}', [ComplianceController::class, 'show']);
@@ -79,6 +87,8 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('guard')->middleware('guard')->group(function () {
+        Route::get('/dashboard', [GuardDashboardController::class, 'index']);
+
         Route::get('/visitors', [GuardVisitorRegistrationController::class, 'index']);
         Route::get('/visitors/lookup/{recordNo}', [VisitorScanController::class, 'lookup']);
         Route::match(['put', 'post'], '/visitors/{visitor}', [VisitorScanController::class, 'update']);

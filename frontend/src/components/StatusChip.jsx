@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 
 const statusConfig = {
   Cleared: 'bg-status-cleared/15 text-status-cleared',
-  Resolved: 'bg-muted-foreground/15 text-muted-foreground',
+  Resolved: 'bg-status-cleared/15 text-status-cleared',
   Flagged: 'bg-status-flagged/15 text-status-flagged',
   Pending: 'bg-status-pending/15 text-status-pending',
   Logged: 'bg-info/15 text-info',
@@ -11,7 +11,7 @@ const statusConfig = {
 
 const dotColors = {
   Cleared: 'bg-status-cleared',
-  Resolved: 'bg-muted-foreground',
+  Resolved: 'bg-status-cleared',
   Flagged: 'bg-status-flagged',
   Pending: 'bg-status-pending',
   Logged: 'bg-info',

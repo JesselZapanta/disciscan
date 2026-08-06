@@ -26,6 +26,9 @@ class StudentResource extends JsonResource
             'program_and_year' => $this->program_and_year,
             'academic_year_id' => $this->academic_year_id,
             'academic_year' => new AcademicYearResource($this->whenLoaded('academicYear')),
+            'status' => $this->non_compliant_count === null
+                ? null
+                : ($this->non_compliant_count > 0 ? 'Non-compliant' : 'Resolved'),
             'created_at' => $this->created_at,
         ];
     }

@@ -16,7 +16,8 @@ class StudentViolationController extends Controller
     {
         $students = Student::query()
             ->with('academicYear')
-            ->whereHas('violations', fn ($query) => $query->where('status', StudentViolation::STATUS_NON_COMPLIANT))
+            ->whereHas('violations')
+            ->withCount(['violations as non_compliant_count' => fn ($query) => $query->where('status', '!=', StudentViolation::STATUS_RESOLVED)])
             ->when($request->filled('search'), function ($query) use ($request): void {
                 $search = trim($request->input('search'));
                 $query->where(function ($query) use ($search): void {
@@ -77,5 +78,38 @@ class StudentViolationController extends Controller
             'student' => new StudentResource($student),
             'days' => $days,
         ];
+    }
+
+    public function resolve(StudentViolation $studentViolation): array
+    {
+        $studentViolation->update(['status' => StudentViolation::STATUS_RESOLVED]);
+
+        return [
+            'id' => $studentViolation->id,
+            'status' => $studentViolation->status,
+        ];
+    }
+
+    public function resolveAll(Student $student): array
+    {
+        $resolved = StudentViolation::query()
+            ->where('student_id', $student->id)
+            ->where('status', '!=', StudentViolation::STATUS_RESOLVED)
+            ->update(['status' => StudentViolation::STATUS_RESOLVED]);
+
+        return ['resolved' => $resolved];
+    }
+
+    public function unresolveAll(Request $request, Student $student): array
+    {
+        $violationIds = array_map('intval', $request->input('violation_ids', []));
+
+        $unresolved = StudentViolation::query()
+            ->where('student_id', $student->id)
+            ->whereIn('id', $violationIds)
+            ->where('status', StudentViolation::STATUS_RESOLVED)
+            ->update(['status' => StudentViolation::STATUS_NON_COMPLIANT]);
+
+        return ['unresolved' => $unresolved];
     }
 }

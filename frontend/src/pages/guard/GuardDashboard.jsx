@@ -1,7 +1,19 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  CalendarDays,
+  FileWarning,
+  Loader2,
+  RotateCw,
+  ScanLine,
+  TriangleAlert,
+  Users,
+} from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import StatusChip from '../../components/StatusChip.jsx'
-import { useAuth } from '../../contexts/AuthContext.jsx'
+import { BarsChart, LineChart, Donut, RangeSelect } from '../../components/dashboard/Charts.jsx'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableHeader,
@@ -10,216 +22,360 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table'
+import { getDashboard } from '../../services/guard/dashboard'
 
-const statCards = [
-  { label: 'Scans Today', value: '212', trend: '▲ 9%', trendClass: 'text-status-cleared' },
-  { label: 'Visitors Logged', value: '36', trend: '— steady', trendClass: 'text-info' },
-  { label: 'Violations Flagged', value: '8', trend: '▲ 2', trendClass: 'text-status-flagged' },
-  { label: 'Clearances Issued', value: '41', trend: '▲ 5%', trendClass: 'text-status-cleared' },
-]
+function formatNumber(value) {
+  return Number(value ?? 0).toLocaleString('en-US')
+}
 
-const topActivity = [
-  { label: 'Time-in scans', pct: 58 },
-  { label: 'Visitor entries', pct: 24 },
-  { label: 'Violation flags', pct: 11 },
-  { label: 'Clearances', pct: 7 },
-]
+function greeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
 
-const recentScans = [
-  {
-    time: '08:14:02',
-    name: 'Marielle Sombilon',
-    id: '22-01147',
-    type: 'Time-in recorded',
-    loggedBy: 'Gate 1',
-    status: 'Cleared',
-  },
-  {
-    time: '08:11:47',
-    name: 'Visitor — J. Ramos',
-    id: 'VIS-0219',
-    type: 'Visitor entry logged',
-    loggedBy: 'Gate 1',
-    status: 'Logged',
-  },
-  {
-    time: '08:09:15',
-    name: 'Andrei Cabahug',
-    id: '21-00932',
-    type: 'Incomplete uniform',
-    loggedBy: 'Gate 1',
-    status: 'Flagged',
-  },
-  {
-    time: '08:02:33',
-    name: 'Kimberly Magsayo',
-    id: 'STAFF-014',
-    type: 'Time-in recorded',
-    loggedBy: 'Gate 1',
-    status: 'Cleared',
-  },
-]
+function trendOf(current, prev) {
+  if (prev <= 0) return current > 0 ? { label: '▲ NEW', up: true } : { label: '—', up: null }
+  const diff = current - prev
+  const pct = Math.abs(Math.round((diff / prev) * 100))
+  return diff > 0 ? { label: `▲ ${pct}%`, up: true } : diff < 0 ? { label: `▼ ${pct}%`, up: false } : { label: '— steady', up: null }
+}
+
+function formatTime(iso) {
+  if (!iso) return '—'
+  const date = new Date(iso)
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+}
 
 export default function GuardDashboard() {
   const { user } = useAuth()
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [days, setDays] = useState(15)
+
+  const load = useCallback(() => {
+    setLoading(true)
+    setError('')
+    getDashboard(days)
+      .then((res) => setData(res))
+      .catch(() => setError('Failed to load the dashboard.'))
+      .finally(() => setLoading(false))
+  }, [days])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  const kpis = data?.kpis
+  const series = data?.series || []
+  const recentScans = data?.recent_scans || []
+
+  const todayLabel = useMemo(
+    () =>
+      new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    []
+  )
+
+  const statCards = useMemo(() => {
+    if (!kpis) return []
+    return [
+      {
+        label: 'Scans Today',
+        value: formatNumber(kpis.scans_today),
+        icon: ScanLine,
+        accent: 'text-primary',
+        to: '/guard/student/scan',
+        trend: trendOf(kpis.scans_today, kpis.scans_yesterday),
+      },
+      {
+        label: 'Visitors Today',
+        value: formatNumber(kpis.visitors_today),
+        icon: Users,
+        accent: 'text-info',
+        to: '/guard/visitor/scan',
+        trend: trendOf(kpis.visitors_today, kpis.visitors_yesterday),
+      },
+      {
+        label: 'Violations Flagged',
+        value: formatNumber(kpis.violations_today),
+        icon: FileWarning,
+        accent: 'text-status-flagged',
+        to: '/guard/violation/scan',
+        trend: trendOf(kpis.violations_today, kpis.violations_yesterday),
+      },
+      {
+        label: 'Pending Violations',
+        value: formatNumber(kpis.pending_violations),
+        icon: TriangleAlert,
+        accent: 'text-status-flagged',
+        to: '/guard/violation/scan',
+        trend: null,
+      },
+    ]
+  }, [kpis])
 
   return (
     <div>
       {/* page header */}
-      <div className="border-b border-border px-6 lg:px-10 py-5 flex items-center justify-between flex-wrap gap-3">
+      <div className="border-b border-border px-4 sm:px-6 lg:px-10 py-4 sm:py-5 flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="text-[11px] font-mono uppercase tracking-widest">
             <span className="text-primary">Guard</span>
             <span className="text-muted-foreground"> / </span>
             <span className="text-brand-green">Overview</span>
           </div>
-          <h1 className="text-2xl font-bold mt-1 text-foreground">
-            Good morning, {user?.name?.split(' ')[0] || 'Guard'}.
+          <h1 className="text-xl sm:text-2xl font-bold mt-1 text-foreground">
+            {greeting()}, {user?.name?.split(' ')[0] || 'Guard'}.
           </h1>
+          <p className="mt-0.5 text-xs font-mono text-muted-foreground flex items-center gap-1.5">
+            <CalendarDays className="size-3" /> {todayLabel}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-xs font-mono text-status-cleared border border-status-cleared/30 bg-status-cleared/10 rounded-full px-3 py-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-status-cleared" /> GATE 1 ONLINE
-          </span>
+        <div className="flex items-center gap-3 flex-wrap">
+          <RangeSelect value={days} onChange={setDays} />
+          <Button
+            variant="outline"
+            onClick={load}
+            disabled={loading}
+            className="h-auto! px-4 py-2 text-xs font-mono rounded hover:border-primary hover:text-primary gap-2"
+          >
+            <RotateCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            REFRESH
+          </Button>
           <Link
             to="/guard/visitor/scan"
-            className="text-xs font-mono border border-border px-4 py-2 rounded text-foreground hover:border-primary hover:text-primary transition"
+            className="text-xs font-mono border border-primary/40 bg-primary/10 text-primary px-4 py-2 rounded hover:bg-primary/20 transition"
           >
             OPEN SCANNER →
           </Link>
         </div>
       </div>
 
-      <div className="px-6 lg:px-10 py-8">
-        {/* stat cards */}
-        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-          {statCards.map((stat) => (
-            <CornerBracket key={stat.label} className="border border-border bg-card rounded-lg p-5">
-              <span className="font-mono text-[11px] text-muted-foreground uppercase tracking-wide">
-                {stat.label}
-              </span>
-              <div className="flex items-end justify-between mt-3">
-                <span className="text-3xl font-extrabold font-mono text-foreground">{stat.value}</span>
-                <span className={`text-xs font-mono mb-1 ${stat.trendClass}`}>{stat.trend}</span>
-              </div>
-            </CornerBracket>
-          ))}
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* chart */}
-          <div className="lg:col-span-2 border border-border bg-card rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-semibold text-sm text-foreground">
-                Scans by hour — today
-              </h2>
-              <span className="text-[11px] font-mono text-muted-foreground">06:00 – 18:00</span>
-            </div>
-            <svg viewBox="0 0 560 180" className="w-full h-44">
-              <line x1="0" y1="150" x2="560" y2="150" stroke="#2A323D" strokeWidth="1" />
-              <line x1="0" y1="100" x2="560" y2="100" stroke="#2A323D" strokeWidth="1" />
-              <line x1="0" y1="50" x2="560" y2="50" stroke="#2A323D" strokeWidth="1" />
-              <polyline
-                fill="none"
-                stroke="#F5A623"
-                strokeWidth="2.5"
-                points="0,140 47,110 94,60 140,40 187,75 234,95 280,55 327,30 374,65 420,100 467,120 560,105"
-              />
-              <polyline
-                fill="url(#g1)"
-                stroke="none"
-                points="0,140 47,110 94,60 140,40 187,75 234,95 280,55 327,30 374,65 420,100 467,120 560,105 560,180 0,180"
-              />
-              <defs>
-                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F5A623" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#F5A623" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <div className="flex justify-between text-[10px] font-mono text-muted-foreground mt-2">
-              <span>06</span>
-              <span>08</span>
-              <span>10</span>
-              <span>12</span>
-              <span>14</span>
-              <span>16</span>
-              <span>18</span>
-            </div>
+      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-8">
+        {loading && !data ? (
+          <div className="border border-border bg-card rounded-lg p-12 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="size-6 text-brand-green animate-spin" />
+            <span className="text-[11px] font-mono text-muted-foreground tracking-widest">
+              LOADING DASHBOARD…
+            </span>
           </div>
-
-          {/* top activity */}
-          <div className="border border-border bg-card rounded-lg p-6">
-            <h2 className="font-semibold text-sm mb-5 text-foreground">Activity breakdown</h2>
-            <div className="space-y-4 font-mono text-xs">
-              {topActivity.map((v) => (
-                <div key={v.label}>
-                  <div className="flex justify-between mb-1.5">
-                    <span className="text-foreground">{v.label}</span>
-                    <span className="text-muted-foreground">{v.pct}%</span>
+        ) : error || !data ? (
+          <div className="border border-status-flagged/30 bg-status-flagged/5 rounded-xl p-12 flex flex-col items-center justify-center text-center">
+            <TriangleAlert className="size-7 text-status-flagged" />
+            <h2 className="mt-4 text-base font-semibold text-status-flagged">Load failed</h2>
+            <p className="mt-1 text-sm text-muted-foreground max-w-sm">{error}</p>
+            <Button type="button" onClick={load} className="mt-5 text-xs font-mono font-bold rounded-xl">
+              RETRY
+            </Button>
+          </div>
+        ) : (
+          <>
+            {/* KPI cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5 mb-6">
+              {statCards.map((stat) => (
+                <CornerBracket key={stat.label} className="border border-border bg-card rounded-lg p-4 sm:p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] text-muted-foreground uppercase tracking-wide">
+                      {stat.label}
+                    </span>
+                    <stat.icon className={`size-4 shrink-0 ${stat.accent}`} />
                   </div>
-                  <div className="h-1.5 bg-border rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full"
-                      style={{ width: `${v.pct}%` }}
-                    />
+                  <div className="flex items-end justify-between mt-3">
+                    <span className="text-2xl sm:text-3xl font-extrabold font-mono text-foreground">
+                      {stat.value}
+                    </span>
+                    {stat.trend ? (
+                      <span
+                        className={`text-xs font-mono mb-1 ${
+                          stat.trend.up === null
+                            ? 'text-muted-foreground'
+                            : stat.trend.up
+                              ? 'text-status-cleared'
+                              : 'text-status-flagged'
+                        }`}
+                      >
+                        {stat.trend.label}
+                      </span>
+                    ) : (
+                      <Link
+                        to={stat.to}
+                        className="text-[10px] font-mono text-primary hover:underline mb-1"
+                      >
+                        VIEW →
+                      </Link>
+                    )}
+                  </div>
+                </CornerBracket>
+              ))}
+            </div>
+
+            {/* charts grid */}
+            <div className="grid lg:grid-cols-2 gap-3 sm:gap-6 mb-6">
+              <div className="border border-border bg-card rounded-lg p-4 sm:p-6">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+                  <h2 className="font-semibold text-sm text-foreground">Check-ins — last {days} days</h2>
+                  <span className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+                    <span className="inline-block h-0.5 w-4 rounded bg-blue-500" /> CHECK-INS
+                  </span>
+                </div>
+                <LineChart
+                  data={series.map((s) => ({ label: s.label, value: s.checkins }))}
+                  color="#3B82F6"
+                  name="Check-ins"
+                />
+              </div>
+
+              <div className="border border-border bg-card rounded-lg p-4 sm:p-6">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+                  <h2 className="font-semibold text-sm text-foreground">Violations — last {days} days</h2>
+                  <span className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+                    <span className="inline-block h-0.5 w-4 rounded bg-status-flagged" /> VIOLATIONS
+                  </span>
+                </div>
+                <LineChart
+                  data={series.map((s) => ({ label: s.label, value: s.violations }))}
+                  color="#DC2626"
+                  name="Violations"
+                />
+              </div>
+
+              <div className="border border-border bg-card rounded-lg p-4 sm:p-6">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+                  <h2 className="font-semibold text-sm text-foreground">Visitor traffic — last {days} days</h2>
+                  <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground">
+                    <Link to="/guard/visitor/scan" className="text-primary hover:underline">
+                      OPEN SCANNER →
+                    </Link>
+                    <span className="flex items-center gap-1.5">
+                      <span className="inline-block h-2 w-2 rounded-sm bg-status-cleared/85" /> VISITORS
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+                <BarsChart
+                  data={series.map((s) => ({ label: s.label, value: s.visitors }))}
+                  color="#16A34A"
+                  name="Visitors"
+                />
+              </div>
 
-        {/* recent scans table */}
-        <div className="mt-6 border border-border bg-card rounded-lg overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h2 className="font-semibold text-sm text-foreground">Recent scans</h2>
-            <Link to="/guard/visitor/scan" className="text-[11px] font-mono text-primary hover:underline">
-              OPEN SCANNER →
-            </Link>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                  Time
-                </TableHead>
-                <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                  Name / ID
-                </TableHead>
-                <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                  Type
-                </TableHead>
-                <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                  Gate
-                </TableHead>
-                <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                  Status
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentScans.map((row) => (
-                <TableRow key={row.time}>
-                  <TableCell className="px-6 py-3.5 font-mono text-muted-foreground text-xs">
-                    {row.time}
-                  </TableCell>
-                  <TableCell className="px-6 py-3.5">
-                    <div className="font-medium text-foreground">{row.name}</div>
-                    <div className="text-[11px] font-mono text-muted-foreground">{row.id}</div>
-                  </TableCell>
-                  <TableCell className="px-6 py-3.5 text-muted-foreground">{row.type}</TableCell>
-                  <TableCell className="px-6 py-3.5 text-muted-foreground font-mono text-xs">
-                    {row.loggedBy}
-                  </TableCell>
-                  <TableCell className="px-6 py-3.5">
-                    <StatusChip status={row.status} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              <div className="border border-border bg-card rounded-lg p-4 sm:p-6">
+                <h2 className="font-semibold text-sm mb-4 text-foreground">Violation resolution</h2>
+                <Donut rate={kpis.resolution_rate} />
+                <div className="mt-5 space-y-2.5 font-mono text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="inline-block h-2 w-2 rounded-full bg-status-cleared" /> Resolved
+                    </span>
+                    <span className="text-foreground font-semibold">{formatNumber(kpis.resolved_violations)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="inline-block h-2 w-2 rounded-full bg-status-flagged" /> Non-compliant
+                    </span>
+                    <span className="text-foreground font-semibold">{formatNumber(kpis.pending_violations)}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-border pt-2.5">
+                    <span className="text-muted-foreground">Total recorded</span>
+                    <span className="text-foreground font-semibold">{formatNumber(kpis.total_violations)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* recent scans */}
+            <div className="border border-border bg-card rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border flex-wrap gap-2">
+                <h2 className="font-semibold text-sm text-foreground">Recent scans</h2>
+                <Link to="/guard/visitor/scan" className="text-[11px] font-mono text-primary hover:underline">
+                  OPEN SCANNER →
+                </Link>
+              </div>
+              {recentScans.length === 0 ? (
+                <p className="px-6 py-8 text-center text-xs font-mono text-muted-foreground">
+                  No scans recorded yet. Open the scanner to log your first entry.
+                </p>
+              ) : (
+                <>
+                  {/* mobile cards */}
+                  <div className="divide-y divide-border md:hidden">
+                    {recentScans.map((row, index) => (
+                      <div key={`${row.type}-${index}`} className="px-4 py-3.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-foreground text-sm truncate">{row.name}</span>
+                          <span className="font-mono text-[10px] text-muted-foreground shrink-0">{formatTime(row.time)}</span>
+                        </div>
+                        <div className="mt-1 flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="text-[11px] font-mono text-muted-foreground truncate">{row.id}</div>
+                            <div className="text-xs text-muted-foreground truncate mt-0.5">{row.type}</div>
+                          </div>
+                          <StatusChip status={row.status} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* desktop table */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
+                            Time
+                          </TableHead>
+                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
+                            Name / ID
+                          </TableHead>
+                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
+                            Type
+                          </TableHead>
+                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
+                            Gate
+                          </TableHead>
+                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
+                            Status
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {recentScans.map((row, index) => (
+                          <TableRow key={`${row.type}-${index}`}>
+                            <TableCell className="px-6 py-3.5 font-mono text-muted-foreground text-xs">
+                              {formatTime(row.time)}
+                            </TableCell>
+                            <TableCell className="px-6 py-3.5">
+                              <div className="font-medium text-foreground">{row.name}</div>
+                              <div className="text-[11px] font-mono text-muted-foreground">{row.id}</div>
+                            </TableCell>
+                            <TableCell className="px-6 py-3.5 text-muted-foreground">{row.type}</TableCell>
+                            <TableCell className="px-6 py-3.5 text-muted-foreground font-mono text-xs">
+                              {row.logged_by || '—'}
+                            </TableCell>
+                            <TableCell className="px-6 py-3.5">
+                              <StatusChip status={row.status} />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

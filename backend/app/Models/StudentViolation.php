@@ -11,6 +11,8 @@ class StudentViolation extends Model
 {
     public const STATUS_NON_COMPLIANT = 'Non-compliant';
 
+    public const STATUS_RESOLVED = 'Resolved';
+
     /** @use HasFactory<StudentViolationFactory> */
     use HasFactory;
 
