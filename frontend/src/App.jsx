@@ -12,7 +12,6 @@ import Legal from './pages/Legal.jsx'
 import PublicVisitorRegistration from './pages/VisitorRegistration.jsx'
 import Login from './pages/auth/Login.jsx'
 import Dashboard from './pages/admin/Dashboard.jsx'
-import Records from './pages/admin/Records.jsx'
 import Violations from './pages/admin/Violations.jsx'
 import Users from './pages/admin/users/Users.jsx'
 import ViolationTypes from './pages/admin/violation-types/ViolationTypes.jsx'
@@ -128,7 +127,6 @@ export default function App() {
         >
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="records" element={<Records />} />
           <Route path="violations" element={<Violations />} />
           <Route path="users" element={<Users />} />
           <Route path="violation-types" element={<ViolationTypes />} />
