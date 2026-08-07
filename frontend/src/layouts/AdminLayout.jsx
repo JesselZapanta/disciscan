@@ -27,8 +27,8 @@ export default function AdminLayout() {
   const { user } = useAuth()
 
   return (
-    <div className="h-dvh bg-background flex overflow-hidden">
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card">
+    <div className="h-dvh bg-background flex overflow-hidden print:block print:h-auto print:overflow-visible">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card print:hidden">
         <div className="px-6 py-6 flex items-center gap-2.5 border-b border-border">
           <Link to="/" className="flex items-center gap-2.5">
             <Logo size={28} />
@@ -80,9 +80,9 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0 print:overflow-visible">
         {/* Mobile-only header */}
-        <header className="lg:hidden flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 sm:px-6">
+        <header className="lg:hidden flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 sm:px-6 print:hidden">
           <Link to="/" className="flex items-center gap-2">
             <Logo size={24} />
             <span className="text-sm font-semibold font-sans tracking-tight">
@@ -92,36 +92,38 @@ export default function AdminLayout() {
           </Link>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden dot-grid">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden dot-grid print:overflow-visible">
           <div className="mx-auto w-full max-w-[1400px] pb-16 lg:pb-0">
             <Outlet />
           </div>
         </main>
       </div>
 
-      <MobileBottomNav
-        items={navItems}
-        renderFooter={(close) => (
-          <>
-            <Link
-              to="/admin/profile"
-              onClick={close}
-              className="flex items-center gap-3 px-3 py-2 rounded bg-secondary border border-transparent hover:border-border transition"
-            >
-              <UserAvatar user={user} className="w-8 h-8 rounded" textClassName="text-xs" />
-              <div className="min-w-0">
-                <div className="text-xs font-semibold text-foreground truncate">
-                  {user?.name || 'Admin'}
+      <div className="print:hidden">
+        <MobileBottomNav
+          items={navItems}
+          renderFooter={(close) => (
+            <>
+              <Link
+                to="/admin/profile"
+                onClick={close}
+                className="flex items-center gap-3 px-3 py-2 rounded bg-secondary border border-transparent hover:border-border transition"
+              >
+                <UserAvatar user={user} className="w-8 h-8 rounded" textClassName="text-xs" />
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-foreground truncate">
+                    {user?.name || 'Admin'}
+                  </div>
+                  <div className="text-[10px] font-mono text-muted-foreground">
+                    {(user?.role || 'ADMIN').toUpperCase()}
+                  </div>
                 </div>
-                <div className="text-[10px] font-mono text-muted-foreground">
-                  {(user?.role || 'ADMIN').toUpperCase()}
-                </div>
-              </div>
-            </Link>
-            <SignOutButton />
-          </>
-        )}
-      />
+              </Link>
+              <SignOutButton />
+            </>
+          )}
+        />
+      </div>
     </div>
   )
 }

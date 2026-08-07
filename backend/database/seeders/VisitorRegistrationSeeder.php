@@ -19,13 +19,13 @@ class VisitorRegistrationSeeder extends Seeder
     {
         return [
             [
-                'fullname' => 'Mildi kler',
+                'fullname' => 'Romel Ondona',
                 'contact' => '09123456789',
                 'purpose' => 'Meeting with faculty/staff',
                 'purpose_other' => null,
                 'person_office_to_visit' => "Registrar's Office",
                 'id_type' => 'National ID',
-                'id_number' => '0000-0000-0000',
+                'id_number' => '02120-01200-6400',
                 'visit_date' => '2026-08-01',
                 'type' => 'visitor',
                 'status' => 'pending',

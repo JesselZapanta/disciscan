@@ -15,3 +15,11 @@ export function getMe() {
 export function updateProfile(data) {
   return api.post('/profile', data)
 }
+
+export function forgotPassword(email) {
+  return api.post('/forgot-password', { email })
+}
+
+export function resetPassword(data) {
+  return api.post('/reset-password', data)
+}

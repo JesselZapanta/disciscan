@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, QrCode, FileWarning, UserPlus, ClipboardCheck, GraduationCap } from 'lucide-react'
+import { BarChart3, LayoutDashboard, QrCode, FileWarning, UserPlus, ClipboardCheck, GraduationCap } from 'lucide-react'
 import Logo from '../components/Logo.jsx'
 import UserAvatar from '../components/UserAvatar.jsx'
 import SignOutButton from '../components/SignOutButton.jsx'
@@ -15,6 +15,7 @@ const navItems = [
   { label: 'Student Scanner', path: '/guard/student/scan', icon: GraduationCap },
   { label: 'Violation Scanner', path: '/guard/violation/scan', icon: FileWarning },
   { label: 'Compliance', path: '/guard/compliance', icon: ClipboardCheck },
+  { label: 'Reports', path: '/guard/reports', icon: BarChart3 },
 ]
 
 export default function GuardLayout() {

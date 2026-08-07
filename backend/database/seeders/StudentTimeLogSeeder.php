@@ -13,21 +13,26 @@ class StudentTimeLogSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    private const STUDENT_ID = 10000;
+    private const STUDENT_ID_FROM = 1;
+
+    private const STUDENT_ID_TO = 5000;
 
     private const DATE_FROM = '2026-05-01';
 
     private const DATE_TO = '2026-07-31';
 
     /**
-     * Seed time logs for student 10000 on every weekday from May to July 2026.
+     * Seed time logs for all students with IDs 1 to 5000.
+     *
+     * Every student gets 1 to 3 in/out pairs on each weekday from May to July 2026.
+     * Roughly one in four students also has logs on some Saturdays and Sundays.
      */
     public function run(): void
     {
-        $student = Student::find(self::STUDENT_ID);
+        $students = Student::whereBetween('id', [self::STUDENT_ID_FROM, self::STUDENT_ID_TO])->get();
 
-        if ($student === null) {
-            $this->command->warn('Student '.self::STUDENT_ID.' not found; skipping student time log seeding.');
+        if ($students->isEmpty()) {
+            $this->command->warn('No students found in ID range '.self::STUDENT_ID_FROM.'-'.self::STUDENT_ID_TO.'; skipping student time log seeding.');
 
             return;
         }
@@ -35,56 +40,93 @@ class StudentTimeLogSeeder extends Seeder
         $start = Carbon::parse(self::DATE_FROM)->startOfDay();
         $end = Carbon::parse(self::DATE_TO)->endOfDay();
 
-        StudentTimeLog::where('student_id', $student->id)
-            ->whereBetween('time', [$start, $end])
-            ->delete();
+        StudentTimeLog::whereBetween('time', [$start, $end])->delete();
 
         $guardIds = User::where('role', 'guard')->pluck('id')->all();
+        $rows = [];
         $created = 0;
 
-        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            if ($date->isWeekend()) {
-                continue;
-            }
+        foreach ($students as $student) {
+            $includesWeekends = random_int(1, 4) === 1;
 
-            foreach ($this->logPairsForDay($date) as [$in, $out]) {
-                $performedBy = $guardIds === [] ? null : $guardIds[array_rand($guardIds)];
+            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+                $pairs = $this->pairsForDay($date, $includesWeekends);
 
-                StudentTimeLog::create([
-                    'student_id' => $student->id,
-                    'type' => 'in',
-                    'time' => $in,
-                    'performed_by' => $performedBy,
-                    'academic_year_id' => $student->academic_year_id,
-                ]);
+                foreach ($pairs as [$in, $out]) {
+                    $performedBy = $guardIds === [] ? null : $guardIds[array_rand($guardIds)];
 
-                StudentTimeLog::create([
-                    'student_id' => $student->id,
-                    'type' => 'out',
-                    'time' => $out,
-                    'performed_by' => $performedBy,
-                    'academic_year_id' => $student->academic_year_id,
-                ]);
+                    $rows[] = [
+                        'student_id' => $student->id,
+                        'type' => 'in',
+                        'time' => $in,
+                        'performed_by' => $performedBy,
+                        'academic_year_id' => $student->academic_year_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
 
-                $created += 2;
+                    $rows[] = [
+                        'student_id' => $student->id,
+                        'type' => 'out',
+                        'time' => $out,
+                        'performed_by' => $performedBy,
+                        'academic_year_id' => $student->academic_year_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
+                    $created += 2;
+
+                    if (count($rows) >= 500) {
+                        StudentTimeLog::insert($rows);
+                        $rows = [];
+                    }
+                }
             }
         }
 
-        $this->command->info("Seeded {$created} time logs for student {$student->id} from ".self::DATE_FROM.' to '.self::DATE_TO.'.');
+        if ($rows !== []) {
+            StudentTimeLog::insert($rows);
+        }
+
+        $this->command->info("Seeded {$created} time logs for {$students->count()} students from ".self::DATE_FROM.' to '.self::DATE_TO.'.');
     }
 
     /**
-     * Generate 1 to 3 in/out pairs within school hours for a given day.
+     * Generate the in/out pairs for a given day.
+     *
+     * Weekdays always get 1 to 3 pairs. Weekend days are skipped entirely for
+     * most students; for the remaining students each weekend day has a 40% chance
+     * of producing 1 to 2 pairs within shorter hours.
      *
      * @return array<int, array{Carbon, Carbon}>
      */
-    private function logPairsForDay(Carbon $date): array
+    private function pairsForDay(Carbon $date, bool $includesWeekends): array
     {
-        $pairs = random_int(1, 3);
+        if ($date->isWeekday()) {
+            return $this->logPairsForDay($date, [[7, 9], [10, 12], [13, 16]], 3);
+        }
+
+        if (! $includesWeekends || random_int(1, 100) > 40) {
+            return [];
+        }
+
+        return $this->logPairsForDay($date, [[8, 11]], 2);
+    }
+
+    /**
+     * Generate 1 to $maxPairs in/out pairs within the given hour windows.
+     *
+     * @param  array<int, array{int, int}>  $windows
+     * @return array<int, array{Carbon, Carbon}>
+     */
+    private function logPairsForDay(Carbon $date, array $windows, int $maxPairs): array
+    {
+        $pairs = random_int(1, $maxPairs);
         $entries = [];
         $previousOut = null;
 
-        foreach ([[7, 9], [10, 12], [13, 16]] as [$startHour, $endHour]) {
+        foreach ($windows as [$startHour, $endHour]) {
             if (count($entries) >= $pairs) {
                 break;
             }

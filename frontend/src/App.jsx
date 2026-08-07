@@ -11,6 +11,8 @@ import TCGC from './pages/TCGC.jsx'
 import Legal from './pages/Legal.jsx'
 import PublicVisitorRegistration from './pages/VisitorRegistration.jsx'
 import Login from './pages/auth/Login.jsx'
+import ForgotPassword from './pages/auth/ForgotPassword.jsx'
+import ResetPassword from './pages/auth/ResetPassword.jsx'
 import Dashboard from './pages/admin/Dashboard.jsx'
 import Violations from './pages/admin/Violations.jsx'
 import Users from './pages/admin/users/Users.jsx'
@@ -29,6 +31,7 @@ import StudentLogs from './pages/admin/student-logs/StudentLogs.jsx'
 import StudentLogDetail from './pages/admin/student-logs/StudentLogDetail.jsx'
 import StudentViolations from './pages/admin/student-violations/StudentViolations.jsx'
 import StudentViolationDetail from './pages/admin/student-violations/StudentViolationDetail.jsx'
+import Reports from './pages/admin/reports/Reports.jsx'
 import GuardVisitors from './pages/guard/visitors/Visitors.jsx'
 import GuardVisitorRegistration from './pages/guard/visitors/VisitorRegistration.jsx'
 import GuardCompliance from './pages/guard/compliance/Compliance.jsx'
@@ -38,6 +41,7 @@ import VisitorScanner from './pages/guard/visitor-scanner/VisitorScanner.jsx'
 import StudentScanner from './pages/guard/student-scanner/StudentScanner.jsx'
 import ViolationScanner from './pages/guard/violation-scanner/ViolationScanner.jsx'
 import GuardDashboard from './pages/guard/GuardDashboard.jsx'
+import GuardReports from './pages/guard/reports/Reports.jsx'
 import ViolationForm from './pages/guard/ViolationForm.jsx'
 import VisitorRegistration from './pages/guard/VisitorRegistration.jsx'
 import Profile from './pages/Profile.jsx'
@@ -86,18 +90,6 @@ function LoginRoute() {
   return <Login />
 }
 
-function ModulePlaceholder({ title, description }) {
-  return (
-    <div className="px-6 lg:px-10 py-8">
-      <div className="border border-border bg-card rounded-lg p-8">
-        <h2 className="text-xl font-bold text-foreground">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        <p className="mt-4 text-xs font-mono text-info">MODULE UNDER CONSTRUCTION</p>
-      </div>
-    </div>
-  )
-}
-
 export default function App() {
   return (
     <ThemeProvider>
@@ -115,6 +107,8 @@ export default function App() {
 
         {/* Auth routes (full-screen, no public chrome) */}
         <Route path="/login" element={<LoginRoute />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Admin routes */}
         <Route
@@ -134,10 +128,7 @@ export default function App() {
           <Route path="issues" element={<Issues />} />
           <Route path="attendance" element={<Attendance />} />
           <Route path="profile" element={<Profile />} />
-          <Route
-            path="reports"
-            element={<ModulePlaceholder title="Reports" description="Report generation and export center." />}
-          />
+          <Route path="reports" element={<Reports />} />
           <Route
             path="compliance"
             element={<Compliance />}
@@ -202,6 +193,7 @@ export default function App() {
           <Route path="compliance" element={<GuardCompliance />} />
           <Route path="compliance/new" element={<GuardComplianceFormPage />} />
           <Route path="compliance/:id/edit" element={<GuardComplianceFormPage />} />
+          <Route path="reports" element={<GuardReports />} />
           <Route path="dashboard" element={<GuardDashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>

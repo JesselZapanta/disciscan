@@ -11,17 +11,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
-import StatusChip from '../../components/StatusChip.jsx'
 import { BarsChart, LineChart, Donut, RangeSelect } from '../../components/dashboard/Charts.jsx'
 import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-} from '@/components/ui/table'
 import { getDashboard } from '../../services/guard/dashboard'
 
 function formatNumber(value) {
@@ -40,17 +31,6 @@ function trendOf(current, prev) {
   const diff = current - prev
   const pct = Math.abs(Math.round((diff / prev) * 100))
   return diff > 0 ? { label: `▲ ${pct}%`, up: true } : diff < 0 ? { label: `▼ ${pct}%`, up: false } : { label: '— steady', up: null }
-}
-
-function formatTime(iso) {
-  if (!iso) return '—'
-  const date = new Date(iso)
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  })
 }
 
 export default function GuardDashboard() {
@@ -75,7 +55,6 @@ export default function GuardDashboard() {
 
   const kpis = data?.kpis
   const series = data?.series || []
-  const recentScans = data?.recent_scans || []
 
   const todayLabel = useMemo(
     () =>
@@ -154,12 +133,6 @@ export default function GuardDashboard() {
             <RotateCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             REFRESH
           </Button>
-          <Link
-            to="/guard/visitor/scan"
-            className="text-xs font-mono border border-primary/40 bg-primary/10 text-primary px-4 py-2 rounded hover:bg-primary/20 transition"
-          >
-            OPEN SCANNER →
-          </Link>
         </div>
       </div>
 
@@ -292,87 +265,6 @@ export default function GuardDashboard() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* recent scans */}
-            <div className="border border-border bg-card rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border flex-wrap gap-2">
-                <h2 className="font-semibold text-sm text-foreground">Recent scans</h2>
-                <Link to="/guard/visitor/scan" className="text-[11px] font-mono text-primary hover:underline">
-                  OPEN SCANNER →
-                </Link>
-              </div>
-              {recentScans.length === 0 ? (
-                <p className="px-6 py-8 text-center text-xs font-mono text-muted-foreground">
-                  No scans recorded yet. Open the scanner to log your first entry.
-                </p>
-              ) : (
-                <>
-                  {/* mobile cards */}
-                  <div className="divide-y divide-border md:hidden">
-                    {recentScans.map((row, index) => (
-                      <div key={`${row.type}-${index}`} className="px-4 py-3.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium text-foreground text-sm truncate">{row.name}</span>
-                          <span className="font-mono text-[10px] text-muted-foreground shrink-0">{formatTime(row.time)}</span>
-                        </div>
-                        <div className="mt-1 flex items-center justify-between gap-2">
-                          <div className="min-w-0">
-                            <div className="text-[11px] font-mono text-muted-foreground truncate">{row.id}</div>
-                            <div className="text-xs text-muted-foreground truncate mt-0.5">{row.type}</div>
-                          </div>
-                          <StatusChip status={row.status} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* desktop table */}
-                  <div className="hidden md:block overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                            Time
-                          </TableHead>
-                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                            Name / ID
-                          </TableHead>
-                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                            Type
-                          </TableHead>
-                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                            Gate
-                          </TableHead>
-                          <TableHead className="text-[11px] font-mono text-muted-foreground uppercase tracking-wide px-6">
-                            Status
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {recentScans.map((row, index) => (
-                          <TableRow key={`${row.type}-${index}`}>
-                            <TableCell className="px-6 py-3.5 font-mono text-muted-foreground text-xs">
-                              {formatTime(row.time)}
-                            </TableCell>
-                            <TableCell className="px-6 py-3.5">
-                              <div className="font-medium text-foreground">{row.name}</div>
-                              <div className="text-[11px] font-mono text-muted-foreground">{row.id}</div>
-                            </TableCell>
-                            <TableCell className="px-6 py-3.5 text-muted-foreground">{row.type}</TableCell>
-                            <TableCell className="px-6 py-3.5 text-muted-foreground font-mono text-xs">
-                              {row.logged_by || '—'}
-                            </TableCell>
-                            <TableCell className="px-6 py-3.5">
-                              <StatusChip status={row.status} />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </>
-              )}
             </div>
           </>
         )}
