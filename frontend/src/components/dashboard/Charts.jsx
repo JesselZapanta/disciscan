@@ -85,8 +85,101 @@ export function LineChart({ data, color, name }) {
   )
 }
 
-export function Donut({ rate }) {
-  const pct = Math.min(100, Math.max(0, rate ?? 0))
+export function MultiLineChart({ data, series, name }) {
+  const W = 560
+  const H = 170
+  const PAD = 8
+  const top = 24
+  const floor = H - 24
+  const chartH = floor - top
+  const max = Math.max(1, ...data.flatMap((d) => series.map((s) => d[s.key] ?? 0)))
+  const step = (W - PAD * 2) / data.length
+  const lineX = (i) => PAD + step * i + step / 2
+  const lineY = (v) => floor - (Math.max(v, 0.0001) / max) * chartH
+  const labelIndexes = labelIndexesFor(data.length)
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-44 sm:h-48" role="img" aria-label={`${name} over the selected period`}>
+      {[0.25, 0.5, 0.75, 1].map((f) => (
+        <line key={f} x1={PAD} x2={W - PAD} y1={floor - chartH * f} y2={floor - chartH * f} stroke="#D9DEE7" strokeWidth="1" />
+      ))}
+      {series.map((s) => {
+        const points = data.map((d, i) => `${lineX(i)},${lineY(d[s.key] ?? 0)}`).join(' ')
+        const gradientId = `line-${name.replace(/\W+/g, '-').toLowerCase()}-${s.key}`
+        const areaPoints = `${PAD},${floor} ${points} ${W - PAD},${floor}`
+
+        return (
+          <g key={`series-${s.key}`}>
+            <polyline fill="none" stroke={s.color} strokeWidth="2.5" points={points} />
+            <polyline fill={`url(#${gradientId})`} stroke="none" points={areaPoints} />
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={s.color} stopOpacity="0.25" />
+                <stop offset="100%" stopColor={s.color} stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </g>
+        )
+      })}
+      {labelIndexes.map((i) => (
+        <text key={`label-${i}`} x={lineX(i)} y={H - 4} textAnchor="middle" fill="#737C8C" fontSize="9" fontFamily="JetBrains Mono, monospace">
+          {data[i].label}
+        </text>
+      ))}
+    </svg>
+  )
+}
+
+export function GroupedBarsChart({ data, series, name }) {
+  const W = 560
+  const H = 170
+  const PAD = 8
+  const top = 24
+  const floor = H - 24
+  const chartH = floor - top
+  const max = Math.max(1, ...data.flatMap((d) => series.map((s) => d[s.key] ?? 0)))
+  const step = (W - PAD * 2) / data.length
+  const groupW = Math.min(34, step * 0.6)
+  const barW = Math.max(3, (groupW - (series.length - 1) * 2) / series.length)
+  const groupX = (i) => PAD + step * i + (step - groupW) / 2
+  const barX = (i, si) => groupX(i) + si * (barW + 2)
+  const barY = (v) => floor - (v / max) * chartH
+  const labelIndexes = labelIndexesFor(data.length)
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-44 sm:h-48" role="img" aria-label={`${name} over the selected period`}>
+      {[0.25, 0.5, 0.75, 1].map((f) => (
+        <line key={f} x1={PAD} x2={W - PAD} y1={floor - chartH * f} y2={floor - chartH * f} stroke="#D9DEE7" strokeWidth="1" />
+      ))}
+      {data.map((d, i) => (
+        <g key={`group-${i}`}>
+          {series.map((s, si) => {
+            const v = d[s.key] ?? 0
+            return (
+              <rect
+                key={`bar-${i}-${s.key}`}
+                x={barX(i, si)}
+                y={barY(v)}
+                width={barW}
+                height={Math.max(floor - barY(v), v > 0 ? 2 : 0)}
+                rx={2}
+                fill={s.color}
+                opacity={v > 0 ? 0.9 : 0.15}
+              />
+            )
+          })}
+        </g>
+      ))}
+      {labelIndexes.map((i) => (
+        <text key={`label-${i}`} x={PAD + step * i + step / 2} y={H - 4} textAnchor="middle" fill="#737C8C" fontSize="9" fontFamily="JetBrains Mono, monospace">
+          {data[i].label}
+        </text>
+      ))}
+    </svg>
+  )
+}
+
+export function Donut({ rate }) {  const pct = Math.min(100, Math.max(0, rate ?? 0))
   return (
     <div
       className="relative mx-auto size-36 sm:size-40 rounded-full"

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\AcademicYearController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\ComplianceController;
 use App\Http\Controllers\Api\Admin\IssueController;
+use App\Http\Controllers\Api\Admin\ReportController;
 use App\Http\Controllers\Api\Admin\RoomController;
 use App\Http\Controllers\Api\Admin\StudentController;
 use App\Http\Controllers\Api\Admin\StudentLogController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Api\Admin\VisitorRegistrationController as AdminVisitor
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Guard\ComplianceController as GuardComplianceController;
 use App\Http\Controllers\Api\Guard\GuardDashboardController;
+use App\Http\Controllers\Api\Guard\GuardReportController;
 use App\Http\Controllers\Api\Guard\StudentScanController;
 use App\Http\Controllers\Api\Guard\ViolationController;
 use App\Http\Controllers\Api\Guard\VisitorRegistrationController as GuardVisitorRegistrationController;
@@ -22,6 +24,8 @@ use App\Http\Controllers\Api\VisitorRegistrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Route::post('/visitor-registrations', [VisitorRegistrationController::class, 'store'])->middleware('throttle:visitor-registrations');
 
@@ -34,6 +38,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+
+        Route::get('/reports/{type}', [ReportController::class, 'show']);
 
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
@@ -88,6 +94,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('guard')->middleware('guard')->group(function () {
         Route::get('/dashboard', [GuardDashboardController::class, 'index']);
+
+        Route::get('/reports/{type}', [GuardReportController::class, 'show']);
+        Route::get('/academic-years', [GuardReportController::class, 'academicYears']);
 
         Route::get('/visitors', [GuardVisitorRegistrationController::class, 'index']);
         Route::get('/visitors/lookup/{recordNo}', [VisitorScanController::class, 'lookup']);

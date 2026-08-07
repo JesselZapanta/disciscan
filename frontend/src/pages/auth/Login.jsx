@@ -108,9 +108,9 @@ export default function Login() {
 
             <div className="flex items-center justify-between text-xs">
               <Label className="flex items-center gap-2 text-muted-foreground font-normal"></Label>
-              <a href="#" className="text-primary hover:underline">
+              <Link to="/forgot-password" className="text-primary hover:underline">
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <Button
               type="submit"
