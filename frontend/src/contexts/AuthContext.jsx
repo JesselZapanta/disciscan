@@ -43,6 +43,17 @@ export function AuthProvider({ children }) {
     }
   }, [token])
 
+  useEffect(() => {
+    const handleExpired = () => {
+      setToken(null)
+      setUser(null)
+    }
+
+    window.addEventListener('auth:expired', handleExpired)
+
+    return () => window.removeEventListener('auth:expired', handleExpired)
+  }, [])
+
   const login = useCallback(async (email, password) => {
     const res = await authService.login(email, password)
     localStorage.setItem('token', res.data.token)

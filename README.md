@@ -214,8 +214,6 @@ Seeded users use the password **`password`**:
 | Role | Email |
 |------|-------|
 | Admin | `kenley.bronola@example.com` |
-| Admin | `david.park@example.com` |
-| Admin | `nino.mercado@example.com` |
 | Guard | `kimberly.magsayo@example.com` (and ~20 more guards — see `backend/database/seeders/UserSeeder.php`) |
 
 ## Testing & Code Quality

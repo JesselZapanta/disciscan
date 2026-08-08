@@ -5,6 +5,7 @@ import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import ScannerVisual from '../../components/ScannerVisual.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useToast } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,10 +20,22 @@ const demoAccounts = [
 export default function Login() {
   const navigate = useNavigate()
   const { login, user } = useAuth()
+  const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState({ email: '', password: '' })
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (sessionStorage.getItem('auth_expired') === '1') {
+      sessionStorage.removeItem('auth_expired')
+      toast({
+        variant: 'error',
+        title: 'Session expired',
+        description: 'Your session has expired. Please sign in again.',
+      })
+    }
+  }, [toast])
 
   useEffect(() => {
     if (user) {
