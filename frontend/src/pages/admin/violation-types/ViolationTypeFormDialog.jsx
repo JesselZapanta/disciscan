@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Save } from 'lucide-react'
+import { Activity, ListChecks, Save } from 'lucide-react'
 import {
   Dialog,
   DialogTrigger,
@@ -17,6 +17,30 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 import * as violationTypeService from '../../../services/admin/violationTypes'
+
+function Section({ icon, title, children }) {
+  return (
+    <section className="space-y-3">
+      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {icon}
+        {title}
+      </h3>
+      {children}
+    </section>
+  )
+}
+
+function Field({ label, htmlFor, optional, error, children }) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={htmlFor} className="text-xs font-medium text-foreground">
+        {label} {optional && <span className="font-normal text-muted-foreground">(optional)</span>}
+      </Label>
+      {children}
+      <p className="min-h-[1rem] text-xs text-destructive">{error ?? ''}</p>
+    </div>
+  )
+}
 
 export default function ViolationTypeFormDialog({ trigger, violationType, onSaved }) {
   const isEdit = Boolean(violationType)
@@ -84,57 +108,68 @@ export default function ViolationTypeFormDialog({ trigger, violationType, onSave
       <DialogTrigger render={trigger} />
       <DialogPortal>
         <DialogBackdrop />
-        <DialogPopup>
-          <DialogTitle>{isEdit ? 'Edit violation type' : 'Add violation type'}</DialogTitle>
+        <DialogPopup className="w-full max-w-xl">
+          <DialogTitle className="flex items-center gap-2">
+            <ListChecks className="size-5 text-primary" />
+            {isEdit ? 'Edit violation type' : 'Add violation type'}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
               ? 'Update the violation type details and status.'
               : 'Create a new violation type for the records module.'}
           </DialogDescription>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="vt-name">Name</Label>
-              <Input
-                id="vt-name"
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Incomplete uniform"
-                className="bg-secondary border-border"
-              />
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.name?.[0] ?? ''}</p>
-            </div>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-h-[65vh] overflow-y-auto pr-1">
+            <Section icon={<ListChecks className="size-3.5" />} title="Details">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Field label="Name" htmlFor="vt-name" error={errors.name?.[0]}>
+                    <Input
+                      id="vt-name"
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. Incomplete uniform"
+                      required
+                      className="bg-secondary border-border"
+                    />
+                  </Field>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="vt-description">Description</Label>
-              <Textarea
-                id="vt-description"
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="What counts as this violation?"
-                rows={3}
-                className="bg-secondary border-border resize-none"
-              />
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.description?.[0] ?? ''}</p>
-            </div>
+                <div className="sm:col-span-2">
+                  <Field label="Description" htmlFor="vt-description" optional error={errors.description?.[0]}>
+                    <Textarea
+                      id="vt-description"
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      placeholder="What counts as this violation?"
+                      rows={3}
+                      className="bg-secondary border-border resize-none"
+                    />
+                  </Field>
+                </div>
+              </div>
+            </Section>
 
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={form.is_active} onValueChange={(value) => setForm({ ...form, is_active: value })}>
-                <SelectTrigger className="w-full bg-secondary border-border text-xs font-mono text-muted-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">ACTIVE</SelectItem>
-                  <SelectItem value="inactive">INACTIVE</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.is_active?.[0] ?? ''}</p>
-            </div>
+            <Section icon={<Activity className="size-3.5" />} title="Status">
+              <Field label="Status" htmlFor="vt-status" error={errors.is_active?.[0]}>
+                <Select value={form.is_active} onValueChange={(value) => setForm({ ...form, is_active: value })}>
+                  <SelectTrigger
+                    id="vt-status"
+                    className="w-full bg-secondary border-border text-xs font-mono text-muted-foreground"
+                  >
+                    <SelectValue className="uppercase" />
+                  </SelectTrigger>
+                  <SelectContent alignItemWithTrigger={false} className="w-[var(--anchor-width)]">
+                    <SelectItem value="active">ACTIVE</SelectItem>
+                    <SelectItem value="inactive">INACTIVE</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </Section>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
+            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+              <DialogClose render={<Button type="button" variant="outline">Cancel</Button>} />
               <Button type="submit" disabled={saving} className="gap-2">
                 <Save className="h-4 w-4" />
                 {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create type'}

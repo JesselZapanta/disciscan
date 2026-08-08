@@ -9,4 +9,7 @@ export default defineConfig({
       '@': import.meta.dirname + '/src',
     },
   },
+  server: {
+    host: true,
+  },
 })

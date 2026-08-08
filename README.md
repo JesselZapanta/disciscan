@@ -1,82 +1,276 @@
-# DISCISCAN: A digital disciplinary records and monitoring system using QR code.
+# DisciScan
 
-Overall Scope
+A QR-code-based **digital disciplinary records and monitoring system** for schools. DisciScan lets security guards record student attendance, log violations, track visitor entry/exit, and monitor office/classroom compliance — all by scanning QR codes — while admins manage accounts, review records, and generate reports from a single dashboard.
 
-A web-based system (accessible on mobile and desktop browsers) for recording student violations, monitoring visitors, tracking office compliance, and — as a secondary feature — logging student attendance, all built around QR code scanning. It explicitly does not include biometric auth, GPS tracking, or offline operation, and requires internet connectivity.
+> Web-based, mobile-first, and accessible from desktop browsers and phones. No offline mode — internet connectivity is required.
 
-Users (Actors)
+---
 
-1. Admin — has full system access, no direct QR scanning duties
-2. Security Guard — the main field operator, does all scanning and recording
-3. Student — indirect user, identified only via QR code (no login)
-4. Visitor — indirect user, self-registers online and is identified via QR code (no login)
+## Table of Contents
 
-Features per User
+- [Roles](#roles)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Run in development](#run-in-development)
+  - [Production build](#production-build)
+- [Configuration](#configuration)
+- [Default Accounts](#default-accounts)
+- [Testing & Code Quality](#testing--code-quality)
+- [API Overview](#api-overview)
+- [Access on the Same Network](#access-on-the-same-network)
+- [Known Caveats](#known-caveats)
+- [Project Conventions](#project-conventions)
 
-Admin
+---
 
-Manage User Accounts: add, update, delete users; role-based access control; login/session management
-View Records: view student violations, attendance, and visitor records; search/filter records
-Generate Reports: create disciplinary, attendance, and visitor reports; filter by date/category; export/print/download
-View Compliance Records: view, search, and filter compliance history (shared with Guard)
-Access an Admin Dashboard interface for all of the above
+## Roles
 
-Security Guard
+| Role | Login | Description |
+|------|-------|-------------|
+| **Admin** | Yes | Full system access — manages users, settings, and records; no scanning duties |
+| **Security Guard** | Yes | Main field operator — does all QR scanning and recording |
+| **Student** | No | Passive user; identified only via QR code when scanned |
+| **Visitor** | No | Self-registers online through a QR code; identified via the generated QR on campus |
 
-Scan QR Code: scan student/visitor codes via device camera, verify validity, retrieve and route info
-Record Student Attendance: log time-in/time-out via QR scan
-Record Violation: select violation type (e.g., incomplete uniform, no ID), auto-timestamp, save to database
-Resolve Student Violation: view recorded violations, update status to resolved
-Record Visitor Entry & Exit: scan visitor QR code, log entry/exit time
-Monitor Compliance: record office/classroom observations (lights, computers, equipment left on)
-View Compliance Records (shared with Admin)
+## Features
 
-Student (no login — passive/identified user)
+### Admin
+- Manage user accounts (add / update / delete, role assignment)
+- Role-based access control (JWT) and password reset flows
+- View, search, and filter records: student violations, attendance (student logs), visitor logs, compliance
+- Generate, filter, print/export reports (disciplinary, attendance, visitor, compliance)
+- Manage reference data: academic years, violation types, rooms, issues
+- Admin dashboard with summary statistics
 
-Gets scanned for attendance and violation recording
-Info (profile, photo) displayed for verification when their QR code is scanned
+### Security Guard
+- Scan student QR codes → auto time-in / time-out attendance logging
+- Scan visitor QR codes → entry / exit logging
+- Scan student QR codes → record violations (select type, auto-timestamp)
+- Resolve recorded violations (mark as resolved)
+- Register new visitors on site (visitor registration module)
+- Monitor compliance: record room/office observations with photo evidence and required issues
+- Print the **Safety and Security Monitoring Slip** (noted by the Security Office / admin)
+- Guard dashboard with daily summary
+- Audio feedback (success / failure beeps) on all scanner results
 
-Visitor (no login — self-service registration only)
+### Student (passive)
+- Identified by QR code for attendance and violation recording
+- Profile info (name, photo, details) shown for verification when scanned
 
-Scans a registration QR code → fills out an online form (name, purpose of visit, etc.)
-System validates entries and auto-generates a unique personal QR code for that visitor
-That QR code is then used by guards for entry/exit scanning
-System Workflow
+### Visitor (self-service)
+- Scans a registration QR → fills an online form (name, purpose of visit, etc.)
+- System validates input and auto-generates a unique personal QR code
+- That QR is used by guards for entry / exit scanning
 
-A. Visitor Registration & QR Generation
+## Tech Stack
 
-Visitor scans a pre-generated registration QR → opens online form
-Visitor enters personal info + purpose of visit
-System validates the input (shows error and re-prompts if invalid)
-System generates a unique QR code and stores visitor info + QR in the database
-QR code is displayed/printed for the visitor to use on campus
+| Layer | Technology |
+|-------|------------|
+| Backend | PHP 8.2+, **Laravel 12**, JWT auth (`tymon/jwt-auth`), Laravel Pint, Pest 3 |
+| Database | SQLite by default (MySQL supported — see `.env`) |
+| Frontend | **React 19**, Vite 8, React Router 7 |
+| Styling | **Tailwind CSS 4** + **shadcn/ui** (base-ui) + **lucide-react** icons |
+| Scanning | `html5-qrcode` (camera) + `qrcode` (QR generation) |
+| HTTP | Axios |
+| Linting | oxlint (frontend), Laravel Pint (backend) |
+| Imports/Exports | `phpoffice/phpspreadsheet` (student import/export) |
 
-B. QR Code Scanning & Recording (Students/Visitors)
+## Repository Structure
 
-Guard opens the QR scanning module on their device
-Scans the student's or visitor's QR code
-System looks up the record in the database
-If no match: shows "No Data Found," guard rescans
-If matched: displays profile info (name, photo, details)
-Guard proceeds to the relevant action:
-Attendance → time-in/out is logged
-Violation → guard selects violation type, system auto-timestamps and saves
-System validates and stores the update in the database
+```
+disciscan/
+├── backend/                  # Laravel 12 REST/JSON API
+│   ├── app/
+│   │   ├── Http/Controllers/Api/    # Admin/, Guard/ + public endpoints
+│   │   ├── Http/Requests/           # Form requests (validation)
+│   │   ├── Http/Resources/          # API resources
+│   │   ├── Models/                  # Eloquent models
+│   │   └── Middleware/              # EnsureUserIsAdmin / EnsureUserIsGuard
+│   ├── database/
+│   │   ├── migrations/              # users, students, violations, visitors,
+│   │   │                            # rooms, issues, compliances, academic years…
+│   │   ├── seeders/                 # demo users + reference data
+│   │   └── database.sqlite
+│   ├── routes/api.php               # all API routes
+│   ├── tests/                       # Pest 3 (Unit + Feature)
+│   └── composer.json                # `setup`, `dev`, `test` scripts
+├── frontend/                 # React 19 SPA
+│   ├── src/
+│   │   ├── pages/                   # admin/, guard/, auth/, public/
+│   │   ├── layouts/                 # AdminLayout, GuardLayout, PublicLayout
+│   │   ├── components/ui/           # shadcn/ui components (base-ui)
+│   │   ├── services/                # API clients per module
+│   │   ├── contexts/                # Auth, Theme
+│   │   └── utils/                   # image compression, scanner sounds
+│   ├── public/sounds/               # scanner beeps (success.wav / failure.wav)
+│   └── package.json                 # `dev`, `build`, `lint` scripts
+├── audit/                    # audit log — newest first (see audit/README.md)
+└── README.md
+```
 
-C. Violation Resolution
+`backend/` and `frontend/` are **independent** — there is no shared workspace configuration.
 
-Guard opens violation records, reviews an existing entry
-Updates status to "resolved"
-System validates and saves the update
+## Getting Started
 
-D. Compliance Monitoring
+### Prerequisites
 
-Guard physically observes an area (office/classroom/lab)
-Records compliance issues (e.g., equipment left on)
-System validates and stores the entry
+- PHP **8.2+** with Composer
+- Node.js **20+** with npm
+- SQLite (bundled with PHP) — or MySQL/MariaDB if you prefer
 
-E. Admin Oversight
+### Installation
 
-Admin logs in, manages user accounts (add/update/delete, role assignment)
-Views consolidated records (violations, attendance, visitor logs, compliance)
-Generates/filters/exports reports for documentation and decision-making
+Clone the repo, then run the full first-time setup from `backend/`:
+
+```bash
+cd backend
+composer setup
+```
+
+`composer setup` performs the complete sequence: `composer install` → `.env` from `.env.example` → `APP_KEY` generation → database migration → `npm install` → frontend production build.
+
+If you use a **MySQL** database (instead of the default SQLite), edit `backend/.env` first:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=disciscanDb
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Then create the database and re-run migrations.
+
+To seed demo users and reference data (rooms, issues, violation types, students, etc.):
+
+```bash
+php artisan db:seed
+```
+
+### Run in development
+
+From `backend/`, one command starts everything (Laravel server + queue listener + Vite):
+
+```bash
+composer dev
+```
+
+| Service | URL |
+|---------|-----|
+| Frontend (Vite dev server) | http://localhost:5173 |
+| Backend API (artisan serve) | http://localhost:8000/api |
+
+If you prefer to run them separately:
+
+```bash
+# terminal 1 — backend
+cd backend
+php artisan serve --host=0.0.0.0 --port=8000
+
+# terminal 2 — queue worker (handles password-reset emails, etc.)
+cd backend
+php artisan queue:listen --tries=1
+
+# terminal 3 — frontend
+cd frontend
+npm run dev
+```
+
+### Production build
+
+```bash
+cd frontend
+npm run build    # outputs to frontend/dist/
+```
+
+## Configuration
+
+### Backend — `backend/.env`
+
+| Variable | Purpose |
+|----------|---------|
+| `APP_URL` | Public URL of the API (e.g. `http://192.168.123.4:8000`) |
+| `FRONTEND_URL` | Public URL of the SPA — used for password-reset links |
+| `DB_*` | Database connection (SQLite by default) |
+| `JWT_SECRET` | JWT signing key (`php artisan jwt:secret` if missing) |
+
+### Frontend — `frontend/.env`
+
+```bash
+VITE_API_URL=http://localhost:8000/api
+```
+
+If `VITE_API_URL` is not set, the SPA falls back to `http://localhost:8000/api` in development and `https://disciscan-api.jezyk.me/api` in production.
+
+## Default Accounts
+
+Seeded users use the password **`password`**:
+
+| Role | Email |
+|------|-------|
+| Admin | `kenley.bronola@example.com` |
+| Admin | `david.park@example.com` |
+| Admin | `nino.mercado@example.com` |
+| Guard | `kimberly.magsayo@example.com` (and ~20 more guards — see `backend/database/seeders/UserSeeder.php`) |
+
+## Testing & Code Quality
+
+```bash
+cd backend
+composer test          # clears config cache, runs the full Pest suite
+vendor/bin/pint --dirty --format agent   # auto-format modified PHP files
+```
+
+```bash
+cd frontend
+npm run lint           # oxlint (NOT eslint)
+npm run build          # production build
+```
+
+- Backend tests use **in-memory SQLite** (override in `phpunit.xml`).
+- Frontend has no test suite — verify with `npm run lint` + `npm run build`.
+
+## API Overview
+
+All routes live in `backend/routes/api.php` and are JSON-only.
+
+| Area | Endpoints |
+|------|-----------|
+| Auth | `POST /api/login`, `POST /api/logout`, `GET /api/me`, `PUT|POST /api/profile`, forgot/reset password |
+| Public | `POST /api/visitor-registrations` (self-registration) |
+| Admin | `GET /api/admin/dashboard` · CRUD for `/users`, `/violation-types`, `/rooms`, `/issues`, `/academic-years`, `/students` · records: `/student-violations`, `/student-logs`, `/visitor-registrations`, `/compliance` · `GET /api/admin/reports/{type}` |
+| Guard | `GET /api/guard/dashboard` · scanners: `/student/scan`, `/visitor/scan`, `/violations` · CRUD `/compliances`, `/visitor-registrations` · `GET /api/guard/reports/{type}` |
+
+Role enforcement is handled by the `admin` / `guard` middleware groups.
+
+## Access on the Same Network
+
+Both dev servers already bind to all interfaces — **no port forwarding is required** on a LAN:
+
+| Service | LAN URL |
+|---------|---------|
+| Frontend | `http://<PC-IP>:5173` (find it with `ipconfig`) |
+| Backend | `http://<PC-IP>:8000` |
+
+If a phone can't connect, allow the ports through Windows Firewall (elevated PowerShell):
+
+```powershell
+New-NetFirewallRule -DisplayName "DisciScan Dev" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 5173,8000
+```
+
+## Known Caveats
+
+- **Camera scanning requires HTTPS**: browsers only allow `getUserMedia` on `localhost` or secure origins. Scanning on a phone via a LAN IP (plain HTTP) will fail — use `localhost` or serve over HTTPS (e.g. `@vitejs/plugin-basic-ssl`).
+- **Scanner audio** is subject to device volume (iPhone silent switch / Android media volume) and browser autoplay rules — the app unlocks audio on the first tap anywhere on the page.
+- No biometric auth, GPS tracking, or offline mode — by design.
+
+## Project Conventions
+
+- **Audit log**: every change is recorded in `audit/` (newest first, indexed in `audit/README.md`).
+- **Formatting**: PHP must pass `vendor/bin/pint`; JSX is checked with `oxlint`.
+- **Frontend patterns**: mobile-first Tailwind utility styling, shadcn/ui components, lucide-react icons, API calls through `frontend/src/services/`.

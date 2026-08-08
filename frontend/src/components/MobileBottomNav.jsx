@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-export default function MobileBottomNav({ items, renderFooter }) {
+export default function MobileBottomNav({ items, renderFooter, visibleCount = 3 }) {
   const location = useLocation()
   const [moreOpen, setMoreOpen] = useState(false)
 
@@ -22,13 +22,16 @@ export default function MobileBottomNav({ items, renderFooter }) {
 
   const isActive = (path) => location.pathname === path
 
-  const visible = items.slice(0, 3)
-  const more = items.slice(3)
+  const visible = items.slice(0, visibleCount)
+  const more = items.slice(visibleCount)
   const moreActive = more.some((item) => isActive(item.path))
 
   return (
     <nav className="lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
-      <div className="grid grid-cols-4">
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: `repeat(${visibleCount + 1}, minmax(0, 1fr))` }}
+      >
         {visible.map((item) => (
           <Link
             key={item.path}
@@ -40,8 +43,8 @@ export default function MobileBottomNav({ items, renderFooter }) {
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            <item.icon className="h-5 w-5" />
-            {item.label}
+            <item.icon className="h-5 w-5 shrink-0" />
+            <span className="px-0.5 text-center leading-tight">{item.label}</span>
           </Link>
         ))}
 
@@ -53,11 +56,14 @@ export default function MobileBottomNav({ items, renderFooter }) {
             )}
           >
             <MoreHorizontal className="h-5 w-5" />
-            More
+            <span className="leading-tight">More</span>
           </DialogTrigger>
           <DialogPortal>
             <DialogBackdrop />
-            <DialogPopup className="left-0 right-0 bottom-0 top-auto w-full max-w-none translate-x-0 translate-y-0 rounded-none rounded-t-xl p-0 pb-[env(safe-area-inset-bottom)] data-open:animate-in data-open:slide-in-from-bottom-10 data-open:duration-300 data-closed:animate-out data-closed:slide-out-to-bottom-10 data-closed:duration-200">
+            <DialogPopup
+              wrapperClassName="items-end justify-end p-0 data-open:animate-in data-open:slide-in-from-bottom-10 data-open:duration-300 data-closed:animate-out data-closed:slide-out-to-bottom-10 data-closed:duration-200"
+              className="w-full max-w-none rounded-none rounded-t-xl p-0 pb-[env(safe-area-inset-bottom)]"
+            >
               <div className="flex items-center justify-between px-5 pt-5 pb-4">
                 <div>
                   <DialogTitle className="text-sm font-semibold text-foreground">

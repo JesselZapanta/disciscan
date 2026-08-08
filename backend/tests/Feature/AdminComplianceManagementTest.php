@@ -114,26 +114,18 @@ it('creates a compliance with photo evidences and records the auth user', functi
     expect(Compliance::first()->photoEvidences()->count())->toBe(2);
 });
 
-it('derives Resolved status when no issues are selected', function () {
+it('requires at least one issue when creating', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $room = Room::factory()->create();
 
-    $response = $this->withHeaders(apiAs($admin))->postJson('/api/admin/compliances', [
+    $this->withHeaders(apiAs($admin))->postJson('/api/admin/compliances', [
         'room_id' => $room->id,
         'remarks' => 'Room is clean.',
         'photo_evidences' => [
             UploadedFile::fake()->image('clean-room.jpg'),
         ],
-    ]);
-
-    $response->assertStatus(201)
-        ->assertJsonPath('data.issues', '')
-        ->assertJsonPath('data.status', 'Resolved');
-
-    $this->assertDatabaseHas('compliances', [
-        'room_id' => $room->id,
-        'status' => 'Resolved',
-    ]);
+    ])->assertStatus(422)
+        ->assertJsonValidationErrors(['issues']);
 });
 
 it('requires at least one photo evidence when creating', function () {
@@ -159,7 +151,7 @@ it('validates compliance creation payload', function () {
             UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
         ],
     ])->assertStatus(422)
-        ->assertJsonValidationErrors(['room_id', 'photo_evidences.0']);
+        ->assertJsonValidationErrors(['room_id', 'issues', 'photo_evidences.0']);
 });
 
 it('updates a compliance and can add or remove photo evidences', function () {
@@ -279,4 +271,15 @@ it('forbids non-admin users from managing compliances', function () {
 
     $this->withHeaders(apiAs($guard))->getJson('/api/admin/compliances')->assertStatus(403);
     $this->withHeaders(apiAs($guard))->postJson('/api/admin/compliances', ['issues' => 'Test'])->assertStatus(403);
+});
+
+it('includes the admin name as noted_by on the compliance slip', function () {
+    $admin = User::factory()->create(['role' => 'admin', 'name' => 'Jane Admin']);
+    $room = Room::factory()->create();
+    $compliance = Compliance::factory()->create(['room_id' => $room->id, 'recorded_by' => 'Guard One']);
+
+    $this->withHeaders(apiAs($admin))
+        ->getJson("/api/admin/compliances/{$compliance->id}")
+        ->assertOk()
+        ->assertJsonPath('data.noted_by', 'Jane Admin');
 });

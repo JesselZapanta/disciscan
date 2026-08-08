@@ -64,7 +64,10 @@ export default function PublicLayout() {
             </DialogTrigger>
             <DialogPortal>
               <DialogBackdrop />
-              <DialogPopup className="left-0 right-0 bottom-0 top-auto w-full max-w-none translate-x-0 translate-y-0 rounded-none rounded-t-xl p-0 pb-[env(safe-area-inset-bottom)] data-open:animate-in data-open:slide-in-from-bottom-10 data-open:duration-300 data-closed:animate-out data-closed:slide-out-to-bottom-10 data-closed:duration-200">
+              <DialogPopup
+                wrapperClassName="items-end justify-end p-0 data-open:animate-in data-open:slide-in-from-bottom-10 data-open:duration-300 data-closed:animate-out data-closed:slide-out-to-bottom-10 data-closed:duration-200"
+                className="w-full max-w-none rounded-none rounded-t-xl p-0 pb-[env(safe-area-inset-bottom)]"
+              >
                 <div className="flex items-center justify-between px-5 pt-5 pb-4">
                   <div>
                     <DialogTitle className="text-sm font-semibold text-foreground">
@@ -134,7 +137,7 @@ export default function PublicLayout() {
             <Link to={user ? dashboardPath : '/login'} className="hidden md:block">
               <Button
                 variant="outline"
-                className="text-xs font-mono font-semibold border-border px-4 py-2 h-auto rounded hover:border-primary hover:text-primary transition"
+                className="text-xs font-mono font-semibold rounded hover:border-primary hover:text-primary transition"
               >
                 {user ? 'DASHBOARD →' : 'SIGN IN →'}
               </Button>

@@ -68,24 +68,17 @@ it('lets a guard create a compliance with photo evidences', function () {
     expect(Compliance::first()->photoEvidences()->count())->toBe(1);
 });
 
-it('derives Resolved status for a guard-created record without issues', function () {
+it('requires at least one issue when a guard creates a record', function () {
     $guard = User::factory()->create(['role' => 'guard']);
     $room = Room::factory()->create();
 
-    $response = $this->withHeaders(apiAs($guard))->postJson('/api/guard/compliances', [
+    $this->withHeaders(apiAs($guard))->postJson('/api/guard/compliances', [
         'room_id' => $room->id,
         'photo_evidences' => [
             UploadedFile::fake()->image('clean-room.jpg'),
         ],
-    ]);
-
-    $response->assertStatus(201)
-        ->assertJsonPath('data.status', 'Resolved');
-
-    $this->assertDatabaseHas('compliances', [
-        'room_id' => $room->id,
-        'status' => 'Resolved',
-    ]);
+    ])->assertStatus(422)
+        ->assertJsonValidationErrors(['issues']);
 });
 
 it('lets a guard update and delete a compliance', function () {
@@ -168,4 +161,16 @@ it('lets guards list rooms and issues for the compliance form', function () {
         ->assertOk()
         ->assertJsonPath('meta.total', 1)
         ->assertJsonPath('data.0.id', $issue->id);
+});
+
+it('includes the admin name as noted_by on the guard compliance slip', function () {
+    $admin = User::factory()->create(['role' => 'admin', 'name' => 'Jane Admin']);
+    $guard = User::factory()->create(['role' => 'guard']);
+    $room = Room::factory()->create();
+    $compliance = Compliance::factory()->create(['room_id' => $room->id, 'recorded_by' => $guard->name]);
+
+    $this->withHeaders(apiAs($guard))
+        ->getJson("/api/guard/compliances/{$compliance->id}")
+        ->assertOk()
+        ->assertJsonPath('data.noted_by', 'Jane Admin');
 });

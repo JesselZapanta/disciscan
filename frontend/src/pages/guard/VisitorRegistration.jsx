@@ -134,7 +134,7 @@ export default function VisitorRegistration() {
               </p>
               <Button
                 variant="outline"
-                className="mt-4 h-auto! px-4 py-2 text-xs font-mono rounded hover:border-primary hover:text-primary"
+                className="mt-4 h-auto! px-4 py-2.5 text-xs font-mono rounded hover:border-primary hover:text-primary"
               >
                 ↓ SAVE TO PHONE
               </Button>

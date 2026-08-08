@@ -114,7 +114,7 @@ function ReportView({ record }) {
             <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">Recorded By</div>
           </div>
           <div className="text-center flex-1">
-            <div className="border-t border-neutral-900 pt-1 text-xs font-semibold">Security Office</div>
+            <div className="border-t border-neutral-900 pt-1 text-xs font-semibold">{record.noted_by || 'Security Office'}</div>
             <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">Noted By</div>
           </div>
         </div>
@@ -160,16 +160,16 @@ export default function ComplianceReport() {
           <Button
             variant="outline"
             onClick={() => navigate(-1)}
-            className="gap-2 h-9 px-3 text-xs font-mono"
+            className="gap-2 text-xs font-mono"
           >
-            <ArrowLeft className="size-3.5" />
+            <ArrowLeft className="size-4" />
             BACK
           </Button>
           <Button
             onClick={() => window.print()}
-            className="gap-2 h-9 px-3 text-xs font-mono"
+            className="gap-2 text-xs font-mono"
           >
-            <Printer className="size-3.5" />
+            <Printer className="size-4" />
             PRINT / SAVE PDF
           </Button>
         </div>
@@ -184,7 +184,7 @@ export default function ComplianceReport() {
             <p className="text-muted-foreground text-sm">{error || 'Record not found.'}</p>
             <Button
               variant="outline"
-              className="mt-4 h-9 px-3 text-xs font-mono"
+              className="mt-4 text-xs font-mono"
               onClick={() => navigate(-1)}
             >
               GO BACK

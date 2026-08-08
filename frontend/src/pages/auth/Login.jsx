@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Loader2, LogIn } from 'lucide-react'
 import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import ScannerVisual from '../../components/ScannerVisual.jsx'
@@ -10,6 +11,8 @@ import { Label } from '@/components/ui/label'
 
 const demoAccounts = [
   { role: 'Admin', email: 'kenley.bronola@example.com' },
+  { role: 'Guard', email: 'kimberly.magsayo@example.com' },
+  { role: 'Guard', email: 'yasser.rowaon@example.com' },
   { role: 'Guard', email: 'romel.ondona@example.com' },
 ]
 
@@ -18,7 +21,7 @@ export default function Login() {
   const { login, user } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState({ email: '', password: '' })
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -31,13 +34,17 @@ export default function Login() {
     e.preventDefault()
     if (submitting) return
 
-    setError('')
+    setErrors({ email: '', password: '' })
     setSubmitting(true)
 
     try {
       await login(email, password)
     } catch (err) {
-      setError(err.response?.data?.message || 'Unable to sign in. Check your credentials.')
+      const apiErrors = err.response?.data?.errors
+      setErrors({
+        email: apiErrors?.email?.[0] ?? '',
+        password: apiErrors?.password?.[0] ?? (err.response?.data?.message || 'Unable to sign in. Check your credentials.'),
+      })
     } finally {
       setSubmitting(false)
     }
@@ -76,11 +83,15 @@ export default function Login() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setErrors((prev) => ({ ...prev, email: '' }))
+                }}
                 placeholder="guard.delacruz@tcgc.edu.ph"
-                className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
+                className={`h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60 ${errors.email ? 'border-status-flagged' : ''}`}
                 autoComplete="email"
               />
+              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.email ?? ''}</p>
             </div>
             <div className="space-y-2">
               <Label
@@ -93,18 +104,16 @@ export default function Login() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setErrors((prev) => ({ ...prev, password: '' }))
+                }}
                 placeholder="••••••••••"
-                className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
+                className={`h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60 ${errors.password ? 'border-status-flagged' : ''}`}
                 autoComplete="current-password"
               />
+              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.password ?? ''}</p>
             </div>
-
-            {error && (
-              <div className="border border-status-flagged/40 bg-status-flagged/10 rounded px-3 py-2.5 text-xs font-mono text-status-flagged">
-                ✕ {error}
-              </div>
-            )}
 
             <div className="flex items-center justify-between text-xs">
               <Label className="flex items-center gap-2 text-muted-foreground font-normal"></Label>
@@ -117,7 +126,12 @@ export default function Login() {
               disabled={submitting}
               className="w-full h-auto bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition disabled:opacity-60"
             >
-              {submitting ? 'AUTHENTICATING…' : 'AUTHENTICATE →'}
+              {submitting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <LogIn className="w-4 h-4 mr-2" />
+              )}
+              {submitting ? 'AUTHENTICATING…' : 'AUTHENTICATE'}
             </Button>
           </form>
 
@@ -128,13 +142,13 @@ export default function Login() {
           <div className="mt-4 space-y-2">
             {demoAccounts.map((account) => (
               <Button
-                key={account.role}
+                key={account.email}
                 type="button"
                 variant="outline"
                 onClick={() => {
                   setEmail(account.email)
                   setPassword('password')
-                  setError('')
+                  setErrors({ email: '', password: '' })
                 }}
                 className="w-full h-auto! flex items-center justify-between rounded px-3 py-2 hover:border-primary/50 hover:bg-secondary cursor-pointer text-left"
               >

@@ -161,7 +161,7 @@ export default function Profile() {
                 </Button>
               )}
 
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                 {removeProfile && (
                   <Button type="button" variant="outline" size="sm" onClick={handleUndoRemove} className="gap-2">
                     <Undo2 className="h-4 w-4" />
@@ -194,7 +194,7 @@ export default function Profile() {
                   <span className="flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5" /> EMAIL
                   </span>
-                  <span className="text-foreground truncate">{user?.email}</span>
+                  <span className="text-foreground truncate min-w-0">{user?.email}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-1.5">
@@ -308,11 +308,11 @@ export default function Profile() {
                 </p>
               )}
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-primary text-primary-foreground font-bold text-sm py-3 px-6 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition gap-2"
+                  className="bg-primary text-primary-foreground font-bold text-sm py-3 px-6 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition gap-2 flex-1 sm:flex-none"
                 >
                   <Save className="h-4 w-4" />
                   {saving ? 'SAVING…' : 'SAVE CHANGES'}
@@ -320,7 +320,7 @@ export default function Profile() {
                 <Button
                   type="button"
                   variant="ghost"
-                  className="gap-2"
+                  className="gap-2 flex-1 sm:flex-none"
                   onClick={() => navigate(user?.role === 'admin' ? '/admin/dashboard' : '/guard/dashboard')}
                 >
                   <X className="h-4 w-4" />
@@ -348,13 +348,13 @@ export default function Profile() {
                   Choose between dark and light theme. Dark is the default.
                 </p>
               </div>
-              <div className="flex items-center gap-1 bg-secondary rounded p-1 w-fit">
+              <div className="flex w-full sm:w-fit items-center gap-1 bg-secondary rounded p-1">
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setTheme('dark')}
                   className={cn(
-                    'flex items-center gap-2 h-auto! px-4 py-1.5 text-xs font-mono font-medium rounded',
+                    'flex flex-1 sm:flex-none items-center justify-center gap-2 h-auto! px-4 py-1.5 text-xs font-mono font-medium rounded',
                     theme === 'dark'
                       ? 'bg-card text-foreground ring-1 ring-border shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
@@ -368,7 +368,7 @@ export default function Profile() {
                   variant="ghost"
                   onClick={() => setTheme('light')}
                   className={cn(
-                    'flex items-center gap-2 h-auto! px-4 py-1.5 text-xs font-mono font-medium rounded',
+                    'flex flex-1 sm:flex-none items-center justify-center gap-2 h-auto! px-4 py-1.5 text-xs font-mono font-medium rounded',
                     theme === 'light'
                       ? 'bg-card text-foreground ring-1 ring-border shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'

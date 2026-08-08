@@ -18,6 +18,30 @@ import * as complianceService from '../../../services/admin/compliance'
 
 const STATUS_OPTIONS = ['Non-Compliant', 'Resolved']
 
+function Section({ icon, title, children }) {
+  return (
+    <section className="space-y-3">
+      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {icon}
+        {title}
+      </h3>
+      {children}
+    </section>
+  )
+}
+
+function Field({ label, htmlFor, error, children }) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={htmlFor} className="text-xs font-medium text-foreground">
+        {label}
+      </Label>
+      {children}
+      <p className="min-h-[1rem] text-xs text-destructive">{error ?? ''}</p>
+    </div>
+  )
+}
+
 export default function ComplianceStatusDialog({ trigger, compliance, onSaved }) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -40,7 +64,7 @@ export default function ComplianceStatusDialog({ trigger, compliance, onSaved })
         status,
       })
       setOpen(false)
-      onSaved?.(`${compliance.room?.room_name || 'Record'} status`, true)
+      onSaved?.(`${compliance.room?.room_name || 'Record'} status`)
     } catch (err) {
       if (err.response?.status === 422) {
         setErrors(err.response.data.errors || {})
@@ -61,7 +85,7 @@ export default function ComplianceStatusDialog({ trigger, compliance, onSaved })
       <DialogTrigger render={trigger} />
       <DialogPortal>
         <DialogBackdrop />
-        <DialogPopup className="w-full max-w-md">
+        <DialogPopup className="w-full max-w-sm">
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="size-5 text-primary" />
             Change compliance status
@@ -70,26 +94,29 @@ export default function ComplianceStatusDialog({ trigger, compliance, onSaved })
             Update the resolution status for {compliance?.room?.room_name || 'this room'}.
           </DialogDescription>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="w-full bg-secondary border-border h-9 px-3 py-1 text-sm text-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.status?.[0] ?? ''}</p>
-            </div>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+            <Section icon={<CheckCircle2 className="size-3.5" />} title="Resolution status">
+              <Field label="Status" htmlFor="compliance-status" error={errors.status?.[0]}>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger
+                    id="compliance-status"
+                    className="w-full bg-secondary border-border text-sm text-foreground"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent alignItemWithTrigger={false} className="w-[var(--anchor-width)]">
+                    {STATUS_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </Section>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
+            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+              <DialogClose render={<Button type="button" variant="outline">Cancel</Button>} />
               <Button type="submit" disabled={saving} className="gap-2">
                 <Save className="h-4 w-4" />
                 {saving ? 'Saving…' : 'Save status'}

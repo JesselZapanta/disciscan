@@ -246,9 +246,9 @@ export default function StudentLogDetail() {
                   <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                     Academic year
                   </div>
-                  <div className="mt-1 inline-flex items-center gap-1.5 text-xs font-mono rounded-full px-2.5 py-1 border border-border bg-secondary/60 text-muted-foreground">
-                    <GraduationCap className="size-3" />
-                    {student.academic_year?.code ?? '—'}
+                  <div className="mt-1 inline-flex max-w-full items-center gap-1.5 text-xs font-mono rounded-full px-2.5 py-1 border border-border bg-secondary/60 text-muted-foreground">
+                    <GraduationCap className="size-3 shrink-0" />
+                    <span className="truncate">{student.academic_year?.description ?? '—'}</span>
                   </div>
                 </div>
                 <div className="min-w-0">
