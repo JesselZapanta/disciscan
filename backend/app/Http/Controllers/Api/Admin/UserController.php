@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Http\Resources\Admin\UserResource;
+use App\Models\StudentTimeLog;
+use App\Models\StudentViolation;
 use App\Models\User;
+use App\Models\VisitorTimeLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -80,6 +83,17 @@ class UserController extends Controller
     {
         if ($user->id === $request->user()->id) {
             return response()->json(['message' => 'You cannot delete your own account.'], 403);
+        }
+
+        $hasRecordedActivity = StudentTimeLog::where('performed_by', $user->id)->exists()
+            || StudentViolation::where('recorded_by', $user->id)->exists()
+            || VisitorTimeLog::where('performed_by', $user->id)->exists();
+
+        if ($hasRecordedActivity) {
+            return response()->json([
+                'message' => 'This user has recorded time logs or violations and cannot be deleted.',
+                'errors' => ['status' => ['This user has recorded time logs or violations and cannot be deleted.']],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $user->delete();

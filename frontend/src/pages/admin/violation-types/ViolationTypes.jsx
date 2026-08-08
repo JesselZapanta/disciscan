@@ -137,11 +137,12 @@ export default function ViolationTypes() {
       } else {
         setRefreshKey((k) => k + 1)
       }
-    } catch {
+    } catch (err) {
+      const serverMessage = err.response?.data?.errors?.status?.[0]
       toast({
         variant: 'error',
         title: 'Delete failed',
-        description: `Could not delete ${deleting.name}. Please try again.`,
+        description: serverMessage || `Could not delete ${deleting.name}. Please try again.`,
       })
     } finally {
       setDeleteBusy(false)

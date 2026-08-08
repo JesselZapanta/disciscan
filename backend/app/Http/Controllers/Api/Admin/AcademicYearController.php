@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreAcademicYearRequest;
 use App\Http\Requests\Admin\UpdateAcademicYearRequest;
 use App\Http\Resources\Admin\AcademicYearResource;
 use App\Models\AcademicYear;
+use App\Models\Student;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -68,6 +69,13 @@ class AcademicYearController extends Controller
             return response()->json([
                 'message' => 'The active academic year cannot be deleted.',
                 'errors' => ['status' => ['The active academic year cannot be deleted.']],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        if (Student::where('academic_year_id', $academicYear->id)->exists()) {
+            return response()->json([
+                'message' => 'This academic year has enrolled students and cannot be deleted.',
+                'errors' => ['status' => ['This academic year has enrolled students and cannot be deleted.']],
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 

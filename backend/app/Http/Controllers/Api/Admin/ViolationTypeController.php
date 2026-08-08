@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreViolationTypeRequest;
 use App\Http\Requests\Admin\UpdateViolationTypeRequest;
 use App\Http\Resources\Admin\ViolationTypeResource;
+use App\Models\StudentViolation;
 use App\Models\ViolationType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -53,6 +54,13 @@ class ViolationTypeController extends Controller
 
     public function destroy(Request $request, ViolationType $violationType): JsonResponse
     {
+        if (StudentViolation::whereJsonContains('violation_type_ids', $violationType->id)->exists()) {
+            return response()->json([
+                'message' => 'This violation type is used by existing violation records and cannot be deleted.',
+                'errors' => ['status' => ['This violation type is used by existing violation records and cannot be deleted.']],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $violationType->delete();
 
         return response()->json(['message' => 'Violation type deleted.']);

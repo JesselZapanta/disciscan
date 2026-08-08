@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Compliance;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -189,6 +190,19 @@ it('deletes a room', function () {
         ->assertJsonPath('message', 'Room deleted.');
 
     $this->assertDatabaseMissing('rooms', ['id' => $room->id]);
+});
+
+it('blocks deleting a room with compliance records', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $room = Room::factory()->create();
+
+    Compliance::factory()->create(['room_id' => $room->id]);
+
+    $this->withHeaders(apiAs($admin))->deleteJson("/api/admin/rooms/{$room->id}")
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $this->assertDatabaseHas('rooms', ['id' => $room->id]);
 });
 
 it('forbids non-admin users from managing rooms', function () {

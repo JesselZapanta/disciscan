@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\StudentTimeLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -228,6 +229,19 @@ it('deletes a user', function () {
         ->assertJsonPath('message', 'User deleted.');
 
     $this->assertDatabaseMissing('users', ['id' => $target->id]);
+});
+
+it('blocks deleting a user with recorded time logs', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $target = User::factory()->create(['role' => 'guard']);
+
+    StudentTimeLog::factory()->create(['performed_by' => $target->id]);
+
+    $this->withHeaders(apiAs($admin))->deleteJson("/api/admin/users/{$target->id}")
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $this->assertDatabaseHas('users', ['id' => $target->id]);
 });
 
 it('rejects deleting the own account', function () {

@@ -187,6 +187,13 @@ class StudentController extends Controller
 
     public function destroy(Request $request, Student $student): JsonResponse
     {
+        if ($student->timeLogs()->exists() || $student->violations()->exists()) {
+            return response()->json([
+                'message' => 'This student has time logs or violation records and cannot be deleted.',
+                'errors' => ['status' => ['This student has time logs or violation records and cannot be deleted.']],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $student->delete();
 
         return response()->json(['message' => 'Student deleted.']);

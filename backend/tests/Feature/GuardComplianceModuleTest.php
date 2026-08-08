@@ -81,7 +81,7 @@ it('requires at least one issue when a guard creates a record', function () {
         ->assertJsonValidationErrors(['issues']);
 });
 
-it('lets a guard update and delete a compliance', function () {
+it('lets a guard update a compliance', function () {
     $guard = User::factory()->create(['role' => 'guard', 'name' => 'Nica Guard']);
     $room = Room::factory()->create();
     $compliance = Compliance::factory()->create(['room_id' => $room->id]);
@@ -103,6 +103,26 @@ it('lets a guard update and delete a compliance', function () {
 
     expect(count($response->json('data.photo_evidences')))->toBe(1);
     $this->assertDatabaseMissing('photo_evidences', ['id' => $photo->id]);
+});
+
+it('blocks a guard from deleting a compliance with photo evidences', function () {
+    $guard = User::factory()->create(['role' => 'guard']);
+    $room = Room::factory()->create();
+    $compliance = Compliance::factory()->create(['room_id' => $room->id]);
+    $compliance->photoEvidences()->create(['photo_path' => 'compliances/evidence.jpg']);
+
+    $this->withHeaders(apiAs($guard))
+        ->deleteJson("/api/guard/compliances/{$compliance->id}")
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $this->assertDatabaseHas('compliances', ['id' => $compliance->id]);
+});
+
+it('lets a guard delete a compliance without photo evidences', function () {
+    $guard = User::factory()->create(['role' => 'guard']);
+    $room = Room::factory()->create();
+    $compliance = Compliance::factory()->create(['room_id' => $room->id]);
 
     $this->withHeaders(apiAs($guard))
         ->deleteJson("/api/guard/compliances/{$compliance->id}")
