@@ -16,9 +16,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const { response, config } = error
+
+    if (response && response.status === 401 && !config.url?.includes('/login')) {
       localStorage.removeItem('token')
+      sessionStorage.setItem('auth_expired', '1')
+      window.dispatchEvent(new CustomEvent('auth:expired'))
     }
+
     return Promise.reject(error)
   }
 )
