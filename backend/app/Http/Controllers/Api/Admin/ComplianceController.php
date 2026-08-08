@@ -98,8 +98,11 @@ class ComplianceController extends Controller
 
     public function destroy(Request $request, Compliance $compliance): JsonResponse
     {
-        foreach ($compliance->photoEvidences as $photo) {
-            Storage::disk('public')->delete($photo->photo_path);
+        if ($compliance->photoEvidences()->exists()) {
+            return response()->json([
+                'message' => 'This compliance record has photo evidences and cannot be deleted.',
+                'errors' => ['status' => ['This compliance record has photo evidences and cannot be deleted.']],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $compliance->delete();

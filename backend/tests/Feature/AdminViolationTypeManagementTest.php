@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\StudentViolation;
 use App\Models\User;
 use App\Models\ViolationType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -136,6 +137,19 @@ it('deletes a violation type', function () {
         ->assertJsonPath('message', 'Violation type deleted.');
 
     $this->assertDatabaseMissing('violation_types', ['id' => $type->id]);
+});
+
+it('blocks deleting a violation type used by violation records', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $type = ViolationType::factory()->create();
+
+    StudentViolation::factory()->create(['violation_type_ids' => [$type->id]]);
+
+    $this->withHeaders(apiAs($admin))->deleteJson("/api/admin/violation-types/{$type->id}")
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $this->assertDatabaseHas('violation_types', ['id' => $type->id]);
 });
 
 it('forbids non-admin users from managing violation types', function () {

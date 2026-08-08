@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreRoomRequest;
 use App\Http\Requests\Admin\UpdateRoomRequest;
 use App\Http\Resources\Admin\RoomResource;
+use App\Models\Compliance;
 use App\Models\Room;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -59,6 +60,13 @@ class RoomController extends Controller
 
     public function destroy(Request $request, Room $room): JsonResponse
     {
+        if (Compliance::where('room_id', $room->id)->exists()) {
+            return response()->json([
+                'message' => 'This room has compliance records and cannot be deleted.',
+                'errors' => ['status' => ['This room has compliance records and cannot be deleted.']],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $room->delete();
 
         return response()->json(['message' => 'Room deleted.']);

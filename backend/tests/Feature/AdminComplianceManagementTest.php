@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Compliance;
-use App\Models\PhotoEvidence;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -232,18 +231,30 @@ it('rejects an invalid status value', function () {
         ->assertJsonValidationErrors(['status']);
 });
 
-it('deletes a compliance and its photo evidences', function () {
+it('blocks deleting a compliance that has photo evidences', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $room = Room::factory()->create();
     $compliance = Compliance::factory()->create(['room_id' => $room->id]);
     $compliance->photoEvidences()->create(['photo_path' => 'compliances/evidence.jpg']);
 
     $this->withHeaders(apiAs($admin))->deleteJson("/api/admin/compliances/{$compliance->id}")
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $this->assertDatabaseHas('compliances', ['id' => $compliance->id]);
+    $this->assertDatabaseHas('photo_evidences', ['compliance_id' => $compliance->id]);
+});
+
+it('deletes a compliance without photo evidences', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $room = Room::factory()->create();
+    $compliance = Compliance::factory()->create(['room_id' => $room->id]);
+
+    $this->withHeaders(apiAs($admin))->deleteJson("/api/admin/compliances/{$compliance->id}")
         ->assertOk()
         ->assertJsonPath('message', 'Compliance record deleted.');
 
     $this->assertDatabaseMissing('compliances', ['id' => $compliance->id]);
-    expect(PhotoEvidence::where('compliance_id', $compliance->id)->count())->toBe(0);
 });
 
 it('shows a single compliance with its photo evidences', function () {

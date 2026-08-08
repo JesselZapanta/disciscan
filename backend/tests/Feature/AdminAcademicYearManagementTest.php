@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AcademicYear;
+use App\Models\Student;
 use App\Models\User;
 use Database\Seeders\AcademicYearSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -154,6 +155,19 @@ it('deletes an academic year', function () {
         ->assertJsonPath('message', 'Academic year deleted.');
 
     $this->assertDatabaseMissing('academic_years', ['id' => $academicYear->id]);
+});
+
+it('blocks deleting an academic year with enrolled students', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $academicYear = AcademicYear::factory()->create(['status' => 'inactive']);
+
+    Student::factory()->create(['academic_year_id' => $academicYear->id]);
+
+    $this->withHeaders(apiAs($admin))->deleteJson("/api/admin/academic-years/{$academicYear->id}")
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $this->assertDatabaseHas('academic_years', ['id' => $academicYear->id]);
 });
 
 it('deactivates the previously active academic year when creating a new active one', function () {

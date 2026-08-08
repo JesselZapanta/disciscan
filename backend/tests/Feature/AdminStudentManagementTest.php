@@ -2,6 +2,7 @@
 
 use App\Models\AcademicYear;
 use App\Models\Student;
+use App\Models\StudentTimeLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -228,6 +229,19 @@ it('deletes a student', function () {
         ->assertJsonPath('message', 'Student deleted.');
 
     $this->assertDatabaseMissing('students', ['id' => $student->id]);
+});
+
+it('blocks deleting a student with time logs', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $student = Student::factory()->create();
+
+    StudentTimeLog::factory()->create(['student_id' => $student->id]);
+
+    $this->withHeaders(apiAs($admin))->deleteJson("/api/admin/students/{$student->id}")
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $this->assertDatabaseHas('students', ['id' => $student->id]);
 });
 
 it('forbids non-admin users from managing students', function () {
