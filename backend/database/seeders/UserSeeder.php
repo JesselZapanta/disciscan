@@ -98,7 +98,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'David Park',
                 'email' => 'david.park@example.com',
-                'role' => 'admin',
+                'role' => 'guard',
                 'password' => Hash::make('password'),
             ],
             [
@@ -134,7 +134,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Niño Mercado',
                 'email' => 'nino.mercado@example.com',
-                'role' => 'admin',
+                'role' => 'guard',
                 'password' => Hash::make('password'),
             ],
             [
