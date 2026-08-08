@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Camera, Save, Trash2 } from 'lucide-react'
+import { Camera, KeyRound, Save, ShieldCheck, Trash2, UserRound } from 'lucide-react'
 import {
   Dialog,
   DialogTrigger,
@@ -18,6 +18,30 @@ import { useToast } from '@/components/ui/toast'
 import * as userService from '../../../services/admin/users'
 import { compressImage } from '../../../utils/image'
 import { STORAGE_URL } from '../../../services/config'
+
+function Section({ icon, title, children }) {
+  return (
+    <section className="space-y-3">
+      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {icon}
+        {title}
+      </h3>
+      {children}
+    </section>
+  )
+}
+
+function Field({ label, htmlFor, optional, error, children }) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={htmlFor} className="text-xs font-medium text-foreground">
+        {label} {optional && <span className="font-normal text-muted-foreground">(optional)</span>}
+      </Label>
+      {children}
+      <p className="min-h-[1rem] text-xs text-destructive">{error ?? ''}</p>
+    </div>
+  )
+}
 
 function initialsOf(name) {
   return (name || '?')
@@ -135,131 +159,153 @@ export default function UserFormDialog({ trigger, user, onSaved }) {
       <DialogTrigger render={trigger} />
       <DialogPortal>
         <DialogBackdrop />
-        <DialogPopup>
-          <DialogTitle>{isEdit ? 'Edit user' : 'Add user'}</DialogTitle>
+        <DialogPopup className="w-full max-w-xl">
+          <DialogTitle className="flex items-center gap-2">
+            <ShieldCheck className="size-5 text-primary" />
+            {isEdit ? 'Edit user' : 'Add user'}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
               ? 'Update account details. Leave password blank to keep the current one.'
               : 'Create a new admin or guard account.'}
           </DialogDescription>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="size-14 rounded-full bg-border overflow-hidden flex items-center justify-center font-bold text-primary font-mono text-sm shrink-0">
-                {showPreview ? (
-                  <img src={showPreview} alt="Profile preview" className="w-full h-full object-cover" />
-                ) : (
-                  initialsOf(form.name || user?.name)
-                )}
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Camera className="h-3.5 w-3.5" />
-                    {profileFile ? 'Change photo' : isEdit && existingProfileUrl ? 'Change photo' : 'Upload photo'}
-                  </Button>
-                  {(profileFile || (isEdit && user?.profile && !removeProfile)) && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="gap-2 text-destructive hover:text-destructive"
-                      onClick={handleRemoveProfile}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Remove
-                    </Button>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-h-[65vh] overflow-y-auto pr-1">
+            <Section icon={<Camera className="size-3.5" />} title="Profile photo">
+              <div className="flex items-center gap-4">
+                <div className="size-14 rounded-full bg-border overflow-hidden flex items-center justify-center font-bold text-primary font-mono text-sm shrink-0">
+                  {showPreview ? (
+                    <img src={showPreview} alt="Profile preview" className="w-full h-full object-cover" />
+                  ) : (
+                    initialsOf(form.name || user?.name)
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">JPG, PNG or WEBP. Max 2MB.</p>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      {profileFile ? 'Change photo' : isEdit && existingProfileUrl ? 'Change photo' : 'Upload photo'}
+                    </Button>
+                    {(profileFile || (isEdit && user?.profile && !removeProfile)) && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-destructive hover:text-destructive"
+                        onClick={handleRemoveProfile}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">JPG, PNG or WEBP. Max 2MB.</p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </div>
-            <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.profile?.[0] ?? ''}</p>
+              <p className="min-h-[1rem] text-xs text-destructive">{errors.profile?.[0] ?? ''}</p>
+            </Section>
 
-            <div className="space-y-2">
-              <Label htmlFor="user-name">Full name</Label>
-              <Input
-                id="user-name"
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Juan Dela Cruz"
-                className="bg-secondary border-border"
-              />
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.name?.[0] ?? ''}</p>
-            </div>
+            <Section icon={<UserRound className="size-3.5" />} title="Account">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Field label="Full Name" htmlFor="user-name" error={errors.name?.[0]}>
+                    <Input
+                      id="user-name"
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="Juan Dela Cruz"
+                      required
+                      className="bg-secondary border-border"
+                    />
+                  </Field>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="user-email">Email</Label>
-              <Input
-                id="user-email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="juan@example.com"
-                className="bg-secondary border-border"
-              />
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.email?.[0] ?? ''}</p>
-            </div>
+                <div className="sm:col-span-2">
+                  <Field label="Email" htmlFor="user-email" error={errors.email?.[0]}>
+                    <Input
+                      id="user-email"
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="juan@example.com"
+                      required
+                      className="bg-secondary border-border"
+                    />
+                  </Field>
+                </div>
 
-            <div className="space-y-2">
-              <Label>Role</Label>
-              <Select value={form.role} onValueChange={(value) => setForm({ ...form, role: value })}>
-                <SelectTrigger className="w-full bg-secondary border-border text-xs font-mono text-muted-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">ADMIN</SelectItem>
-                  <SelectItem value="guard">GUARD</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.role?.[0] ?? ''}</p>
-            </div>
+                <div className="sm:col-span-2">
+                  <Field label="Role" htmlFor="user-role" error={errors.role?.[0]}>
+                    <Select value={form.role} onValueChange={(value) => setForm({ ...form, role: value })}>
+                      <SelectTrigger
+                        id="user-role"
+                        className="w-full bg-secondary border-border text-xs font-mono text-muted-foreground"
+                      >
+                        <SelectValue className="uppercase" />
+                      </SelectTrigger>
+                      <SelectContent alignItemWithTrigger={false} className="w-[var(--anchor-width)]">
+                        <SelectItem value="admin">ADMIN</SelectItem>
+                        <SelectItem value="guard">GUARD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+              </div>
+            </Section>
 
-            <div className="space-y-2">
-              <Label htmlFor="user-password">
-                Password {isEdit && <span className="text-muted-foreground font-normal">(optional)</span>}
-              </Label>
-              <Input
-                id="user-password"
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder={isEdit ? 'Leave blank to keep current' : 'Minimum 8 characters'}
-                autoComplete="new-password"
-                className="bg-secondary border-border"
-              />
-              <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.password?.[0] ?? ''}</p>
-            </div>
+            <Section icon={<KeyRound className="size-3.5" />} title="Security">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field
+                  label="Password"
+                  htmlFor="user-password"
+                  optional={isEdit}
+                  error={errors.password?.[0]}
+                >
+                  <Input
+                    id="user-password"
+                    type="password"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder={isEdit ? 'Leave blank to keep current' : 'Minimum 8 characters'}
+                    autoComplete="new-password"
+                    className="bg-secondary border-border"
+                  />
+                </Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="user-password-confirmation">Confirm password</Label>
-              <Input
-                id="user-password-confirmation"
-                type="password"
-                value={form.password_confirmation}
-                onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
-                placeholder="Repeat password"
-                autoComplete="new-password"
-                className="bg-secondary border-border"
-              />
-            </div>
+                <Field
+                  label="Confirm password"
+                  htmlFor="user-password-confirmation"
+                  error={errors.password_confirmation?.[0]}
+                >
+                  <Input
+                    id="user-password-confirmation"
+                    type="password"
+                    value={form.password_confirmation}
+                    onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
+                    placeholder="Repeat password"
+                    autoComplete="new-password"
+                    className="bg-secondary border-border"
+                  />
+                </Field>
+              </div>
+            </Section>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
+            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+              <DialogClose render={<Button type="button" variant="outline">Cancel</Button>} />
               <Button type="submit" disabled={saving} className="gap-2">
                 <Save className="h-4 w-4" />
                 {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create user'}

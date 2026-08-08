@@ -21,7 +21,6 @@ import Rooms from './pages/admin/rooms/Rooms.jsx'
 import Issues from './pages/admin/issues/Issues.jsx'
 import Compliance from './pages/admin/compliance/Compliance.jsx'
 import ComplianceReport from './pages/admin/compliance/ComplianceReport.jsx'
-import ComplianceFormPage from './pages/admin/compliance/ComplianceFormPage.jsx'
 import GuardComplianceReport from './pages/guard/compliance/ComplianceReport.jsx'
 import Visitors from './pages/admin/visitors/Visitors.jsx'
 import AcademicYears from './pages/admin/academic-years/AcademicYears.jsx'
@@ -132,14 +131,6 @@ export default function App() {
           <Route
             path="compliance"
             element={<Compliance />}
-          />
-          <Route
-            path="compliance/new"
-            element={<ComplianceFormPage />}
-          />
-          <Route
-            path="compliance/:id/edit"
-            element={<ComplianceFormPage />}
           />
           <Route
             path="visitors"

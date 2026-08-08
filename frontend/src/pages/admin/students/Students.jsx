@@ -217,14 +217,14 @@ export default function Students() {
           <Button
             variant="outline"
             onClick={() => navigate('/admin/students/import')}
-            className="text-xs font-mono font-bold px-4 py-2.5 rounded gap-2 text-foreground hover:border-primary hover:text-primary"
+            className="text-xs font-mono font-bold text-foreground hover:border-primary hover:text-primary"
           >
             <FileSpreadsheet className="h-4 w-4" />
             IMPORT
           </Button>
           <StudentFormDialog
             trigger={
-              <Button className="text-xs font-mono bg-primary text-primary-foreground font-bold px-4 py-2.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition gap-2">
+              <Button className="text-xs font-mono bg-primary text-primary-foreground font-bold hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition">
                 <Plus className="h-4 w-4" />
                 ADD STUDENT
               </Button>

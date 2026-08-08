@@ -15,7 +15,7 @@ class StoreComplianceRequest extends FormRequest
     {
         return [
             'room_id' => ['required', 'integer', 'exists:rooms,id'],
-            'issues' => ['nullable', 'string', 'max:1000'],
+            'issues' => ['required', 'string', 'max:1000'],
             'remarks' => ['nullable', 'string', 'max:2000'],
             'photo_evidences' => ['required', 'array', 'min:1'],
             'photo_evidences.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
@@ -29,6 +29,7 @@ class StoreComplianceRequest extends FormRequest
     {
         return [
             'room_id.exists' => 'The selected room is invalid.',
+            'issues.required' => 'Select at least one issue.',
             'photo_evidences.required' => 'At least one photo evidence is required.',
             'photo_evidences.min' => 'At least one photo evidence is required.',
             'photo_evidences.*.image' => 'Each photo evidence must be an image.',

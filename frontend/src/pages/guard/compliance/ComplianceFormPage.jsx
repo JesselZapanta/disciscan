@@ -1,16 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Camera, Check, ClipboardCheck, ImagePlus, Loader2, Save, Search, Trash2, X } from 'lucide-react'
+import { ArrowLeft, Camera, Check, ClipboardCheck, ImagePlus, Loader2, Save, Search, StickyNote, Trash2, X } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 import CameraCapture from '../../../components/CameraCapture.jsx'
+import CornerBracket from '../../../components/CornerBracket.jsx'
 import * as complianceService from '../../../services/guard/compliance'
 import * as roomService from '../../../services/guard/rooms'
 import * as issueService from '../../../services/guard/issues'
 import { cn } from '@/lib/utils'
+
+function Section({ icon, title, children }) {
+  return (
+    <section className="space-y-3">
+      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {icon}
+        {title}
+      </h3>
+      {children}
+    </section>
+  )
+}
+
+function Field({ label, htmlFor, optional, required, error, children }) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={htmlFor} className="text-xs font-medium text-foreground">
+        {label} {optional && <span className="font-normal text-muted-foreground">(optional)</span>}
+        {required && <span className="text-destructive"> *</span>}
+      </Label>
+      {children}
+      <p className="min-h-[1rem] text-xs text-destructive">{error ?? ''}</p>
+    </div>
+  )
+}
 
 export default function ComplianceFormPage() {
   const navigate = useNavigate()
@@ -34,6 +60,7 @@ export default function ComplianceFormPage() {
   const [newFiles, setNewFiles] = useState([])
   const [removedPhotoIds, setRemovedPhotoIds] = useState([])
   const [cameraOpen, setCameraOpen] = useState(false)
+  const fileInputRef = useRef(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -87,6 +114,11 @@ export default function ComplianceFormPage() {
         ? prev.issue_names.filter((n) => n !== name)
         : [...prev.issue_names, name],
     }))
+    setErrors((prev) => {
+      const next = { ...prev }
+      delete next.issues
+      return next
+    })
   }
 
   function handleFiles(e) {
@@ -117,8 +149,14 @@ export default function ComplianceFormPage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setSaving(true)
     setErrors({})
+
+    if (form.issue_names.length === 0) {
+      setErrors({ issues: ['Select at least one issue'] })
+      return
+    }
+
+    setSaving(true)
 
     const payload = new FormData()
     payload.append('room_id', form.room_id ?? '')
@@ -179,7 +217,7 @@ export default function ComplianceFormPage() {
         </div>
       </header>
 
-      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-8 max-w-3xl">
+      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-8 max-w-3xl mx-auto">
         {loadingRecord ? (
           <div className="border border-border bg-card rounded-lg py-16 flex items-center justify-center gap-2 text-muted-foreground font-mono text-xs">
             <Loader2 className="size-4 animate-spin" />
@@ -187,237 +225,226 @@ export default function ComplianceFormPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="border border-border bg-card rounded-lg p-4 sm:p-6 space-y-6">
-              <div className="flex items-center gap-2">
-                <ClipboardCheck className="size-4 text-primary" />
-                <h2 className="text-sm font-semibold text-foreground">Room check</h2>
-              </div>
+            <CornerBracket className="border border-border bg-card rounded-lg p-4 sm:p-6 space-y-6">
+              <Section icon={<ClipboardCheck className="size-3.5" />} title="Room check">
+                <Field label="Room" htmlFor="compliance-room" error={errors.room_id?.[0]}>
+                  <Popover open={roomOpen} onOpenChange={setRoomOpen}>
+                    <PopoverTrigger render={
+                      <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={roomOpen}
+                        className="w-full min-w-0 justify-between bg-secondary border-border text-xs font-mono text-muted-foreground"
+                      >
+                        {form.room_label ? (
+                          <span className="truncate text-foreground">{form.room_label}</span>
+                        ) : (
+                          <span className="text-muted-foreground">SEARCH AND SELECT A ROOM…</span>
+                        )}
+                        <Search className="size-3.5 opacity-50" />
+                      </Button>
+                    } />
+                    <PopoverContent align="start" className="w-[var(--popover-anchor-width)] p-0">
+                      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+                        <Search className="size-3.5 text-muted-foreground" />
+                        <input
+                          type="text"
+                          value={roomSearch}
+                          onChange={(e) => setRoomSearch(e.target.value)}
+                          placeholder="Search room, building, floor…"
+                          className="bg-transparent outline-none text-base sm:text-sm text-foreground placeholder:text-muted-foreground/60 flex-1"
+                        />
+                      </div>
+                      <div className="max-h-56 overflow-y-auto py-1">
+                        {filteredRooms.length === 0 ? (
+                          <p className="px-3 py-6 text-center text-xs text-muted-foreground">No rooms found</p>
+                        ) : (
+                          filteredRooms.map((room) => {
+                            const isSelected = form.room_id === room.id
+                            return (
+                              <button
+                                type="button"
+                                key={room.id}
+                                onClick={() => {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    room_id: room.id,
+                                    room_label: `${room.room_name} — ${room.building} (${room.floor})`,
+                                  }))
+                                  setRoomOpen(false)
+                                  setRoomSearch('')
+                                }}
+                                className={cn(
+                                  'w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-xs hover:bg-secondary',
+                                  isSelected && 'bg-secondary text-primary font-medium'
+                                )}
+                              >
+                                <span className="font-medium text-foreground">{room.room_name}</span>
+                                <span className="text-muted-foreground font-mono">
+                                  {room.building} · {room.floor}
+                                </span>
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </Field>
+              </Section>
 
-              {/* Room */}
-              <div className="space-y-2">
-                <Label>Room</Label>
-                <Popover open={roomOpen} onOpenChange={setRoomOpen}>
-                  <PopoverTrigger render={
+              <Section icon={<Check className="size-3.5" />} title="Findings">
+                <Field label="Issues" required error={errors.issues?.[0]}>
+                  <div className="border border-border rounded-lg bg-secondary/40 p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {issuesLoading && issues.length === 0 ? (
+                      <div className="col-span-full py-6 text-center text-xs font-mono text-muted-foreground">
+                        LOADING ISSUES…
+                      </div>
+                    ) : (
+                      sortedIssues.map((issue) => {
+                        const checked = form.issue_names.includes(issue.name)
+                        return (
+                          <label
+                            key={issue.id}
+                            className={cn(
+                              'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs cursor-pointer border transition',
+                              checked
+                                ? 'border-primary/50 bg-primary/10 text-foreground'
+                                : 'border-transparent hover:bg-secondary text-muted-foreground'
+                            )}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleIssue(issue.name)}
+                              className="size-4 accent-primary"
+                            />
+                            <span className="flex-1 min-w-0 truncate">{issue.name}</span>
+                            {checked && <Check className="size-3.5 text-primary shrink-0" />}
+                          </label>
+                        )
+                      })
+                    )}
+                  </div>
+                </Field>
+              </Section>
+
+              <Section icon={<StickyNote className="size-3.5" />} title="Remarks">
+                <Field label="Remarks" htmlFor="compliance-remarks" optional error={errors.remarks?.[0]}>
+                  <Textarea
+                    id="compliance-remarks"
+                    rows={3}
+                    value={form.remarks}
+                    onChange={(e) => setForm({ ...form, remarks: e.target.value })}
+                    placeholder="Additional remarks (optional)…"
+                    className="bg-secondary border-border text-base sm:text-sm"
+                  />
+                </Field>
+              </Section>
+
+              <Section icon={<ImagePlus className="size-3.5" />} title="Photo evidence">
+                <Field
+                  label="Photo evidence"
+                  error={errors['photo_evidences']?.[0] ?? errors['photo_evidences.0']?.[0] ?? ''}
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {keptPhotos.map((photo) => (
+                      <div key={photo.id} className="relative">
+                        <img
+                          src={photo.url}
+                          alt="Evidence"
+                          className="h-20 w-24 object-cover rounded-md border border-border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeExistingPhoto(photo)}
+                          className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
+                          aria-label="Remove photo"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {removedPhotoIds.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setRemovedPhotoIds([])}
+                        className="h-20 px-3 rounded-md border border-dashed border-border text-[10px] font-mono text-muted-foreground hover:text-primary hover:border-primary flex items-center justify-center gap-1"
+                      >
+                        <Trash2 className="size-3.5" />
+                        UNDO
+                        <br />
+                        REMOVED
+                      </button>
+                    )}
+                    {newFiles.map((file, index) => (
+                      <div key={`${file.name}-${index}`} className="relative">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="h-20 w-24 object-cover rounded-md border border-primary/50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeNewFile(index)}
+                          className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
+                          aria-label="Remove photo"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       type="button"
                       variant="outline"
-                      role="combobox"
-                      aria-expanded={roomOpen}
-                      className="w-full min-w-0 justify-between bg-secondary border-border h-9 px-3 py-1 text-sm text-foreground"
+                      className="gap-2 bg-secondary border-border"
+                      onClick={() => setCameraOpen(true)}
                     >
-                      {form.room_label ? (
-                        <span className="truncate">{form.room_label}</span>
-                      ) : (
-                        <span className="text-muted-foreground">Search and select a room…</span>
-                      )}
-                      <Search className="size-3.5 opacity-50" />
+                      <Camera className="size-4" />
+                      CAPTURE PHOTO
                     </Button>
-                  } />
-                  <PopoverContent align="start" className="w-[var(--popover-anchor-width)] p-0">
-                    <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-                      <Search className="size-3.5 text-muted-foreground" />
-                      <input
-                        type="text"
-                        value={roomSearch}
-                        onChange={(e) => setRoomSearch(e.target.value)}
-                        placeholder="Search room, building, floor…"
-                        className="bg-transparent outline-none text-base sm:text-sm text-foreground placeholder:text-muted-foreground/60 flex-1"
-                      />
-                    </div>
-                    <div className="max-h-56 overflow-y-auto py-1">
-                      {filteredRooms.length === 0 ? (
-                        <p className="px-3 py-6 text-center text-xs text-muted-foreground">No rooms found</p>
-                      ) : (
-                        filteredRooms.map((room) => {
-                          const isSelected = form.room_id === room.id
-                          return (
-                            <button
-                              type="button"
-                              key={room.id}
-                              onClick={() => {
-                                setForm((prev) => ({
-                                  ...prev,
-                                  room_id: room.id,
-                                  room_label: `${room.room_name} — ${room.building} (${room.floor})`,
-                                }))
-                                setRoomOpen(false)
-                                setRoomSearch('')
-                              }}
-                              className={cn(
-                                'w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-xs hover:bg-secondary',
-                                isSelected && 'bg-secondary text-primary font-medium'
-                              )}
-                            >
-                              <span className="font-medium text-foreground">{room.room_name}</span>
-                              <span className="text-muted-foreground font-mono">
-                                {room.building} · {room.floor}
-                              </span>
-                            </button>
-                          )
-                        })
-                      )}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <p className="min-h-[1rem] text-xs text-destructive">{errors.room_id?.[0] ?? ''}</p>
-              </div>
-
-              {/* Issues */}
-              <div className="space-y-2">
-                <Label>Issues</Label>
-                <div className="border border-border rounded-lg bg-secondary/40 p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {issuesLoading && issues.length === 0 ? (
-                    <div className="col-span-full py-6 text-center text-xs font-mono text-muted-foreground">
-                      LOADING ISSUES…
-                    </div>
-                  ) : (
-                    sortedIssues.map((issue) => {
-                      const checked = form.issue_names.includes(issue.name)
-                      return (
-                        <label
-                          key={issue.id}
-                          className={cn(
-                            'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs cursor-pointer border transition',
-                            checked
-                              ? 'border-primary/50 bg-primary/10 text-foreground'
-                              : 'border-transparent hover:bg-secondary text-muted-foreground'
-                          )}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleIssue(issue.name)}
-                            className="size-4 accent-primary"
-                          />
-                          <span className="flex-1 min-w-0 truncate">{issue.name}</span>
-                          {checked && <Check className="size-3.5 text-primary shrink-0" />}
-                        </label>
-                      )
-                    })
-                  )}
-                </div>
-                <p className="min-h-[1rem] text-xs text-destructive">{errors.issues?.[0] ?? ''}</p>
-              </div>
-
-              {/* Remarks */}
-              <div className="space-y-2">
-                <Label htmlFor="compliance-remarks">Remarks</Label>
-                <Textarea
-                  id="compliance-remarks"
-                  rows={3}
-                  value={form.remarks}
-                  onChange={(e) => setForm({ ...form, remarks: e.target.value })}
-                  placeholder="Additional remarks (optional)…"
-                  className="bg-secondary border-border text-base sm:text-sm"
-                />
-                <p className="min-h-[1rem] text-xs text-destructive">{errors.remarks?.[0] ?? ''}</p>
-              </div>
-
-              {/* Photo evidence */}
-              <div className="space-y-3">
-                <Label>
-                  Photo evidence{' '}
-                  {isEdit ? (
-                    <span className="text-muted-foreground font-normal">(at least one required)</span>
-                  ) : (
-                    <span className="text-destructive font-normal">(required)</span>
-                  )}
-                </Label>
-
-                <div className="flex flex-wrap gap-2">
-                  {keptPhotos.map((photo) => (
-                    <div key={photo.id} className="relative">
-                      <img
-                        src={photo.url}
-                        alt="Evidence"
-                        className="h-20 w-24 object-cover rounded-md border border-border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeExistingPhoto(photo)}
-                        className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
-                        aria-label="Remove photo"
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {removedPhotoIds.length > 0 && (
-                    <button
+                    <Button
                       type="button"
-                      onClick={() => setRemovedPhotoIds([])}
-                      className="h-20 px-3 rounded-md border border-dashed border-border text-[10px] font-mono text-muted-foreground hover:text-primary hover:border-primary flex items-center justify-center gap-1"
+                      variant="outline"
+                      className="gap-2 bg-secondary border-border"
+                      onClick={() => fileInputRef.current?.click()}
                     >
-                      <Trash2 className="size-3.5" />
-                      UNDO
-                      <br />
-                      REMOVED
-                    </button>
-                  )}
-                  {newFiles.map((file, index) => (
-                    <div key={`${file.name}-${index}`} className="relative">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        className="h-20 w-24 object-cover rounded-md border border-primary/50"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeNewFile(index)}
-                        className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
-                        aria-label="Remove photo"
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full sm:w-auto justify-center gap-2 bg-secondary border-border"
-                    onClick={() => setCameraOpen(true)}
-                  >
-                    <Camera className="size-4" />
-                    CAPTURE PHOTO
-                  </Button>
-                  <label className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-md border border-input bg-input/20 px-3 py-2 text-sm font-medium transition-colors hover:bg-input/40 cursor-pointer">
-                    <ImagePlus className="size-4" />
-                    UPLOAD PHOTO
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      multiple
-                      className="hidden"
-                      onChange={handleFiles}
-                    />
-                  </label>
-                  <p className="text-[11px] font-mono text-muted-foreground sm:ml-1">
-                    {newFiles.length + keptPhotos.length} PHOTO{newFiles.length + keptPhotos.length === 1 ? '' : 'S'}
+                      <ImagePlus className="size-4" />
+                      UPLOAD PHOTO
+                    </Button>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    onChange={handleFiles}
+                  />
+                  <p className="mt-2 text-[11px] font-mono text-muted-foreground">
+                    {newFiles.length + keptPhotos.length} PHOTO{newFiles.length + keptPhotos.length === 1 ? '' : 'S'} — JPG, PNG or WEBP
                   </p>
-                </div>
 
-                {cameraOpen && (
-                  <CameraCapture onCapture={handleCapture} onClose={() => setCameraOpen(false)} />
-                )}
+                  {cameraOpen && (
+                    <CameraCapture onCapture={handleCapture} onClose={() => setCameraOpen(false)} />
+                  )}
+                </Field>
+              </Section>
 
-                <p className="min-h-[1rem] text-xs text-destructive">
-                  {errors['photo_evidences']?.[0] ?? errors['photo_evidences.0']?.[0] ?? ''}
-                </p>
+              <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+                <Button type="button" variant="outline" onClick={() => navigate('/guard/compliance')}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={saving} className="gap-2">
+                  <Save className="h-4 w-4" />
+                  {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create record'}
+                </Button>
               </div>
-            </div>
-
-            <div className="sticky bottom-0 z-10 flex flex-col-reverse gap-2 rounded-lg border border-border bg-card/95 p-3 shadow-lg backdrop-blur-sm sm:static sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-              <Button type="button" variant="outline" onClick={() => navigate('/guard/compliance')} className="w-full sm:w-auto">
-                Cancel
-              </Button>
-              <Button type="submit" disabled={saving} className="w-full sm:w-auto gap-2">
-                <Save className="h-4 w-4" />
-                {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create record'}
-              </Button>
-            </div>
+            </CornerBracket>
           </form>
         )}
       </div>

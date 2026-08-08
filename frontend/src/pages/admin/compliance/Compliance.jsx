@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Plus, Trash2, ChevronDown, ChevronUp, FileText, CircleCheck } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, FileText, CircleCheck } from 'lucide-react'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import ComplianceStatusDialog from './ComplianceStatusDialog.jsx'
 import {
@@ -132,12 +132,12 @@ export default function Compliance() {
     setPage(1)
   }
 
-  function handleSaved(label, isEdit) {
+  function handleSaved(label) {
     setRefreshKey((k) => k + 1)
     toast({
       variant: 'success',
-      title: isEdit ? 'Compliance record updated' : 'Compliance record created',
-      description: `${label || 'Record'} was ${isEdit ? 'updated' : 'created'} successfully.`,
+      title: 'Compliance record updated',
+      description: `${label || 'Record'} was updated successfully.`,
     })
   }
 
@@ -196,13 +196,6 @@ export default function Compliance() {
             <h1 className="text-2xl font-bold mt-1 text-foreground">Compliance</h1>
           </div>
         </div>
-        <Button
-          onClick={() => navigate('/admin/compliance/new')}
-          className="text-xs font-mono bg-primary text-primary-foreground font-bold px-4 py-2.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          ADD RECORD
-        </Button>
       </header>
 
       <div className="px-6 lg:px-10 py-8">
@@ -345,15 +338,6 @@ export default function Compliance() {
                             </Button>
                           }
                         />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => navigate(`/admin/compliance/${record.id}/edit`)}
-                          className="size-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary"
-                          aria-label="Edit record"
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
                         <Button
                           type="button"
                           variant="ghost"

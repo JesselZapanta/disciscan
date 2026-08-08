@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, KeyRound } from 'lucide-react'
+import { ArrowLeft, KeyRound, Loader2, Send } from 'lucide-react'
 import Logo from '../../components/Logo.jsx'
 import CornerBracket from '../../components/CornerBracket.jsx'
 import ScannerVisual from '../../components/ScannerVisual.jsx'
@@ -108,7 +108,12 @@ export default function ForgotPassword() {
                 disabled={submitting}
                 className="w-full h-auto bg-primary text-primary-foreground font-bold text-sm py-3.5 rounded hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition disabled:opacity-60"
               >
-                {submitting ? 'SENDING…' : 'SEND RESET LINK →'}
+                {submitting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 mr-2" />
+                )}
+                {submitting ? 'SENDING…' : 'SEND RESET LINK'}
               </Button>
 
               <Link

@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, BarChart3, ShieldCheck, Users, UserCheck, ListChecks, DoorOpen, TriangleAlert, CalendarDays, GraduationCap, History, FileWarning } from 'lucide-react'
+import { LayoutDashboard, BarChart3, ShieldCheck, Users, UserCheck, ListChecks, DoorOpen, TriangleAlert, CalendarDays, GraduationCap, History, FileWarning, Settings, ChevronDown } from 'lucide-react'
 import Logo from '../components/Logo.jsx'
 import UserAvatar from '../components/UserAvatar.jsx'
 import SignOutButton from '../components/SignOutButton.jsx'
@@ -7,24 +8,34 @@ import MobileBottomNav from '../components/MobileBottomNav.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { cn } from '@/lib/utils'
 
-const navItems = [
-  { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+const settingsItems = [
   { label: 'User Accounts', path: '/admin/users', icon: Users },
+  { label: 'Academic Year', path: '/admin/academic-years', icon: CalendarDays },
   { label: 'Violation Types', path: '/admin/violation-types', icon: ListChecks },
-  { label: 'Visitor Logs', path: '/admin/visitors', icon: UserCheck },
   { label: 'Rooms', path: '/admin/rooms', icon: DoorOpen },
   { label: 'Issues', path: '/admin/issues', icon: TriangleAlert },
-  { label: 'Compliance', path: '/admin/compliance', icon: ShieldCheck },
-  { label: 'Academic Year', path: '/admin/academic-years', icon: CalendarDays },
-  { label: 'Students', path: '/admin/students', icon: GraduationCap },
-  { label: 'Student Logs', path: '/admin/student-logs', icon: History },
+]
+
+const navItems = [
+  { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'Student Violations', path: '/admin/student-violations', icon: FileWarning },
+  { label: 'Student Logs', path: '/admin/student-logs', icon: History },
+  { label: 'Visitor Logs', path: '/admin/visitors', icon: UserCheck },
+  { label: 'Students', path: '/admin/students', icon: GraduationCap },
+  { label: 'Compliance', path: '/admin/compliance', icon: ShieldCheck },
+  ...settingsItems,
   { label: 'Reports', path: '/admin/reports', icon: BarChart3 },
 ]
 
 export default function AdminLayout() {
   const location = useLocation()
   const { user } = useAuth()
+  const settingsPaths = settingsItems.map((item) => item.path)
+  const settingsActive = settingsPaths.includes(location.pathname)
+  const [settingsOpen, setSettingsOpen] = useState(settingsActive)
+  const mainItems = navItems.filter((item) => !settingsPaths.includes(item.path))
+  const topItems = mainItems.filter((item) => item.path !== '/admin/reports')
+  const reportsItem = mainItems.find((item) => item.path === '/admin/reports')
 
   return (
     <div className="h-dvh bg-background flex overflow-hidden print:block print:h-auto print:overflow-visible">
@@ -40,7 +51,7 @@ export default function AdminLayout() {
         </div>
 
         <nav className="flex-1 px-3 py-5 space-y-1 text-sm overflow-y-auto overflow-x-hidden">
-          {navItems.map((item) => {
+          {topItems.map((item) => {
             const isActive = location.pathname === item.path
 
             return (
@@ -59,6 +70,69 @@ export default function AdminLayout() {
               </Link>
             )
           })}
+
+          {/* Settings group */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen((v) => !v)}
+              aria-expanded={settingsOpen}
+              className={cn(
+                'flex w-full items-center gap-3 px-3 py-2.5 rounded transition cursor-pointer',
+                settingsActive
+                  ? 'text-primary font-medium'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+              )}
+            >
+              <Settings className="h-4 w-4 shrink-0" />
+              Settings
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 ml-auto shrink-0 transition-transform',
+                  settingsOpen && 'rotate-180'
+                )}
+              />
+            </button>
+
+            {settingsOpen && (
+              <div className="ml-4 mt-1 space-y-1 border-l border-border pl-2">
+                {settingsItems.map((item) => {
+                  const isActive = location.pathname === item.path
+
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2 rounded transition',
+                        isActive
+                          ? 'bg-secondary text-primary font-medium border border-border'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                      )}
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {reportsItem && (
+            <Link
+              to={reportsItem.path}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded transition',
+                location.pathname === reportsItem.path
+                  ? 'bg-secondary text-primary font-medium border border-border'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+              )}
+            >
+              <reportsItem.icon className="h-4 w-4 shrink-0" />
+              {reportsItem.label}
+            </Link>
+          )}
         </nav>
 
         <div className="px-3 py-5 border-t border-border space-y-2">
@@ -102,6 +176,7 @@ export default function AdminLayout() {
       <div className="print:hidden">
         <MobileBottomNav
           items={navItems}
+          visibleCount={4}
           renderFooter={(close) => (
             <>
               <Link

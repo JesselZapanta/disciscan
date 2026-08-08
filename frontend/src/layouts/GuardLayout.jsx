@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { BarChart3, LayoutDashboard, QrCode, FileWarning, UserPlus, ClipboardCheck, GraduationCap } from 'lucide-react'
+import { BarChart3, LayoutDashboard, QrCode, FileWarning, UserPlus, ClipboardCheck, GraduationCap, History } from 'lucide-react'
 import Logo from '../components/Logo.jsx'
 import UserAvatar from '../components/UserAvatar.jsx'
 import SignOutButton from '../components/SignOutButton.jsx'
@@ -9,12 +9,12 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { label: 'Dashboard', path: '/guard/dashboard', icon: LayoutDashboard },
-  { label: 'Visitor Logs', path: '/guard/visitor', icon: QrCode },
-  { label: 'Visitor Registration', path: '/guard/visitor/register', icon: UserPlus },
-  { label: 'Visitor Scanner', path: '/guard/visitor/scan', icon: QrCode },
   { label: 'Student Scanner', path: '/guard/student/scan', icon: GraduationCap },
+  { label: 'Visitor Scanner', path: '/guard/visitor/scan', icon: QrCode },
   { label: 'Violation Scanner', path: '/guard/violation/scan', icon: FileWarning },
+  { label: 'Visitor Registration', path: '/guard/visitor/register', icon: UserPlus },
   { label: 'Compliance', path: '/guard/compliance', icon: ClipboardCheck },
+  { label: 'Visitor Logs', path: '/guard/visitor', icon: History },
   { label: 'Reports', path: '/guard/reports', icon: BarChart3 },
 ]
 
@@ -97,6 +97,7 @@ export default function GuardLayout() {
 
       <MobileBottomNav
         items={navItems}
+        visibleCount={4}
         renderFooter={(close) => (
           <>
             <Link

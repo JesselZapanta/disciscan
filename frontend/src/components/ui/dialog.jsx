@@ -26,15 +26,29 @@ function DialogBackdrop({ className, ...props }) {
   );
 }
 
-function DialogPopup({ className, ...props }) {
+function DialogPopup({ className, wrapperClassName, children, ...props }) {
   return (
     <DialogPrimitive.Popup
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-2xl",
-        className
+        "fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6",
+        wrapperClassName
       )}
       {...props}
-    />
+    >
+      <div
+        className={cn(
+          "relative w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border border-border bg-card p-6 text-card-foreground shadow-2xl",
+          className
+        )}
+      >
+        {/* orange corner brackets — same design as dashboard KPI cards */}
+        <span className="pointer-events-none absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-primary/30" />
+        <span className="pointer-events-none absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-primary/30" />
+        <span className="pointer-events-none absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-primary/30" />
+        <span className="pointer-events-none absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-primary/30" />
+        {children}
+      </div>
+    </DialogPrimitive.Popup>
   );
 }
 

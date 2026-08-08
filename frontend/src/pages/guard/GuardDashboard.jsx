@@ -128,7 +128,7 @@ export default function GuardDashboard() {
             variant="outline"
             onClick={load}
             disabled={loading}
-            className="h-auto! px-4 py-2 text-xs font-mono rounded hover:border-primary hover:text-primary gap-2"
+            className="h-auto! px-4 py-2.5 text-xs font-mono rounded hover:border-primary hover:text-primary gap-2"
           >
             <RotateCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             REFRESH

@@ -1,5 +1,6 @@
 let successAudio = null
 let failureAudio = null
+let primed = false
 
 function soundSrc(name) {
   return `${import.meta.env.BASE_URL}sounds/${name}`
@@ -21,13 +22,28 @@ function audioFor(kind) {
   return failureAudio
 }
 
+function primeAudio() {
+  if (primed) return
+  primed = true
+  const probe = new Audio(soundSrc('success.wav'))
+  probe.volume = 0
+  probe.play().then(() => probe.pause()).catch(() => {})
+}
+
+if (typeof window !== 'undefined') {
+  const gestures = ['pointerdown', 'touchstart', 'keydown']
+  const onFirstGesture = () => {
+    primeAudio()
+    gestures.forEach((event) => window.removeEventListener(event, onFirstGesture))
+  }
+  gestures.forEach((event) => window.addEventListener(event, onFirstGesture, { passive: true }))
+}
+
 export function unlockAudio() {
   if (typeof window === 'undefined' || !window.Audio) return
   audioFor('success')
   audioFor('failure')
-  const probe = new Audio(soundSrc('success.wav'))
-  probe.volume = 0
-  probe.play().then(() => probe.pause()).catch(() => {})
+  primeAudio()
 }
 
 export function playSuccess() {
