@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentScanResource;
 use App\Models\AcademicYear;
 use App\Models\Student;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,11 @@ class StudentScanController extends Controller
         }
 
         $student = Student::query()
-            ->with(['academicYear', 'timeLogs.performedBy:'.implode(',', self::OPERATOR_SELECT)])
+            ->with([
+                'academicYear',
+                'timeLogs' => fn ($query) => $query->whereDate('time', Carbon::today()),
+                'timeLogs.performedBy:'.implode(',', self::OPERATOR_SELECT),
+            ])
             ->where('id_number', $idNumber)
             ->where('academic_year_id', $activeYear->id)
             ->first();
@@ -53,7 +58,7 @@ class StudentScanController extends Controller
             );
         }
 
-        if ($this->latestType($student) === 'in') {
+        if ($this->latestTypeToday($student) === 'in') {
             return response()->json(['message' => 'Student is already checked in.'], Response::HTTP_CONFLICT);
         }
 
@@ -63,7 +68,11 @@ class StudentScanController extends Controller
             'performed_by' => $request->user()->id,
             'academic_year_id' => $student->academic_year_id,
         ]);
-        $student->load(['academicYear', 'timeLogs.performedBy:'.implode(',', self::OPERATOR_SELECT)]);
+        $student->load([
+            'academicYear',
+            'timeLogs' => fn ($query) => $query->whereDate('time', Carbon::today()),
+            'timeLogs.performedBy:'.implode(',', self::OPERATOR_SELECT),
+        ]);
 
         return new StudentScanResource($student);
     }
@@ -77,7 +86,7 @@ class StudentScanController extends Controller
             );
         }
 
-        if ($this->latestType($student) !== 'in') {
+        if ($this->latestTypeToday($student) !== 'in') {
             return response()->json(['message' => 'Student must be checked in before checking out.'], Response::HTTP_CONFLICT);
         }
 
@@ -87,7 +96,11 @@ class StudentScanController extends Controller
             'performed_by' => $request->user()->id,
             'academic_year_id' => $student->academic_year_id,
         ]);
-        $student->load(['academicYear', 'timeLogs.performedBy:'.implode(',', self::OPERATOR_SELECT)]);
+        $student->load([
+            'academicYear',
+            'timeLogs' => fn ($query) => $query->whereDate('time', Carbon::today()),
+            'timeLogs.performedBy:'.implode(',', self::OPERATOR_SELECT),
+        ]);
 
         return new StudentScanResource($student);
     }
@@ -104,8 +117,12 @@ class StudentScanController extends Controller
         return AcademicYear::query()->where('status', 'active')->first();
     }
 
-    private function latestType(Student $student): ?string
+    private function latestTypeToday(Student $student): ?string
     {
-        return $student->timeLogs()->orderByDesc('time')->orderByDesc('id')->value('type');
+        return $student->timeLogs()
+            ->whereDate('time', Carbon::today())
+            ->orderByDesc('time')
+            ->orderByDesc('id')
+            ->value('type');
     }
 }
