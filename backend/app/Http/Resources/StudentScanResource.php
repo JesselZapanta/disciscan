@@ -27,9 +27,7 @@ class StudentScanResource extends JsonResource
                 'description' => $this->academicYear->description,
             ]),
             'status' => $this->timeLogs?->first()?->type,
-            'time_logs' => $this->whenLoaded('timeLogs', fn (): array => $this->timeLogs->filter(
-                fn (StudentTimeLog $log): bool => $log->time?->isToday()
-            )->map(
+            'time_logs' => $this->whenLoaded('timeLogs', fn (): array => $this->timeLogs->map(
                 fn (StudentTimeLog $log): array => [
                     'id' => $log->id,
                     'type' => $log->type,

@@ -284,21 +284,17 @@ export default function ViolationScanner() {
         <div className="grid gap-6 lg:grid-cols-5 items-start">
           {/* scanner panel */}
           <div className="lg:col-span-2">
-            <CornerBracket className="rounded-xl overflow-hidden">
-              <div className="relative w-full h-80 lg:h-[420px] overflow-hidden rounded-xl bg-black">
+            <CornerBracket className="rounded-xl">
+              <div className="relative w-full h-80 lg:h-[420px]">
                 {mode === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center p-1.5 bg-background">
+                  <div className="absolute inset-0 flex items-center justify-center p-1.5">
                     <ScannerVisual size="fill" className="w-full h-full" />
                   </div>
                 )}
 
                 {mode === 'scanning' && (
                   <>
-                    <div
-                      id="qr-reader"
-                      className="absolute inset-0 w-full h-full overflow-hidden rounded-xl bg-black [&_video]:w-full [&_video]:h-full [&_video]:object-cover [&_video]:object-center"
-                    />
-                    <div aria-hidden="true" className="scanner-scanline" />
+                    <div id="qr-reader" className="absolute inset-0 w-full h-full overflow-hidden bg-black" />
                     <Button
                       type="button"
                       variant="ghost"

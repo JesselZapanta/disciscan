@@ -91,27 +91,27 @@ export default function ViolationForm({
         </div>
       )}
 
-      <div className="flex flex-col gap-3 pt-1 sm:flex-row">
+      <div className="flex gap-3 pt-1">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={saving}
-          className="flex-1 h-auto! min-h-11 min-w-0 whitespace-normal text-center leading-tight break-words border-border rounded py-3.5 text-sm font-semibold hover:border-muted-foreground"
+          className="flex-1 h-auto! border-border rounded py-3.5 text-sm font-semibold hover:border-muted-foreground"
         >
-          <span className="min-w-0 break-words">Cancel</span>
+          Cancel
         </Button>
         <Button
           type="submit"
           disabled={saving}
-          className="flex-1 h-auto! min-h-11 min-w-0 whitespace-normal text-center leading-tight break-words bg-primary text-primary-foreground rounded py-3.5 text-sm font-bold hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition"
+          className="flex-1 h-auto! bg-primary text-primary-foreground rounded py-3.5 text-sm font-bold hover:bg-primary/80 hover:text-text dark:hover:bg-white dark:hover:text-text transition"
         >
           {saving ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
             <Send className="size-4" />
           )}
-          <span className="min-w-0 break-words">{saving ? 'Saving…' : 'Save Record'}</span>
+          {saving ? 'Saving…' : 'Save Record'}
         </Button>
       </div>
     </form>

@@ -330,21 +330,17 @@ export default function StudentScanner() {
               </button>
             </div>
 
-            <CornerBracket className="rounded-xl overflow-hidden">
-              <div className="relative w-full h-80 lg:h-[420px] overflow-hidden rounded-xl bg-black">
+            <CornerBracket className="rounded-xl">
+              <div className="relative w-full h-80 lg:h-[420px]">
                 {mode === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center p-1.5 bg-background">
+                  <div className="absolute inset-0 flex items-center justify-center p-1.5">
                     <ScannerVisual size="fill" className="w-full h-full" />
                   </div>
                 )}
 
                 {mode === 'scanning' && (
                   <>
-                    <div
-                      id="qr-reader"
-                      className="absolute inset-0 w-full h-full overflow-hidden rounded-xl bg-black [&_video]:w-full [&_video]:h-full [&_video]:object-cover [&_video]:object-center"
-                    />
-                    <div aria-hidden="true" className="scanner-scanline" />
+                    <div id="qr-reader" className="absolute inset-0 w-full h-full overflow-hidden bg-black" />
                     <Button
                       type="button"
                       variant="ghost"
@@ -536,29 +532,29 @@ export default function StudentScanner() {
 
                 {/* actions */}
                 {mode === 'result' && (
-                  <div className="mt-5 flex flex-col gap-3 sm:grid sm:grid-cols-2">
+                  <div className="mt-5 grid grid-cols-2 gap-3">
                     <Button
                       type="button"
                       onClick={handleRetrySave}
                       disabled={actionLoading}
                       className={cn(
-                        'w-full h-auto! min-h-11 min-w-0 whitespace-normal text-center leading-tight break-words font-mono font-bold text-xs py-3 rounded-xl',
+                        'w-full h-auto! font-mono font-bold text-xs py-3 rounded-xl',
                         isCheckOut
                           ? 'bg-info text-white hover:bg-info/85'
                           : 'bg-status-cleared text-white hover:bg-status-cleared/85'
                       )}
                     >
                       {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isCheckOut ? <LogOut className="size-4" /> : <LogIn className="size-4" />}
-                      <span className="min-w-0 break-words">{isCheckOut ? 'RETRY CHECK OUT' : 'RETRY CHECK IN'}</span>
+                      {isCheckOut ? 'RETRY CHECK OUT' : 'RETRY CHECK IN'}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={resetScan}
-                      className="w-full h-auto! min-h-11 min-w-0 whitespace-normal text-center leading-tight break-words font-mono font-bold text-xs py-3 rounded-xl"
+                      className="w-full h-auto! font-mono font-bold text-xs py-3 rounded-xl"
                     >
                       <RefreshCcw className="size-4" />
-                      <span className="min-w-0 break-words">NEW SCAN</span>
+                      NEW SCAN
                     </Button>
                   </div>
                 )}

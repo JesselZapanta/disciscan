@@ -108,18 +108,14 @@ function ReportView({ record }) {
           This report was generated through DisciScan and reflects the room compliance check recorded by the
           school personnel above. Printed on {formatDate(new Date())}.
         </div>
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
-          <div className="text-center">
+        <div className="mt-10 flex justify-between gap-8">
+          <div className="text-center flex-1">
             <div className="border-t border-neutral-900 pt-1 text-xs font-semibold">{record.recorded_by || 'Recorder'}</div>
             <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">Recorded By</div>
           </div>
-          <div className="text-center">
+          <div className="text-center flex-1">
             <div className="border-t border-neutral-900 pt-1 text-xs font-semibold">{record.noted_by || 'Security Office'}</div>
             <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">Noted By</div>
-          </div>
-          <div className="text-center">
-            <div className="border-t border-neutral-900 pt-1 text-xs font-semibold">&nbsp;</div>
-            <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">Conforme</div>
           </div>
         </div>
       </div>

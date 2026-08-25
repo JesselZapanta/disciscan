@@ -396,21 +396,17 @@ export default function VisitorScanner() {
               </button>
             </div>
 
-            <CornerBracket className="rounded-xl overflow-hidden">
-              <div className="relative w-full h-80 lg:h-[420px] overflow-hidden rounded-xl bg-black">
+            <CornerBracket className="rounded-xl">
+              <div className="relative w-full h-80 lg:h-[420px]">
                 {mode === 'idle' && (
-                  <div className="absolute inset-0 flex items-center justify-center p-1.5 bg-background">
+                  <div className="absolute inset-0 flex items-center justify-center p-1.5">
                     <ScannerVisual size="fill" className="w-full h-full" />
                   </div>
                 )}
 
                 {mode === 'scanning' && (
                   <>
-                    <div
-                      id="qr-reader"
-                      className="absolute inset-0 w-full h-full overflow-hidden rounded-xl bg-black [&_video]:w-full [&_video]:h-full [&_video]:object-cover [&_video]:object-center"
-                    />
-                    <div aria-hidden="true" className="scanner-scanline" />
+                    <div id="qr-reader" className="absolute inset-0 w-full h-full overflow-hidden bg-black" />
                     <Button
                       type="button"
                       variant="ghost"
@@ -591,16 +587,16 @@ export default function VisitorScanner() {
                 <VisitorDetailsForm form={form} formErrors={formErrors} onFieldChange={update} />
 
                 {/* actions */}
-                <div className="mt-5 flex flex-col gap-3 sm:grid sm:grid-cols-2">
+                <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {scanType === 'in' && visitor.status !== 'checked_in' && (
                     <Button
                       type="button"
                       onClick={handleCheckIn}
                       disabled={actionLoading || !isVisitDateToday}
-                      className="w-full h-auto! min-h-11 min-w-0 whitespace-normal text-center leading-tight break-words bg-status-cleared text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-status-cleared/85"
+                      className="w-full h-auto! bg-status-cleared text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-status-cleared/85"
                     >
                       {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isDirty() ? <Save className="size-4" /> : <LogIn className="size-4" />}
-                      <span className="min-w-0 break-words">{isDirty() ? 'SAVE CHANGES & CHECK IN' : 'NO CHANGES — CHECK IN'}</span>
+                      {isDirty() ? 'SAVE CHANGES & CHECK IN' : 'NO CHANGES — CHECK IN'}
                     </Button>
                   )}
                   {scanType === 'out' && visitor.status === 'checked_in' && (
@@ -608,20 +604,20 @@ export default function VisitorScanner() {
                       type="button"
                       onClick={handleCheckOut}
                       disabled={actionLoading || !isVisitDateToday}
-                      className="w-full h-auto! min-h-11 min-w-0 whitespace-normal text-center leading-tight break-words bg-info text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-info/85"
+                      className="w-full h-auto! bg-info text-white font-mono font-bold text-xs py-3 rounded-xl hover:bg-info/85"
                     >
                       {actionLoading ? <Loader2 className="size-4 animate-spin" /> : isDirty() ? <Save className="size-4" /> : <LogOut className="size-4" />}
-                      <span className="min-w-0 break-words">{isDirty() ? 'SAVE CHANGES & CHECK OUT' : 'NO CHANGES — CHECK OUT'}</span>
+                      {isDirty() ? 'SAVE CHANGES & CHECK OUT' : 'NO CHANGES — CHECK OUT'}
                     </Button>
                   )}
                   <Button
                     type="button"
                     variant="outline"
                     onClick={resetScan}
-                    className="w-full h-auto! min-h-11 min-w-0 whitespace-normal text-center leading-tight break-words font-mono font-bold text-xs py-3 rounded-xl"
+                    className="w-full h-auto! font-mono font-bold text-xs py-3 rounded-xl"
                   >
                     <RefreshCcw className="size-4" />
-                    <span className="min-w-0 break-words">NEW SCAN</span>
+                    NEW SCAN
                   </Button>
                 </div>
 
