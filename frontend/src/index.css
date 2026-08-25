@@ -282,3 +282,81 @@ body {
 .scan-ring {
   animation: ring-pulse 2.2s ease-out infinite;
 }
+
+/*
+  html5-qrcode live feed — force full-cover inside scanner container.
+  Applies to all 3 scanners (student / visitor / violation).
+  IMPORTANT: never size #qr-reader children — the qrbox (#qr-shaded-region)
+  contains 8 small white (#ffffff) corner-bracket divs that must keep their
+  own inline 5x40px sizes; stretching them fills the preview with white.
+*/
+#qr-reader {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#qr-reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+#qr-reader canvas {
+  display: none !important;
+}
+
+/*
+  Keep html5-qrcode qrbox scanner frame (white-bordered 220x220 box).
+  Previously removed per user request, then restored — this is the
+  visual scanner viewfinder. Full-cover video rules above remain.
+*/
+
+/*
+  Live-feed scanning animation — orange sweep line over the camera feed.
+  Percentage-based top keyframes so it works at any container height.
+*/
+@keyframes scanner-sweep {
+  0% {
+    top: 12%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 85%;
+    opacity: 0;
+  }
+}
+
+.scanner-scanline {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, #f5a623, transparent);
+  box-shadow: 0 0 14px 3px rgba(245, 166, 35, 0.55);
+  animation: scanner-sweep 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Softly pulse the white corner brackets of the qrbox frame */
+@keyframes bracket-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+#qr-shaded-region > div {
+  animation: bracket-blink 1.6s ease-in-out infinite;
+}
