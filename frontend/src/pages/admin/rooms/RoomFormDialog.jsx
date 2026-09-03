@@ -17,9 +17,9 @@ import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 import * as roomService from '../../../services/admin/rooms'
 
-const buildings = ['Main Building', 'Asenso Building', 'Annex Building']
-const floors = ['1st', '2nd', '3rd']
-const types = ['Lecture Room', 'Laboratory', 'Office']
+const buildings = ['Main Building', 'Annex Building', 'Senior High School Building', 'Asenso Building']
+const floors = ['1st', '2nd', '3rd', 'Ground Floor', 'Second Floor', 'Third Floor']
+const types = ['Lecture Room', 'Laboratory', 'Office', 'Facility']
 const statuses = ['Active', 'Inactive']
 
 function Section({ icon, title, children }) {

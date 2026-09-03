@@ -17,11 +17,12 @@ class RoomFactory extends Factory
      */
     public function definition(): array
     {
-        $building = fake()->randomElement(['Main Building', 'Asenso Building', 'Annex Building']);
-        $floor = fake()->randomElement(['1st', '2nd', '3rd']);
+        $building = fake()->randomElement(['Main Building', 'Annex Building', 'Senior High School Building', 'Asenso Building']);
+        $floor = fake()->randomElement(['1st', '2nd', '3rd', 'Ground Floor', 'Second Floor', 'Third Floor']);
         $prefix = match ($building) {
             'Asenso Building' => 'AS',
-            'Annex Building' => 'AN',
+            'Annex Building' => 'AB',
+            'Senior High School Building' => 'SHS',
             default => 'MB',
         };
         $floorNumber = match ($floor) {
@@ -35,7 +36,7 @@ class RoomFactory extends Factory
             'room_name' => "{$prefix}-{$floorNumber}{$floorNumber}{$suffix}",
             'building' => $building,
             'floor' => $floor,
-            'type' => fake()->randomElement(['Lecture Room', 'Laboratory', 'Office']),
+            'type' => fake()->randomElement(['Lecture Room', 'Laboratory', 'Office', 'Facility']),
             'status' => fake()->randomElement(['Active', 'Active', 'Active', 'Inactive']),
         ];
     }

@@ -7,11 +7,11 @@ use Illuminate\Validation\Rule;
 
 class StoreRoomRequest extends FormRequest
 {
-    public const BUILDINGS = ['Main Building', 'Asenso Building', 'Annex Building'];
+    public const BUILDINGS = ['Main Building', 'Annex Building', 'Senior High School Building', 'Asenso Building'];
 
-    public const FLOORS = ['1st', '2nd', '3rd'];
+    public const FLOORS = ['1st', '2nd', '3rd', 'Ground Floor', 'Second Floor', 'Third Floor'];
 
-    public const TYPES = ['Lecture Room', 'Laboratory', 'Office'];
+    public const TYPES = ['Lecture Room', 'Laboratory', 'Office', 'Facility'];
 
     public const STATUSES = ['Active', 'Inactive'];
 
