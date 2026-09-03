@@ -15,14 +15,14 @@ class StudentTimeLogSeeder extends Seeder
 
     private const STUDENT_ID_FROM = 1;
 
-    private const STUDENT_ID_TO = 5000;
+    private const STUDENT_ID_TO = 1000;
 
     private const DATE_FROM = '2026-05-01';
 
     private const DATE_TO = '2026-08-31';
 
     /**
-     * Seed time logs for all students with IDs 1 to 5000.
+     * Seed time logs for all students with IDs 1 to 1000.
      *
      * Every student gets 1 to 3 in/out pairs on each weekday from May to July 2026.
      * Roughly one in four students also has logs on some Saturdays and Sundays.
