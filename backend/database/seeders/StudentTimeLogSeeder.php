@@ -19,7 +19,7 @@ class StudentTimeLogSeeder extends Seeder
 
     private const DATE_FROM = '2026-05-01';
 
-    private const DATE_TO = '2026-07-31';
+    private const DATE_TO = '2026-08-31';
 
     /**
      * Seed time logs for all students with IDs 1 to 5000.
