@@ -18,7 +18,7 @@ class StudentViolationSeeder extends Seeder
 
     private const DATE_FROM = '2026-05-01';
 
-    private const DATE_TO = '2026-07-31';
+    private const DATE_TO = '2026-08-31';
 
     /**
      * Seed 1 violation per day, 2 to 3 days per month, for 500 random students from May to July 2026.
