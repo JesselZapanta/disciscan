@@ -254,7 +254,7 @@ export default function VisitorScanner() {
   function buildPayload() {
     return {
       fullname: form.fullname,
-      contact: form.contact.replace(/[\s()-]/g, ''),
+      contact: form.contact.replace(/\D/g, '').slice(0, 11),
       purpose: form.purpose,
       purpose_other: form.purpose === 'Other' ? form.purpose_other : null,
       person_office_to_visit: form.person_office_to_visit,

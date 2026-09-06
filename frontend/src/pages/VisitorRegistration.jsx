@@ -68,12 +68,19 @@ export default function VisitorRegistration() {
     e.preventDefault()
     setError('')
     setErrors({})
+
+    const contactDigits = form.contact.replace(/\D/g, '').slice(0, 11)
+    if (!/^09\d{9}$/.test(contactDigits)) {
+      setErrors({ contact: ['Contact number must be 11 digits starting with 09.'] })
+      return
+    }
+
     setSubmitting(true)
 
     try {
       const record = await registerVisitor({
         fullname: form.fullname,
-        contact: form.contact.replace(/[\s()-]/g, ''),
+        contact: contactDigits,
         purpose: form.purpose,
         purpose_other: form.purpose === 'Other' ? form.purpose_other : null,
         person_office_to_visit: form.person_office_to_visit,
@@ -149,13 +156,18 @@ export default function VisitorRegistration() {
                   Contact number
                 </label>
                 <Input
-                  type="text"
-                  placeholder="09XX XXX XXXX"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="09123456789"
                   value={form.contact}
-                  onChange={(e) => update('contact')(e.target.value)}
+                  maxLength={11}
+                  onChange={(e) => update('contact')(e.target.value.replace(/\D/g, '').slice(0, 11))}
                   className="h-auto bg-secondary border-border rounded px-4 py-3 placeholder:text-muted-foreground/60"
                 />
-                <p className="min-h-[1rem] text-xs text-destructive mt-1">{errors.contact?.[0] ?? ''}</p>
+                <div className="flex justify-between min-h-[1rem] mt-1">
+                  <p className="text-xs text-destructive">{errors.contact?.[0] ?? ''}</p>
+                  <span className="text-[10px] font-mono text-muted-foreground">{form.contact.replace(/\D/g, '').length}/11</span>
+                </div>
               </div>
             </div>
             <div className="space-y-2">

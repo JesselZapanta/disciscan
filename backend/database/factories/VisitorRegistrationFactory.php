@@ -19,7 +19,7 @@ class VisitorRegistrationFactory extends Factory
     {
         return [
             'fullname' => fake()->name(),
-            'contact' => fake()->phoneNumber(),
+            'contact' => fake()->regexify('09[0-9]{9}'),
             'purpose' => fake()->randomElement([
                 'Meeting with faculty/staff',
                 'Parent / guardian visit',

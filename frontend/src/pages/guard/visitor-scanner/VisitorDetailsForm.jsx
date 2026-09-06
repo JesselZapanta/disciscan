@@ -53,12 +53,18 @@ export default function VisitorDetailsForm({ form, formErrors, onFieldChange }) 
           Contact number
         </label>
         <Input
-          type="text"
+          type="tel"
+          inputMode="numeric"
           value={form.contact}
-          onChange={(e) => onFieldChange('contact')(e.target.value)}
+          maxLength={11}
+          placeholder="09123456789"
+          onChange={(e) => onFieldChange('contact')(e.target.value.replace(/\D/g, '').slice(0, 11))}
           className="h-9 text-sm bg-secondary border-border rounded-md"
         />
-        <p className="min-h-[0.9rem] text-[11px] text-status-flagged">{formErrors.contact?.[0] ?? ''}</p>
+        <div className="flex justify-between min-h-[0.9rem] mt-1">
+          <p className="text-[11px] text-status-flagged">{formErrors.contact?.[0] ?? ''}</p>
+          <span className="text-[10px] font-mono text-muted-foreground">{String(form.contact).replace(/\D/g, '').length}/11</span>
+        </div>
       </div>
       <div className="space-y-1.5">
         <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
