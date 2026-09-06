@@ -83,7 +83,7 @@ it('rejects an invalid contact number', function () {
         ->assertJsonValidationErrors(['contact']);
 });
 
-it('accepts +639 prefixed contact numbers', function () {
+it('rejects +639 prefixed contact numbers (must be 11 digits starting with 09)', function () {
     $this->postJson('/api/visitor-registrations', [
         'fullname' => 'Juan Dela Cruz',
         'contact' => '+639171234567',
@@ -92,8 +92,8 @@ it('accepts +639 prefixed contact numbers', function () {
         'id_type' => 'National ID',
         'id_number' => '1234',
         'visit_date' => '2026-08-05',
-    ])->assertStatus(201)
-        ->assertJsonPath('data.contact', '+639171234567');
+    ])->assertStatus(422)
+        ->assertJsonValidationErrors(['contact']);
 });
 
 it('rejects an unknown purpose of visit', function () {

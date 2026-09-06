@@ -48,7 +48,7 @@ class StoreVisitorRegistrationRequest extends FormRequest
             'contact' => [
                 'required',
                 'string',
-                'regex:/^(?:\+639|09)\d{9}$/',
+                'regex:/^09\d{9}$/',
                 Rule::unique('visitor_registrations', 'contact')->where(function ($query) {
                     return $query->whereDate('visit_date', $this->visit_date);
                 }),
@@ -69,7 +69,7 @@ class StoreVisitorRegistrationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'contact.regex' => 'Enter a valid PH mobile number (e.g. 0917 123 4567).',
+            'contact.regex' => 'Contact number must be 11 digits starting with 09 (e.g. 09171234567).',
             'contact.unique' => 'This contact number is already registered for the selected visit date.',
             'purpose.in' => 'Select a valid purpose of visit.',
             'purpose_other.required_if' => 'Please specify your purpose.',

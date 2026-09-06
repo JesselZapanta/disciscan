@@ -242,9 +242,6 @@ export default function Users() {
                     Role
                   </TableHead>
                   <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
-                    Status
-                  </TableHead>
-                  <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide">
                     Created
                   </TableHead>
                   <TableHead className="px-5 py-3.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wide" />
@@ -253,13 +250,13 @@ export default function Users() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="py-12 text-center text-muted-foreground font-mono text-xs">
+                    <TableCell colSpan={6} className="py-12 text-center text-muted-foreground font-mono text-xs">
                       LOADING USERS…
                     </TableCell>
                   </TableRow>
                 ) : users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
                       <div className="text-2xl mb-2 text-info">◉</div>
                       {error || 'No users found'}
                     </TableCell>
@@ -281,20 +278,6 @@ export default function Users() {
                       </TableCell>
                       <TableCell className="px-5 py-3.5">
                         <RoleChip role={user.role} />
-                      </TableCell>
-                      <TableCell className="px-5 py-3.5">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-xs ${
-                            user.email_verified_at ? 'text-status-cleared' : 'text-status-pending'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-1.5 w-1.5 rounded-full ${
-                              user.email_verified_at ? 'bg-status-cleared' : 'bg-status-pending'
-                            }`}
-                          />
-                          {user.email_verified_at ? 'VERIFIED' : 'UNVERIFIED'}
-                        </span>
                       </TableCell>
                       <TableCell className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
                         {formatDate(user.created_at)}

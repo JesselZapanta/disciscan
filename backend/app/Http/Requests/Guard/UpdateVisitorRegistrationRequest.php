@@ -17,7 +17,7 @@ class UpdateVisitorRegistrationRequest extends StoreVisitorRegistrationRequest
         $rules['contact'] = [
             'required',
             'string',
-            'regex:/^(?:\+639|09)\d{9}$/',
+            'regex:/^09\d{9}$/',
             Rule::unique('visitor_registrations', 'contact')
                 ->where(function ($query) {
                     return $query->whereDate('visit_date', $this->visit_date);
