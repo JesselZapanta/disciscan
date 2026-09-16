@@ -338,7 +338,7 @@ export default function ComplianceFormPage() {
                     value={form.remarks}
                     onChange={(e) => setForm({ ...form, remarks: e.target.value })}
                     placeholder="Additional remarks (optional)…"
-                    className="bg-secondary border-border text-base sm:text-sm"
+                    className="bg-secondary text-foreground placeholder:text-muted-foreground border-border text-base sm:text-sm"
                   />
                 </Field>
               </Section>
