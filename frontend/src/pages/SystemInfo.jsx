@@ -121,19 +121,6 @@ export default function SystemInfo() {
             ))}
           </div>
         </CornerBracket>
-
-        <div className="mt-6 border border-border bg-card rounded-lg px-6 py-5 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-xs font-mono text-muted-foreground">
-            A THESIS FOR THE DEGREE OF{' '}
-            <span className="text-foreground font-semibold">BACHELOR OF SCIENCE IN COMPUTER SCIENCE</span>
-          </span>
-          <span className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground font-semibold">
-            <span>Kenley C. Broñola</span>
-            <span>Kimberly Magsayo</span>
-            <span>Romel G. Ondona</span>
-            <span>Yasser Rowaon</span>
-          </span>
-        </div>
       </div>
     </div>
   )
